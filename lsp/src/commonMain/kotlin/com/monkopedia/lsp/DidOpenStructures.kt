@@ -1,0 +1,41 @@
+// Auto-generated from LSP metaModel.json — do not edit manually.
+// Generator: lsp-codegen
+
+@file:Suppress(
+    "unused",
+    "PropertyName",
+    "ktlint:standard:class-naming",
+    "ktlint:standard:filename",
+    "ktlint:standard:max-line-length"
+)
+
+package com.monkopedia.lsp
+
+/**
+ * The params sent in an open notebook document notification.
+ *
+ * @since 3.17.0
+ */
+@kotlinx.serialization.Serializable
+data class DidOpenNotebookDocumentParams(
+    /**
+     * The notebook document that got opened.
+     */
+    val notebookDocument: NotebookDocument,
+    /**
+     * The text documents that represent the content
+     * of a notebook cell.
+     */
+    val cellTextDocuments: List<TextDocumentItem>
+)
+
+/**
+ * The parameters sent in an open text document notification
+ */
+@kotlinx.serialization.Serializable
+data class DidOpenTextDocumentParams(
+    /**
+     * The document that was opened.
+     */
+    val textDocument: TextDocumentItem
+)

@@ -1,0 +1,27 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'if [[ \"$CLAUDE_FILE_PATH\" == *.kt || \"$CLAUDE_FILE_PATH\" == *.kts ]]; then cd /home/jmonk/git/lsp-types-kotlin && JAVA_HOME=/usr/lib/jvm/java-21-openjdk ./gradlew ktlintFormat --quiet 2>/dev/null; fi'",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '\\n--- Post-task reminder: Run tests + lint before considering work complete ---\\nJAVA_HOME=/usr/lib/jvm/java-21-openjdk ./gradlew allTests ktlintCheck'"
+          }
+        ]
+      }
+    ]
+  }
+}
