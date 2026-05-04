@@ -16,12 +16,12 @@ package com.monkopedia.lsp
  * LSP Language Client interface — methods the server calls on the client.
  */
 @com.monkopedia.ksrpc.annotation.KsService
-interface LanguageClient {
+interface LanguageClient : com.monkopedia.ksrpc.RpcService {
 
     /**
      * The `workspace/workspaceFolders` is sent from the server to the client to fetch the open workspace folders.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/workspace/workspaceFolders")
+    @com.monkopedia.ksrpc.annotation.KsMethod("workspace/workspaceFolders")
     suspend fun workspaceWorkspaceFolders(): List<WorkspaceFolder>
 
     /**
@@ -33,27 +33,27 @@ interface LanguageClient {
      * result of `workspace/configuration` requests) the server should register for an empty configuration
      * change event and empty the cache if such an event is received.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/workspace/configuration")
+    @com.monkopedia.ksrpc.annotation.KsMethod("workspace/configuration")
     suspend fun workspaceConfiguration(params: ConfigurationParams): List<LSPAny>
 
     /**
      * @since 3.18.0
      * @proposed
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/workspace/foldingRange/refresh")
+    @com.monkopedia.ksrpc.annotation.KsMethod("workspace/foldingRange/refresh")
     suspend fun workspaceFoldingRangeRefresh(): Nothing?
 
     /**
      * The `window/workDoneProgress/create` request is sent from the server to the client to initiate progress
      * reporting from the server.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/window/workDoneProgress/create")
+    @com.monkopedia.ksrpc.annotation.KsMethod("window/workDoneProgress/create")
     suspend fun windowWorkDoneProgressCreate(params: WorkDoneProgressCreateParams): Nothing?
 
     /**
      * @since 3.16.0
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/workspace/semanticTokens/refresh")
+    @com.monkopedia.ksrpc.annotation.KsMethod("workspace/semanticTokens/refresh")
     suspend fun workspaceSemanticTokensRefresh(): Nothing?
 
     /**
@@ -64,19 +64,19 @@ interface LanguageClient {
      *
      * @since 3.16.0
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/window/showDocument")
+    @com.monkopedia.ksrpc.annotation.KsMethod("window/showDocument")
     suspend fun windowShowDocument(params: ShowDocumentParams): ShowDocumentResult
 
     /**
      * @since 3.17.0
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/workspace/inlineValue/refresh")
+    @com.monkopedia.ksrpc.annotation.KsMethod("workspace/inlineValue/refresh")
     suspend fun workspaceInlineValueRefresh(): Nothing?
 
     /**
      * @since 3.17.0
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/workspace/inlayHint/refresh")
+    @com.monkopedia.ksrpc.annotation.KsMethod("workspace/inlayHint/refresh")
     suspend fun workspaceInlayHintRefresh(): Nothing?
 
     /**
@@ -84,28 +84,28 @@ interface LanguageClient {
      *
      * @since 3.17.0
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/workspace/diagnostic/refresh")
+    @com.monkopedia.ksrpc.annotation.KsMethod("workspace/diagnostic/refresh")
     suspend fun workspaceDiagnosticRefresh(): Nothing?
 
     /**
      * The `client/registerCapability` request is sent from the server to the client to register a new capability
      * handler on the client side.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/client/registerCapability")
+    @com.monkopedia.ksrpc.annotation.KsMethod("client/registerCapability")
     suspend fun clientRegisterCapability(params: RegistrationParams): Nothing?
 
     /**
      * The `client/unregisterCapability` request is sent from the server to the client to unregister a previously registered capability
      * handler on the client side.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/client/unregisterCapability")
+    @com.monkopedia.ksrpc.annotation.KsMethod("client/unregisterCapability")
     suspend fun clientUnregisterCapability(params: UnregistrationParams): Nothing?
 
     /**
      * The show message request is sent from the server to the client to show a message
      * and a set of options actions to the user.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/window/showMessageRequest")
+    @com.monkopedia.ksrpc.annotation.KsMethod("window/showMessageRequest")
     suspend fun windowShowMessageRequest(params: ShowMessageRequestParams): MessageActionItem
 
     /**
@@ -113,20 +113,20 @@ interface LanguageClient {
      *
      * @since 3.16.0
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/workspace/codeLens/refresh")
+    @com.monkopedia.ksrpc.annotation.KsMethod("workspace/codeLens/refresh")
     suspend fun workspaceCodeLensRefresh(): Nothing?
 
     /**
      * A request sent from the server to the client to modified certain resources.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/workspace/applyEdit")
+    @com.monkopedia.ksrpc.annotation.KsMethod("workspace/applyEdit")
     suspend fun workspaceApplyEdit(params: ApplyWorkspaceEditParams): ApplyWorkspaceEditResult
 
     /**
      * The show message notification is sent from a server to a client to ask
      * the client to display a particular message in the user interface.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/window/showMessage")
+    @com.monkopedia.ksrpc.annotation.KsMethod("window/showMessage")
     @com.monkopedia.ksrpc.annotation.KsNotification
     suspend fun windowShowMessage(params: ShowMessageParams)
 
@@ -134,7 +134,7 @@ interface LanguageClient {
      * The log message notification is sent from the server to the client to ask
      * the client to log a particular message.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/window/logMessage")
+    @com.monkopedia.ksrpc.annotation.KsMethod("window/logMessage")
     @com.monkopedia.ksrpc.annotation.KsNotification
     suspend fun windowLogMessage(params: LogMessageParams)
 
@@ -142,7 +142,7 @@ interface LanguageClient {
      * The telemetry event notification is sent from the server to the client to ask
      * the client to log telemetry data.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/telemetry/event")
+    @com.monkopedia.ksrpc.annotation.KsMethod("telemetry/event")
     @com.monkopedia.ksrpc.annotation.KsNotification
     suspend fun telemetryEvent(params: LSPAny)
 
@@ -150,19 +150,15 @@ interface LanguageClient {
      * Diagnostics notification are sent from the server to the client to signal
      * results of validation runs.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/publishDiagnostics")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/publishDiagnostics")
     @com.monkopedia.ksrpc.annotation.KsNotification
     suspend fun textDocumentPublishDiagnostics(params: PublishDiagnosticsParams)
 
-    @com.monkopedia.ksrpc.annotation.KsMethod("/$/logTrace")
+    @com.monkopedia.ksrpc.annotation.KsMethod("$/logTrace")
     @com.monkopedia.ksrpc.annotation.KsNotification
     suspend fun logTrace(params: LogTraceParams)
 
-    @com.monkopedia.ksrpc.annotation.KsMethod("/$/cancelRequest")
-    @com.monkopedia.ksrpc.annotation.KsNotification
-    suspend fun cancelRequest(params: CancelParams)
-
-    @com.monkopedia.ksrpc.annotation.KsMethod("/$/progress")
+    @com.monkopedia.ksrpc.annotation.KsMethod("$/progress")
     @com.monkopedia.ksrpc.annotation.KsNotification
     suspend fun progress(params: ProgressParams)
 }

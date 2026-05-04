@@ -16,14 +16,14 @@ package com.monkopedia.lsp
  * LSP Language Server interface — methods the client calls on the server.
  */
 @com.monkopedia.ksrpc.annotation.KsService
-interface LanguageServer {
+interface LanguageServer : com.monkopedia.ksrpc.RpcService {
 
     /**
      * A request to resolve the implementation locations of a symbol at a given text
      * document position. The request's parameter is of type {@link TextDocumentPositionParams}
      * the response is of type {@link Definition} or a Thenable that resolves to such.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/implementation")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/implementation")
     suspend fun textDocumentImplementation(
         params: ImplementationParams
     ): kotlinx.serialization.json.JsonElement
@@ -33,7 +33,7 @@ interface LanguageServer {
      * document position. The request's parameter is of type {@link TextDocumentPositionParams}
      * the response is of type {@link Definition} or a Thenable that resolves to such.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/typeDefinition")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/typeDefinition")
     suspend fun textDocumentTypeDefinition(
         params: TypeDefinitionParams
     ): kotlinx.serialization.json.JsonElement
@@ -44,7 +44,7 @@ interface LanguageServer {
      * response is of type {@link ColorInformation ColorInformation[]} or a Thenable
      * that resolves to such.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/documentColor")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/documentColor")
     suspend fun textDocumentDocumentColor(params: DocumentColorParams): List<ColorInformation>
 
     /**
@@ -53,7 +53,7 @@ interface LanguageServer {
      * response is of type {@link ColorInformation ColorInformation[]} or a Thenable
      * that resolves to such.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/colorPresentation")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/colorPresentation")
     suspend fun textDocumentColorPresentation(
         params: ColorPresentationParams
     ): List<ColorPresentation>
@@ -64,7 +64,7 @@ interface LanguageServer {
      * response is of type {@link FoldingRangeList} or a Thenable
      * that resolves to such.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/foldingRange")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/foldingRange")
     suspend fun textDocumentFoldingRange(params: FoldingRangeParams): List<FoldingRange>
 
     /**
@@ -73,7 +73,7 @@ interface LanguageServer {
      * the response is of type {@link Declaration} or a typed array of {@link DeclarationLink}
      * or a Thenable that resolves to such.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/declaration")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/declaration")
     suspend fun textDocumentDeclaration(
         params: DeclarationParams
     ): kotlinx.serialization.json.JsonElement
@@ -84,7 +84,7 @@ interface LanguageServer {
      * response is of type {@link SelectionRange SelectionRange[]} or a Thenable
      * that resolves to such.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/selectionRange")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/selectionRange")
     suspend fun textDocumentSelectionRange(params: SelectionRangeParams): List<SelectionRange>
 
     /**
@@ -93,7 +93,7 @@ interface LanguageServer {
      *
      * @since 3.16.0
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/prepareCallHierarchy")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/prepareCallHierarchy")
     suspend fun textDocumentPrepareCallHierarchy(
         params: CallHierarchyPrepareParams
     ): List<CallHierarchyItem>
@@ -103,7 +103,7 @@ interface LanguageServer {
      *
      * @since 3.16.0
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/callHierarchy/incomingCalls")
+    @com.monkopedia.ksrpc.annotation.KsMethod("callHierarchy/incomingCalls")
     suspend fun callHierarchyIncomingCalls(
         params: CallHierarchyIncomingCallsParams
     ): List<CallHierarchyIncomingCall>
@@ -113,7 +113,7 @@ interface LanguageServer {
      *
      * @since 3.16.0
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/callHierarchy/outgoingCalls")
+    @com.monkopedia.ksrpc.annotation.KsMethod("callHierarchy/outgoingCalls")
     suspend fun callHierarchyOutgoingCalls(
         params: CallHierarchyOutgoingCallsParams
     ): List<CallHierarchyOutgoingCall>
@@ -121,13 +121,13 @@ interface LanguageServer {
     /**
      * @since 3.16.0
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/semanticTokens/full")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/semanticTokens/full")
     suspend fun textDocumentSemanticTokensFull(params: SemanticTokensParams): SemanticTokens
 
     /**
      * @since 3.16.0
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/semanticTokens/full/delta")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/semanticTokens/full/delta")
     suspend fun textDocumentSemanticTokensFullDelta(
         params: SemanticTokensDeltaParams
     ): TextDocumentSemanticTokensFullDeltaResult
@@ -135,7 +135,7 @@ interface LanguageServer {
     /**
      * @since 3.16.0
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/semanticTokens/range")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/semanticTokens/range")
     suspend fun textDocumentSemanticTokensRange(params: SemanticTokensRangeParams): SemanticTokens
 
     /**
@@ -143,7 +143,7 @@ interface LanguageServer {
      *
      * @since 3.16.0
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/linkedEditingRange")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/linkedEditingRange")
     suspend fun textDocumentLinkedEditingRange(
         params: LinkedEditingRangeParams
     ): LinkedEditingRanges
@@ -158,7 +158,7 @@ interface LanguageServer {
      *
      * @since 3.16.0
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/workspace/willCreateFiles")
+    @com.monkopedia.ksrpc.annotation.KsMethod("workspace/willCreateFiles")
     suspend fun workspaceWillCreateFiles(params: CreateFilesParams): WorkspaceEdit
 
     /**
@@ -167,7 +167,7 @@ interface LanguageServer {
      *
      * @since 3.16.0
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/workspace/willRenameFiles")
+    @com.monkopedia.ksrpc.annotation.KsMethod("workspace/willRenameFiles")
     suspend fun workspaceWillRenameFiles(params: RenameFilesParams): WorkspaceEdit
 
     /**
@@ -176,7 +176,7 @@ interface LanguageServer {
      *
      * @since 3.16.0
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/workspace/willDeleteFiles")
+    @com.monkopedia.ksrpc.annotation.KsMethod("workspace/willDeleteFiles")
     suspend fun workspaceWillDeleteFiles(params: DeleteFilesParams): WorkspaceEdit
 
     /**
@@ -184,7 +184,7 @@ interface LanguageServer {
      * The request parameter is of type {@link TextDocumentPositionParams}.
      * The response is of type {@link Moniker Moniker[]} or `null`.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/moniker")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/moniker")
     suspend fun textDocumentMoniker(params: MonikerParams): List<Moniker>
 
     /**
@@ -193,7 +193,7 @@ interface LanguageServer {
      *
      * @since 3.17.0
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/prepareTypeHierarchy")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/prepareTypeHierarchy")
     suspend fun textDocumentPrepareTypeHierarchy(
         params: TypeHierarchyPrepareParams
     ): List<TypeHierarchyItem>
@@ -203,7 +203,7 @@ interface LanguageServer {
      *
      * @since 3.17.0
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/typeHierarchy/supertypes")
+    @com.monkopedia.ksrpc.annotation.KsMethod("typeHierarchy/supertypes")
     suspend fun typeHierarchySupertypes(
         params: TypeHierarchySupertypesParams
     ): List<TypeHierarchyItem>
@@ -213,7 +213,7 @@ interface LanguageServer {
      *
      * @since 3.17.0
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/typeHierarchy/subtypes")
+    @com.monkopedia.ksrpc.annotation.KsMethod("typeHierarchy/subtypes")
     suspend fun typeHierarchySubtypes(params: TypeHierarchySubtypesParams): List<TypeHierarchyItem>
 
     /**
@@ -223,7 +223,7 @@ interface LanguageServer {
      *
      * @since 3.17.0
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/inlineValue")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/inlineValue")
     suspend fun textDocumentInlineValue(params: InlineValueParams): List<InlineValue>
 
     /**
@@ -233,7 +233,7 @@ interface LanguageServer {
      *
      * @since 3.17.0
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/inlayHint")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/inlayHint")
     suspend fun textDocumentInlayHint(params: InlayHintParams): List<InlayHint>
 
     /**
@@ -243,7 +243,7 @@ interface LanguageServer {
      *
      * @since 3.17.0
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/inlayHint/resolve")
+    @com.monkopedia.ksrpc.annotation.KsMethod("inlayHint/resolve")
     suspend fun inlayHintResolve(params: InlayHint): InlayHint
 
     /**
@@ -251,7 +251,7 @@ interface LanguageServer {
      *
      * @since 3.17.0
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/diagnostic")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/diagnostic")
     // errorData: DiagnosticServerCancellationData
     suspend fun textDocumentDiagnostic(params: DocumentDiagnosticParams): DocumentDiagnosticReport
 
@@ -260,7 +260,7 @@ interface LanguageServer {
      *
      * @since 3.17.0
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/workspace/diagnostic")
+    @com.monkopedia.ksrpc.annotation.KsMethod("workspace/diagnostic")
     // errorData: DiagnosticServerCancellationData
     suspend fun workspaceDiagnostic(params: WorkspaceDiagnosticParams): WorkspaceDiagnosticReport
 
@@ -272,7 +272,7 @@ interface LanguageServer {
      * @since 3.18.0
      * @proposed
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/inlineCompletion")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/inlineCompletion")
     suspend fun textDocumentInlineCompletion(
         params: InlineCompletionParams
     ): kotlinx.serialization.json.JsonElement
@@ -284,7 +284,7 @@ interface LanguageServer {
      * the response if of type {@link InitializeResult} of a Thenable that
      * resolves to such.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/initialize")
+    @com.monkopedia.ksrpc.annotation.KsMethod("initialize")
     // errorData: InitializeError
     suspend fun initialize(params: InitializeParams): InitializeResult
 
@@ -294,7 +294,7 @@ interface LanguageServer {
      * server. The only notification that is sent after a shutdown request
      * is the exit event.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/shutdown")
+    @com.monkopedia.ksrpc.annotation.KsMethod("shutdown")
     suspend fun shutdown(): Nothing?
 
     /**
@@ -305,7 +305,7 @@ interface LanguageServer {
      * server constantly fails on this request. This is done to keep the save fast and
      * reliable.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/willSaveWaitUntil")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/willSaveWaitUntil")
     suspend fun textDocumentWillSaveWaitUntil(params: WillSaveTextDocumentParams): List<TextEdit>
 
     /**
@@ -319,7 +319,7 @@ interface LanguageServer {
      * request. However, properties that are needed for the initial sorting and filtering, like `sortText`,
      * `filterText`, `insertText`, and `textEdit`, must not be changed during resolve.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/completion")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/completion")
     suspend fun textDocumentCompletion(
         params: CompletionParams
     ): kotlinx.serialization.json.JsonElement
@@ -329,7 +329,7 @@ interface LanguageServer {
      * parameter is of type {@link CompletionItem} the response
      * is of type {@link CompletionItem} or a Thenable that resolves to such.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/completionItem/resolve")
+    @com.monkopedia.ksrpc.annotation.KsMethod("completionItem/resolve")
     suspend fun completionItemResolve(params: CompletionItem): CompletionItem
 
     /**
@@ -337,10 +337,10 @@ interface LanguageServer {
      * parameter is of type {@link TextDocumentPosition} the response is of
      * type {@link Hover} or a Thenable that resolves to such.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/hover")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/hover")
     suspend fun textDocumentHover(params: HoverParams): Hover
 
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/signatureHelp")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/signatureHelp")
     suspend fun textDocumentSignatureHelp(params: SignatureHelpParams): SignatureHelp
 
     /**
@@ -349,7 +349,7 @@ interface LanguageServer {
      * the response is of either type {@link Definition} or a typed array of
      * {@link DefinitionLink} or a Thenable that resolves to such.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/definition")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/definition")
     suspend fun textDocumentDefinition(
         params: DefinitionParams
     ): kotlinx.serialization.json.JsonElement
@@ -360,7 +360,7 @@ interface LanguageServer {
      * type {@link ReferenceParams} the response is of type
      * {@link Location Location[]} or a Thenable that resolves to such.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/references")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/references")
     suspend fun textDocumentReferences(params: ReferenceParams): List<Location>
 
     /**
@@ -369,7 +369,7 @@ interface LanguageServer {
      * the request response is an array of type {@link DocumentHighlight}
      * or a Thenable that resolves to such.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/documentHighlight")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/documentHighlight")
     suspend fun textDocumentDocumentHighlight(
         params: DocumentHighlightParams
     ): List<DocumentHighlight>
@@ -380,7 +380,7 @@ interface LanguageServer {
      * response is of type {@link SymbolInformation SymbolInformation[]} or a Thenable
      * that resolves to such.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/documentSymbol")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/documentSymbol")
     suspend fun textDocumentDocumentSymbol(
         params: DocumentSymbolParams
     ): kotlinx.serialization.json.JsonElement
@@ -388,7 +388,7 @@ interface LanguageServer {
     /**
      * A request to provide commands for the given text document and range.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/codeAction")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/codeAction")
     suspend fun textDocumentCodeAction(params: CodeActionParams): List<TextDocumentCodeActionResult>
 
     /**
@@ -396,7 +396,7 @@ interface LanguageServer {
      * parameter is of type {@link CodeAction} the response
      * is of type {@link CodeAction} or a Thenable that resolves to such.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/codeAction/resolve")
+    @com.monkopedia.ksrpc.annotation.KsMethod("codeAction/resolve")
     suspend fun codeActionResolve(params: CodeAction): CodeAction
 
     /**
@@ -414,7 +414,7 @@ interface LanguageServer {
 need to advertise support for WorkspaceSymbols via the client capability
 `workspace.symbol.resolveSupport`.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/workspace/symbol")
+    @com.monkopedia.ksrpc.annotation.KsMethod("workspace/symbol")
     suspend fun workspaceSymbol(
         params: WorkspaceSymbolParams
     ): kotlinx.serialization.json.JsonElement
@@ -425,25 +425,25 @@ need to advertise support for WorkspaceSymbols via the client capability
      *
      * @since 3.17.0
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/workspaceSymbol/resolve")
+    @com.monkopedia.ksrpc.annotation.KsMethod("workspaceSymbol/resolve")
     suspend fun workspaceSymbolResolve(params: WorkspaceSymbol): WorkspaceSymbol
 
     /**
      * A request to provide code lens for the given text document.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/codeLens")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/codeLens")
     suspend fun textDocumentCodeLens(params: CodeLensParams): List<CodeLens>
 
     /**
      * A request to resolve a command for a given code lens.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/codeLens/resolve")
+    @com.monkopedia.ksrpc.annotation.KsMethod("codeLens/resolve")
     suspend fun codeLensResolve(params: CodeLens): CodeLens
 
     /**
      * A request to provide document links
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/documentLink")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/documentLink")
     suspend fun textDocumentDocumentLink(params: DocumentLinkParams): List<DocumentLink>
 
     /**
@@ -451,19 +451,19 @@ need to advertise support for WorkspaceSymbols via the client capability
      * parameter is of type {@link DocumentLink} the response
      * is of type {@link DocumentLink} or a Thenable that resolves to such.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/documentLink/resolve")
+    @com.monkopedia.ksrpc.annotation.KsMethod("documentLink/resolve")
     suspend fun documentLinkResolve(params: DocumentLink): DocumentLink
 
     /**
      * A request to format a whole document.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/formatting")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/formatting")
     suspend fun textDocumentFormatting(params: DocumentFormattingParams): List<TextEdit>
 
     /**
      * A request to format a range in a document.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/rangeFormatting")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/rangeFormatting")
     suspend fun textDocumentRangeFormatting(params: DocumentRangeFormattingParams): List<TextEdit>
 
     /**
@@ -472,19 +472,19 @@ need to advertise support for WorkspaceSymbols via the client capability
      * @since 3.18.0
      * @proposed
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/rangesFormatting")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/rangesFormatting")
     suspend fun textDocumentRangesFormatting(params: DocumentRangesFormattingParams): List<TextEdit>
 
     /**
      * A request to format a document on type.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/onTypeFormatting")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/onTypeFormatting")
     suspend fun textDocumentOnTypeFormatting(params: DocumentOnTypeFormattingParams): List<TextEdit>
 
     /**
      * A request to rename a symbol.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/rename")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/rename")
     suspend fun textDocumentRename(params: RenameParams): WorkspaceEdit
 
     /**
@@ -492,21 +492,21 @@ need to advertise support for WorkspaceSymbols via the client capability
      *
      * @since 3.16 - support for default behavior
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/prepareRename")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/prepareRename")
     suspend fun textDocumentPrepareRename(params: PrepareRenameParams): PrepareRenameResult
 
     /**
      * A request send from the client to the server to execute a command. The request might return
      * a workspace edit which the client will apply to the workspace.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/workspace/executeCommand")
+    @com.monkopedia.ksrpc.annotation.KsMethod("workspace/executeCommand")
     suspend fun workspaceExecuteCommand(params: ExecuteCommandParams): LSPAny
 
     /**
      * The `workspace/didChangeWorkspaceFolders` notification is sent from the client to the server when the workspace
      * folder configuration changes.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/workspace/didChangeWorkspaceFolders")
+    @com.monkopedia.ksrpc.annotation.KsMethod("workspace/didChangeWorkspaceFolders")
     @com.monkopedia.ksrpc.annotation.KsNotification
     suspend fun workspaceDidChangeWorkspaceFolders(params: DidChangeWorkspaceFoldersParams)
 
@@ -514,7 +514,7 @@ need to advertise support for WorkspaceSymbols via the client capability
      * The `window/workDoneProgress/cancel` notification is sent from  the client to the server to cancel a progress
      * initiated on the server side.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/window/workDoneProgress/cancel")
+    @com.monkopedia.ksrpc.annotation.KsMethod("window/workDoneProgress/cancel")
     @com.monkopedia.ksrpc.annotation.KsNotification
     suspend fun windowWorkDoneProgressCancel(params: WorkDoneProgressCancelParams)
 
@@ -524,7 +524,7 @@ need to advertise support for WorkspaceSymbols via the client capability
      *
      * @since 3.16.0
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/workspace/didCreateFiles")
+    @com.monkopedia.ksrpc.annotation.KsMethod("workspace/didCreateFiles")
     @com.monkopedia.ksrpc.annotation.KsNotification
     suspend fun workspaceDidCreateFiles(params: CreateFilesParams)
 
@@ -534,7 +534,7 @@ need to advertise support for WorkspaceSymbols via the client capability
      *
      * @since 3.16.0
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/workspace/didRenameFiles")
+    @com.monkopedia.ksrpc.annotation.KsMethod("workspace/didRenameFiles")
     @com.monkopedia.ksrpc.annotation.KsNotification
     suspend fun workspaceDidRenameFiles(params: RenameFilesParams)
 
@@ -544,7 +544,7 @@ need to advertise support for WorkspaceSymbols via the client capability
      *
      * @since 3.16.0
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/workspace/didDeleteFiles")
+    @com.monkopedia.ksrpc.annotation.KsMethod("workspace/didDeleteFiles")
     @com.monkopedia.ksrpc.annotation.KsNotification
     suspend fun workspaceDidDeleteFiles(params: DeleteFilesParams)
 
@@ -553,11 +553,11 @@ need to advertise support for WorkspaceSymbols via the client capability
      *
      * @since 3.17.0
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/notebookDocument/didOpen")
+    @com.monkopedia.ksrpc.annotation.KsMethod("notebookDocument/didOpen")
     @com.monkopedia.ksrpc.annotation.KsNotification
     suspend fun notebookDocumentDidOpen(params: DidOpenNotebookDocumentParams)
 
-    @com.monkopedia.ksrpc.annotation.KsMethod("/notebookDocument/didChange")
+    @com.monkopedia.ksrpc.annotation.KsMethod("notebookDocument/didChange")
     @com.monkopedia.ksrpc.annotation.KsNotification
     suspend fun notebookDocumentDidChange(params: DidChangeNotebookDocumentParams)
 
@@ -566,7 +566,7 @@ need to advertise support for WorkspaceSymbols via the client capability
      *
      * @since 3.17.0
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/notebookDocument/didSave")
+    @com.monkopedia.ksrpc.annotation.KsMethod("notebookDocument/didSave")
     @com.monkopedia.ksrpc.annotation.KsNotification
     suspend fun notebookDocumentDidSave(params: DidSaveNotebookDocumentParams)
 
@@ -575,7 +575,7 @@ need to advertise support for WorkspaceSymbols via the client capability
      *
      * @since 3.17.0
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/notebookDocument/didClose")
+    @com.monkopedia.ksrpc.annotation.KsMethod("notebookDocument/didClose")
     @com.monkopedia.ksrpc.annotation.KsNotification
     suspend fun notebookDocumentDidClose(params: DidCloseNotebookDocumentParams)
 
@@ -584,7 +584,7 @@ need to advertise support for WorkspaceSymbols via the client capability
      * server after the client is fully initialized and the server
      * is allowed to send requests from the server to the client.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/initialized")
+    @com.monkopedia.ksrpc.annotation.KsMethod("initialized")
     @com.monkopedia.ksrpc.annotation.KsNotification
     suspend fun initialized(params: InitializedParams)
 
@@ -592,7 +592,7 @@ need to advertise support for WorkspaceSymbols via the client capability
      * The exit event is sent from the client to the server to
      * ask the server to exit its process.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/exit")
+    @com.monkopedia.ksrpc.annotation.KsMethod("exit")
     @com.monkopedia.ksrpc.annotation.KsNotification
     suspend fun exit()
 
@@ -601,7 +601,7 @@ need to advertise support for WorkspaceSymbols via the client capability
      * when the client's configuration has changed. The notification contains
      * the changed configuration as defined by the language client.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/workspace/didChangeConfiguration")
+    @com.monkopedia.ksrpc.annotation.KsMethod("workspace/didChangeConfiguration")
     @com.monkopedia.ksrpc.annotation.KsNotification
     suspend fun workspaceDidChangeConfiguration(params: DidChangeConfigurationParams)
 
@@ -615,7 +615,7 @@ need to advertise support for WorkspaceSymbols via the client capability
      * This means open and close notification must be balanced and the max open count
      * is one.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/didOpen")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/didOpen")
     @com.monkopedia.ksrpc.annotation.KsNotification
     suspend fun textDocumentDidOpen(params: DidOpenTextDocumentParams)
 
@@ -623,7 +623,7 @@ need to advertise support for WorkspaceSymbols via the client capability
      * The document change notification is sent from the client to the server to signal
      * changes to a text document.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/didChange")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/didChange")
     @com.monkopedia.ksrpc.annotation.KsNotification
     suspend fun textDocumentDidChange(params: DidChangeTextDocumentParams)
 
@@ -636,7 +636,7 @@ need to advertise support for WorkspaceSymbols via the client capability
      * doesn't mean that the document was open in an editor before. A close
      * notification requires a previous open notification to be sent.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/didClose")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/didClose")
     @com.monkopedia.ksrpc.annotation.KsNotification
     suspend fun textDocumentDidClose(params: DidCloseTextDocumentParams)
 
@@ -644,7 +644,7 @@ need to advertise support for WorkspaceSymbols via the client capability
      * The document save notification is sent from the client to the server when
      * the document got saved in the client.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/didSave")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/didSave")
     @com.monkopedia.ksrpc.annotation.KsNotification
     suspend fun textDocumentDidSave(params: DidSaveTextDocumentParams)
 
@@ -652,7 +652,7 @@ need to advertise support for WorkspaceSymbols via the client capability
      * A document will save notification is sent from the client to the server before
      * the document is actually saved.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/textDocument/willSave")
+    @com.monkopedia.ksrpc.annotation.KsMethod("textDocument/willSave")
     @com.monkopedia.ksrpc.annotation.KsNotification
     suspend fun textDocumentWillSave(params: WillSaveTextDocumentParams)
 
@@ -660,19 +660,15 @@ need to advertise support for WorkspaceSymbols via the client capability
      * The watched files notification is sent from the client to the server when
      * the client detects changes to file watched by the language client.
      */
-    @com.monkopedia.ksrpc.annotation.KsMethod("/workspace/didChangeWatchedFiles")
+    @com.monkopedia.ksrpc.annotation.KsMethod("workspace/didChangeWatchedFiles")
     @com.monkopedia.ksrpc.annotation.KsNotification
     suspend fun workspaceDidChangeWatchedFiles(params: DidChangeWatchedFilesParams)
 
-    @com.monkopedia.ksrpc.annotation.KsMethod("/$/setTrace")
+    @com.monkopedia.ksrpc.annotation.KsMethod("$/setTrace")
     @com.monkopedia.ksrpc.annotation.KsNotification
     suspend fun setTrace(params: SetTraceParams)
 
-    @com.monkopedia.ksrpc.annotation.KsMethod("/$/cancelRequest")
-    @com.monkopedia.ksrpc.annotation.KsNotification
-    suspend fun cancelRequest(params: CancelParams)
-
-    @com.monkopedia.ksrpc.annotation.KsMethod("/$/progress")
+    @com.monkopedia.ksrpc.annotation.KsMethod("$/progress")
     @com.monkopedia.ksrpc.annotation.KsNotification
     suspend fun progress(params: ProgressParams)
 }

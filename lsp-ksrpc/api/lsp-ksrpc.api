@@ -1,5 +1,4 @@
-public abstract interface class com/monkopedia/lsp/LanguageClient {
-	public abstract fun cancelRequest (Lcom/monkopedia/lsp/CancelParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+public abstract interface class com/monkopedia/lsp/LanguageClient : com/monkopedia/ksrpc/RpcService {
 	public abstract fun clientRegisterCapability (Lcom/monkopedia/lsp/RegistrationParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun clientUnregisterCapability (Lcom/monkopedia/lsp/UnregistrationParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun logTrace (Lcom/monkopedia/lsp/LogTraceParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -22,10 +21,13 @@ public abstract interface class com/monkopedia/lsp/LanguageClient {
 	public abstract fun workspaceWorkspaceFolders (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public abstract interface class com/monkopedia/lsp/LanguageServer {
+public final class com/monkopedia/lsp/LanguageClient$DefaultImpls {
+	public static fun close (Lcom/monkopedia/lsp/LanguageClient;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public abstract interface class com/monkopedia/lsp/LanguageServer : com/monkopedia/ksrpc/RpcService {
 	public abstract fun callHierarchyIncomingCalls (Lcom/monkopedia/lsp/CallHierarchyIncomingCallsParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun callHierarchyOutgoingCalls (Lcom/monkopedia/lsp/CallHierarchyOutgoingCallsParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public abstract fun cancelRequest (Lcom/monkopedia/lsp/CancelParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun codeActionResolve (Lcom/monkopedia/lsp/CodeAction;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun codeLensResolve (Lcom/monkopedia/lsp/CodeLens;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun completionItemResolve (Lcom/monkopedia/lsp/CompletionItem;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -97,5 +99,45 @@ public abstract interface class com/monkopedia/lsp/LanguageServer {
 	public abstract fun workspaceWillCreateFiles (Lcom/monkopedia/lsp/CreateFilesParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun workspaceWillDeleteFiles (Lcom/monkopedia/lsp/DeleteFilesParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun workspaceWillRenameFiles (Lcom/monkopedia/lsp/RenameFilesParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/monkopedia/lsp/LanguageServer$DefaultImpls {
+	public static fun close (Lcom/monkopedia/lsp/LanguageServer;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/monkopedia/lsp/ksrpc/LifecycleState {
+	public static final field Companion Lcom/monkopedia/lsp/ksrpc/LifecycleState$Companion;
+	public fun <init> ()V
+	public final fun allowsMethod (Ljava/lang/String;)Z
+	public final fun getPhase ()Lcom/monkopedia/lsp/ksrpc/LifecycleState$Phase;
+	public final fun transitionTo (Lcom/monkopedia/lsp/ksrpc/LifecycleState$Phase;)V
+}
+
+public final class com/monkopedia/lsp/ksrpc/LifecycleState$Companion {
+}
+
+public final class com/monkopedia/lsp/ksrpc/LifecycleState$Phase : java/lang/Enum {
+	public static final field EXITED Lcom/monkopedia/lsp/ksrpc/LifecycleState$Phase;
+	public static final field INITIALIZED Lcom/monkopedia/lsp/ksrpc/LifecycleState$Phase;
+	public static final field INITIALIZING Lcom/monkopedia/lsp/ksrpc/LifecycleState$Phase;
+	public static final field SHUTTING_DOWN Lcom/monkopedia/lsp/ksrpc/LifecycleState$Phase;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/monkopedia/lsp/ksrpc/LifecycleState$Phase;
+	public static fun values ()[Lcom/monkopedia/lsp/ksrpc/LifecycleState$Phase;
+}
+
+public final class com/monkopedia/lsp/ksrpc/LspConnectionKt {
+	public static final fun asLspConnection (Lkotlin/Pair;Lcom/monkopedia/ksrpc/KsrpcEnvironment;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun asLspConnection$default (Lkotlin/Pair;Lcom/monkopedia/ksrpc/KsrpcEnvironment;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun connectAsLspClient (Lcom/monkopedia/ksrpc/channels/SingleChannelConnection;Lcom/monkopedia/lsp/LanguageClient;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun connectAsLspServer (Lcom/monkopedia/ksrpc/channels/SingleChannelConnection;Lcom/monkopedia/lsp/LanguageServer;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/monkopedia/lsp/ksrpc/ProgressTokenRegistry {
+	public fun <init> ()V
+	public final fun allocateToken ()Lcom/monkopedia/lsp/IntOrString;
+	public final fun allocateToken (Ljava/lang/String;)Lcom/monkopedia/lsp/IntOrString;
+	public final fun dispatch (Lcom/monkopedia/lsp/ProgressParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun observe (Lcom/monkopedia/lsp/IntOrString;)Lkotlinx/coroutines/flow/Flow;
 }
 

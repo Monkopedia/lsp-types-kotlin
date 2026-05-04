@@ -25,14 +25,24 @@ package com.monkopedia.lsp.codegen
  */
 class ServiceGenerator(private val resolver: TypeResolver, private val model: MetaModel) {
 
+    /**
+     * Methods handled by the transport layer (ksrpc), not exposed on service interfaces.
+     * `$/cancelRequest` is owned by `JsonRpcCancellationConvention.Lsp`.
+     */
+    private val transportHandled = setOf("$/cancelRequest")
+
     fun generateServer(): String = generateInterface(
         name = "LanguageServer",
         doc = "LSP Language Server interface — methods the client calls on the server.",
         requests = model.requests.filter {
-            it.messageDirection in setOf(MessageDirection.CLIENT_TO_SERVER, MessageDirection.BOTH)
+            it.method !in transportHandled &&
+                it.messageDirection in
+                setOf(MessageDirection.CLIENT_TO_SERVER, MessageDirection.BOTH)
         },
         notifications = model.notifications.filter {
-            it.messageDirection in setOf(MessageDirection.CLIENT_TO_SERVER, MessageDirection.BOTH)
+            it.method !in transportHandled &&
+                it.messageDirection in
+                setOf(MessageDirection.CLIENT_TO_SERVER, MessageDirection.BOTH)
         }
     )
 
@@ -40,10 +50,14 @@ class ServiceGenerator(private val resolver: TypeResolver, private val model: Me
         name = "LanguageClient",
         doc = "LSP Language Client interface — methods the server calls on the client.",
         requests = model.requests.filter {
-            it.messageDirection in setOf(MessageDirection.SERVER_TO_CLIENT, MessageDirection.BOTH)
+            it.method !in transportHandled &&
+                it.messageDirection in
+                setOf(MessageDirection.SERVER_TO_CLIENT, MessageDirection.BOTH)
         },
         notifications = model.notifications.filter {
-            it.messageDirection in setOf(MessageDirection.SERVER_TO_CLIENT, MessageDirection.BOTH)
+            it.method !in transportHandled &&
+                it.messageDirection in
+                setOf(MessageDirection.SERVER_TO_CLIENT, MessageDirection.BOTH)
         }
     )
 
@@ -56,7 +70,7 @@ class ServiceGenerator(private val resolver: TypeResolver, private val model: Me
         val w = CodeWriter()
         w.kdoc(doc)
         w.line("@com.monkopedia.ksrpc.annotation.KsService")
-        w.block("interface $name") {
+        w.block("interface $name : com.monkopedia.ksrpc.RpcService") {
             for (req in requests) {
                 line()
                 generateRequestMethod(this, req)
@@ -74,7 +88,7 @@ class ServiceGenerator(private val resolver: TypeResolver, private val model: Me
         val methodName = req.method.toMethodName()
         val wireName = req.method
 
-        w.line("@com.monkopedia.ksrpc.annotation.KsMethod(\"/$wireName\")")
+        w.line("@com.monkopedia.ksrpc.annotation.KsMethod(\"$wireName\")")
 
         // Add @KsError for methods with typed error data
         if (req.errorData != null) {
@@ -107,7 +121,7 @@ class ServiceGenerator(private val resolver: TypeResolver, private val model: Me
         val methodName = notif.method.toMethodName()
         val wireName = notif.method
 
-        w.line("@com.monkopedia.ksrpc.annotation.KsMethod(\"/$wireName\")")
+        w.line("@com.monkopedia.ksrpc.annotation.KsMethod(\"$wireName\")")
         w.line("@com.monkopedia.ksrpc.annotation.KsNotification")
 
         val params = notif.params
