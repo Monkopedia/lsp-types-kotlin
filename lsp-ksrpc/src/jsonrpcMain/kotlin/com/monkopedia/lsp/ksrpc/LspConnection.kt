@@ -27,11 +27,17 @@ import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.ByteWriteChannel
 
 /**
- * Open a JSON-RPC connection over a pair of byte channels using the LSP wire format
- * (`Content-Length` framing + `$/cancelRequest` cancellation convention).
+ * Open a JSON-RPC connection over a pair of byte channels using the LSP wire format:
+ * `Content-Length` framed messages and `$/cancelRequest` cancellation.
  *
- * Use [connectAsLspClient] / [connectAsLspServer] on the returned connection to host
- * a [LanguageClient] / [LanguageServer] implementation and obtain a stub for the remote side.
+ * The receiver is `(read, write)` — for two endpoints in the same process to talk
+ * to each other you need two paired connections with the channels in opposite
+ * orders. For real LSP scenarios use the JVM-only [stdInLspConnection] (server
+ * reading its own stdin) or [ProcessBuilder.asLspConnection] (client spawning
+ * a server child process).
+ *
+ * Use [connectAsLspClient] / [connectAsLspServer] on the returned connection to
+ * host a [LanguageClient] / [LanguageServer] and obtain a stub for the remote.
  */
 suspend fun Pair<ByteReadChannel, ByteWriteChannel>.asLspConnection(
     env: KsrpcEnvironment<String> = ksrpcEnvironment { }
@@ -42,11 +48,18 @@ suspend fun Pair<ByteReadChannel, ByteWriteChannel>.asLspConnection(
 )
 
 /**
- * Connect this LSP connection from the client side: hosts a [LanguageClient] implementation
- * and returns a [LanguageServer] stub for sending requests/notifications to the server.
+ * Wire this connection from the client side: register a [LanguageClient]
+ * implementation so the server can call back, and get a [LanguageServer] stub
+ * for sending requests/notifications.
  *
- * The server side ([LanguageServer]) is exposed by the remote process; the client side
- * ([LanguageClient]) is hosted locally.
+ * Typical usage:
+ *
+ * ```
+ * val server = connection.connectAsLspClient(MyClientImpl)
+ * val initResult = server.initialize(InitializeParams(...))
+ * server.initialized(InitializedParams())
+ * val hover = server.textDocumentHover(...)
+ * ```
  */
 suspend fun SingleChannelConnection<String>.connectAsLspClient(
     client: LanguageClient
@@ -60,8 +73,17 @@ suspend fun SingleChannelConnection<String>.connectAsLspClient(
 }
 
 /**
- * Connect this LSP connection from the server side: hosts a [LanguageServer] implementation
- * and returns a [LanguageClient] stub for sending requests/notifications back to the client.
+ * Wire this connection from the server side: register a [LanguageServer]
+ * implementation so the client can call into the server, and get a
+ * [LanguageClient] stub for sending notifications and requests back.
+ *
+ * Typical usage from inside a server `main`:
+ *
+ * ```
+ * val connection = stdInLspConnection()
+ * val client = connection.connectAsLspServer(MyServerImpl)
+ * // Now MyServerImpl can call client.windowShowMessage(...) etc.
+ * ```
  */
 suspend fun SingleChannelConnection<String>.connectAsLspServer(
     server: LanguageServer

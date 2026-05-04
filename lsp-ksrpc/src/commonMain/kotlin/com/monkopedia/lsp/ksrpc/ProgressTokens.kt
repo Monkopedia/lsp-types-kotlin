@@ -36,6 +36,30 @@ import kotlinx.coroutines.flow.filter
  * This registry is bidirectional: either side can register a token and observe progress
  * for it. The receiver of `$/progress` notifications calls [dispatch] to route them to
  * registered observers.
+ *
+ * Typical client-side usage:
+ *
+ * ```
+ * val registry = ProgressTokenRegistry()
+ * val token = registry.allocateToken()
+ *
+ * // Subscribe before issuing the request that will emit progress.
+ * launch {
+ *     registry.observe(token).collect { p ->
+ *         // p.value is JsonElement — decode as WorkDoneProgressBegin/Report/End
+ *         println("progress: $p")
+ *     }
+ * }
+ *
+ * server.textDocumentReferences(
+ *     ReferenceParams(workDoneToken = token, ...)
+ * )
+ *
+ * // In the LanguageClient impl that handles $/progress notifications:
+ * override suspend fun progress(params: ProgressParams) {
+ *     registry.dispatch(params)
+ * }
+ * ```
  */
 class ProgressTokenRegistry {
 
