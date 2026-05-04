@@ -41,7 +41,7 @@ enum class UnionCategory {
     INT_OR_STRING,
 
     /** Mixed primitives or too complex — keep as `JsonElement`. */
-    KEEP_JSON_ELEMENT,
+    KEEP_JSON_ELEMENT
 }
 
 /**
@@ -52,7 +52,7 @@ data class UnionClassification(
     /** Items with `null` stripped (the union's "real" members). */
     val nonNullItems: List<LspType>,
     /** True if the original union included `null` (i.e., property should be nullable). */
-    val isNullable: Boolean,
+    val isNullable: Boolean
 )
 
 /**
@@ -100,8 +100,7 @@ private fun isTOrArrayT(items: List<LspType>): Boolean {
     return arrayElement is LspType.Reference && arrayElement.name == refs[0].name
 }
 
-private fun isAllLiterals(items: List<LspType>): Boolean =
-    items.all { it is LspType.Literal }
+private fun isAllLiterals(items: List<LspType>): Boolean = items.all { it is LspType.Literal }
 
 private fun isIntOrString(items: List<LspType>): Boolean {
     if (items.size != 2) return false

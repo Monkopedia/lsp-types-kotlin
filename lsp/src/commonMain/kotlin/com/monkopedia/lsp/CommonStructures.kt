@@ -859,7 +859,7 @@ data class Command(
      * invoked with.
      */
     val arguments: List<LSPAny>? = null
-)
+) : TextDocumentCodeActionResult
 
 /**
  * The parameters of a {@link DocumentFormattingRequest}.

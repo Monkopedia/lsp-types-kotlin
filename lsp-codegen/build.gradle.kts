@@ -54,6 +54,7 @@ tasks.register<JavaExec>("generate") {
     classpath = sourceSets["main"].runtimeClasspath
     args = listOf(
         file("src/main/resources/metaModel.json").absolutePath,
-        project(":lsp").file("src/commonMain/kotlin").absolutePath
+        project(":lsp").file("src/commonMain/kotlin").absolutePath,
+        project(":lsp-ksrpc").file("src/commonMain/kotlin").absolutePath
     )
 }

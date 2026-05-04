@@ -690,6 +690,32 @@ object ServerCapabilitiesTypeHierarchyProviderOptionsSerializer :
 }
 
 /**
+ * Sealed interface for the LSP union type: Command | CodeAction.
+ */
+@kotlinx.serialization.Serializable(with = TextDocumentCodeActionResultSerializer::class)
+sealed interface TextDocumentCodeActionResult
+
+object TextDocumentCodeActionResultSerializer :
+    kotlinx.serialization.json.JsonContentPolymorphicSerializer<TextDocumentCodeActionResult>(
+        TextDocumentCodeActionResult::class
+    ) {
+    override fun selectDeserializer(
+        element: kotlinx.serialization.json.JsonElement
+    ): kotlinx.serialization.DeserializationStrategy<TextDocumentCodeActionResult> {
+        val obj = element.jsonObject
+        return when {
+            "command" in obj -> Command.serializer() as kotlinx.serialization.DeserializationStrategy<TextDocumentCodeActionResult>
+
+            "title" in obj -> CodeAction.serializer() as kotlinx.serialization.DeserializationStrategy<TextDocumentCodeActionResult>
+
+            else -> throw kotlinx.serialization.SerializationException(
+                "Unknown TextDocumentCodeActionResult variant: $obj"
+            )
+        }
+    }
+}
+
+/**
  * Sealed interface for the LSP literal union: TextDocumentContentChangeEvent.
  * Branches: TextDocumentContentChangeEventRange, TextDocumentContentChangeEventVariant.
  */
@@ -766,6 +792,34 @@ object TextDocumentFilterSerializer :
 
             else -> throw kotlinx.serialization.SerializationException(
                 "Unknown TextDocumentFilter variant: $obj"
+            )
+        }
+    }
+}
+
+/**
+ * Sealed interface for the LSP union type: SemanticTokens | SemanticTokensDelta.
+ */
+@kotlinx.serialization.Serializable(
+    with = TextDocumentSemanticTokensFullDeltaResultSerializer::class
+)
+sealed interface TextDocumentSemanticTokensFullDeltaResult
+
+object TextDocumentSemanticTokensFullDeltaResultSerializer :
+    kotlinx.serialization.json.JsonContentPolymorphicSerializer<TextDocumentSemanticTokensFullDeltaResult>(
+        TextDocumentSemanticTokensFullDeltaResult::class
+    ) {
+    override fun selectDeserializer(
+        element: kotlinx.serialization.json.JsonElement
+    ): kotlinx.serialization.DeserializationStrategy<TextDocumentSemanticTokensFullDeltaResult> {
+        val obj = element.jsonObject
+        return when {
+            "data" in obj -> SemanticTokens.serializer() as kotlinx.serialization.DeserializationStrategy<TextDocumentSemanticTokensFullDeltaResult>
+
+            "edits" in obj -> SemanticTokensDelta.serializer() as kotlinx.serialization.DeserializationStrategy<TextDocumentSemanticTokensFullDeltaResult>
+
+            else -> throw kotlinx.serialization.SerializationException(
+                "Unknown TextDocumentSemanticTokensFullDeltaResult variant: $obj"
             )
         }
     }

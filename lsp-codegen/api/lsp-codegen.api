@@ -633,9 +633,15 @@ public final class com/monkopedia/lsp/codegen/Structure$Companion {
 }
 
 public final class com/monkopedia/lsp/codegen/StructureGenerator {
-	public fun <init> (Lcom/monkopedia/lsp/codegen/TypeResolver;)V
+	public static final field Companion Lcom/monkopedia/lsp/codegen/StructureGenerator$Companion;
+	public fun <init> (Lcom/monkopedia/lsp/codegen/TypeResolver;Ljava/util/Map;)V
+	public synthetic fun <init> (Lcom/monkopedia/lsp/codegen/TypeResolver;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun generate (Lcom/monkopedia/lsp/codegen/Structure;)Ljava/lang/String;
-	public final fun generateClass (Lcom/monkopedia/lsp/codegen/CodeWriter;Ljava/lang/String;Ljava/util/List;Ljava/lang/String;Ljava/lang/String;)V
+	public final fun generateClass (Lcom/monkopedia/lsp/codegen/CodeWriter;Ljava/lang/String;Ljava/util/List;Ljava/lang/String;Ljava/lang/String;I)V
+	public static synthetic fun generateClass$default (Lcom/monkopedia/lsp/codegen/StructureGenerator;Lcom/monkopedia/lsp/codegen/CodeWriter;Ljava/lang/String;Ljava/util/List;Ljava/lang/String;Ljava/lang/String;IILjava/lang/Object;)V
+}
+
+public final class com/monkopedia/lsp/codegen/StructureGenerator$Companion {
 }
 
 public final class com/monkopedia/lsp/codegen/StructureGeneratorKt {
@@ -689,10 +695,57 @@ public final class com/monkopedia/lsp/codegen/TypeResolver {
 	public final fun getEmittedLiterals ()Ljava/util/Set;
 	public final fun getInlineLiterals ()Ljava/util/Map;
 	public final fun getStructure (Ljava/lang/String;)Lcom/monkopedia/lsp/codegen/Structure;
+	public final fun getTopLevelAliasName ()Ljava/lang/String;
+	public final fun getUnionGenerator ()Lcom/monkopedia/lsp/codegen/UnionGenerator;
 	public final fun isAlias (Ljava/lang/String;)Z
 	public final fun isEnum (Ljava/lang/String;)Z
 	public final fun isStructure (Ljava/lang/String;)Z
 	public final fun resolve (Lcom/monkopedia/lsp/codegen/LspType;Ljava/lang/String;Z)Ljava/lang/String;
 	public static synthetic fun resolve$default (Lcom/monkopedia/lsp/codegen/TypeResolver;Lcom/monkopedia/lsp/codegen/LspType;Ljava/lang/String;ZILjava/lang/Object;)Ljava/lang/String;
+	public final fun setTopLevelAliasName (Ljava/lang/String;)V
+	public final fun setUnionGenerator (Lcom/monkopedia/lsp/codegen/UnionGenerator;)V
+}
+
+public final class com/monkopedia/lsp/codegen/UnionCategory : java/lang/Enum {
+	public static final field BOOLEAN_OR_OPTIONS Lcom/monkopedia/lsp/codegen/UnionCategory;
+	public static final field INT_OR_STRING Lcom/monkopedia/lsp/codegen/UnionCategory;
+	public static final field KEEP_JSON_ELEMENT Lcom/monkopedia/lsp/codegen/UnionCategory;
+	public static final field LITERAL_UNION Lcom/monkopedia/lsp/codegen/UnionCategory;
+	public static final field NAMED_REFERENCES Lcom/monkopedia/lsp/codegen/UnionCategory;
+	public static final field STRING_OR Lcom/monkopedia/lsp/codegen/UnionCategory;
+	public static final field T_OR_ARRAY_T Lcom/monkopedia/lsp/codegen/UnionCategory;
+	public static final field T_OR_NULL Lcom/monkopedia/lsp/codegen/UnionCategory;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/monkopedia/lsp/codegen/UnionCategory;
+	public static fun values ()[Lcom/monkopedia/lsp/codegen/UnionCategory;
+}
+
+public final class com/monkopedia/lsp/codegen/UnionClassification {
+	public fun <init> (Lcom/monkopedia/lsp/codegen/UnionCategory;Ljava/util/List;Z)V
+	public final fun component1 ()Lcom/monkopedia/lsp/codegen/UnionCategory;
+	public final fun component2 ()Ljava/util/List;
+	public final fun component3 ()Z
+	public final fun copy (Lcom/monkopedia/lsp/codegen/UnionCategory;Ljava/util/List;Z)Lcom/monkopedia/lsp/codegen/UnionClassification;
+	public static synthetic fun copy$default (Lcom/monkopedia/lsp/codegen/UnionClassification;Lcom/monkopedia/lsp/codegen/UnionCategory;Ljava/util/List;ZILjava/lang/Object;)Lcom/monkopedia/lsp/codegen/UnionClassification;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCategory ()Lcom/monkopedia/lsp/codegen/UnionCategory;
+	public final fun getNonNullItems ()Ljava/util/List;
+	public fun hashCode ()I
+	public final fun isNullable ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/monkopedia/lsp/codegen/UnionClassifierKt {
+	public static final fun classifyUnion (Lcom/monkopedia/lsp/codegen/LspType$Or;Lcom/monkopedia/lsp/codegen/TypeResolver;)Lcom/monkopedia/lsp/codegen/UnionClassification;
+	public static synthetic fun classifyUnion$default (Lcom/monkopedia/lsp/codegen/LspType$Or;Lcom/monkopedia/lsp/codegen/TypeResolver;ILjava/lang/Object;)Lcom/monkopedia/lsp/codegen/UnionClassification;
+}
+
+public final class com/monkopedia/lsp/codegen/UnionGenerator {
+	public fun <init> (Lcom/monkopedia/lsp/codegen/TypeResolver;)V
+	public final fun generateUnionsFile ()Ljava/lang/String;
+	public final fun getLiteralBranches ()Ljava/util/Map;
+	public final fun getStructureInterfaces ()Ljava/util/Map;
+	public final fun resolveUnion (Lcom/monkopedia/lsp/codegen/LspType$Or;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+	public static synthetic fun resolveUnion$default (Lcom/monkopedia/lsp/codegen/UnionGenerator;Lcom/monkopedia/lsp/codegen/LspType$Or;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Ljava/lang/String;
 }
 

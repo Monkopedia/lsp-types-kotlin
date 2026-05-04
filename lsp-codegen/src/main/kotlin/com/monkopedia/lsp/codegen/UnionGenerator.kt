@@ -60,19 +60,23 @@ class UnionGenerator(private val resolver: TypeResolver) {
             }
 
             UnionCategory.NAMED_REFERENCES -> {
-                val name = topLevelAliasName ?: contextName.ifEmpty {
-                    error("Inline NAMED_REFERENCES union needs a context name")
+                val name = topLevelAliasName ?: contextName.ifEmpty { "" }
+                if (name.isEmpty()) {
+                    "kotlinx.serialization.json.JsonElement"
+                } else {
+                    emitNamedReferenceSealed(name, cls.nonNullItems)
+                    name
                 }
-                emitNamedReferenceSealed(name, cls.nonNullItems)
-                name
             }
 
             UnionCategory.LITERAL_UNION -> {
-                val name = topLevelAliasName ?: contextName.ifEmpty {
-                    error("Inline LITERAL_UNION needs a context name")
+                val name = topLevelAliasName ?: contextName.ifEmpty { "" }
+                if (name.isEmpty()) {
+                    "kotlinx.serialization.json.JsonElement"
+                } else {
+                    emitLiteralUnionSealed(name, cls.nonNullItems)
+                    name
                 }
-                emitLiteralUnionSealed(name, cls.nonNullItems)
-                name
             }
 
             UnionCategory.STRING_OR -> {
@@ -110,10 +114,7 @@ class UnionGenerator(private val resolver: TypeResolver) {
      */
     val literalBranches = mutableMapOf<String, List<Property>>()
 
-    private fun resolveBooleanOr(
-        cls: UnionClassification,
-        contextName: String
-    ): String {
+    private fun resolveBooleanOr(cls: UnionClassification, contextName: String): String {
         // Branches other than `boolean`. Could be one or many.
         val nonBoolean = cls.nonNullItems
             .filter { !(it is LspType.Base && it.name == "boolean") }

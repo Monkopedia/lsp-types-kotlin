@@ -48,7 +48,7 @@ data class SemanticTokens(
      * The actual tokens.
      */
     @kotlinx.serialization.SerialName("data") val `data`: List<UInt>
-)
+) : TextDocumentSemanticTokensFullDeltaResult
 
 /**
  * @since 3.16.0
@@ -124,7 +124,7 @@ data class SemanticTokensDelta(
      * The semantic token edits to transform a previous result into a new result.
      */
     val edits: List<SemanticTokensEdit>
-)
+) : TextDocumentSemanticTokensFullDeltaResult
 
 /**
  * @since 3.16.0

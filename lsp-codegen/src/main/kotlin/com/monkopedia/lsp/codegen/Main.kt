@@ -56,12 +56,13 @@ fun main(args: Array<String>) {
 }
 
 private fun runGeneration(args: Array<String>) {
-    require(args.size == 2) {
-        "Usage: lsp-codegen <metaModel.json> <output-dir>"
+    require(args.size in 2..3) {
+        "Usage: lsp-codegen <metaModel.json> <types-output-dir> [services-output-dir]"
     }
 
     val metaModelFile = File(args[0])
     val outputDir = File(args[1])
+    val servicesOutputDir = if (args.size >= 3) File(args[2]) else null
 
     require(metaModelFile.exists()) { "metaModel.json not found: ${metaModelFile.absolutePath}" }
 
@@ -149,6 +150,26 @@ private fun runGeneration(args: Array<String>) {
         }
     }
 
+    // --- Service interfaces (LanguageServer / LanguageClient) ---
+    // Run BEFORE emitting InlineLiterals / UnionBranches / Unions so any
+    // sealed interfaces or inline literals discovered while resolving
+    // request/notification result/param types get included.
+    if (servicesOutputDir != null) {
+        val servicesPackageDir = File(servicesOutputDir, "com/monkopedia/lsp")
+        servicesPackageDir.mkdirs()
+        val serviceGen = ServiceGenerator(resolver, model)
+
+        writeFile(servicesPackageDir, "LanguageServer.kt") {
+            appendLine(fileHeader(LSP_PACKAGE))
+            appendLine(serviceGen.generateServer())
+        }
+        writeFile(servicesPackageDir, "LanguageClient.kt") {
+            appendLine(fileHeader(LSP_PACKAGE))
+            appendLine(serviceGen.generateClient())
+        }
+        println("Generated services in ${servicesPackageDir.absolutePath}")
+    }
+
     // Emit any remaining inline literals that weren't emitted with their parent
     if (resolver.inlineLiterals.isNotEmpty()) {
         writeFile(packageDir, "InlineLiterals.kt") {
@@ -187,27 +208,15 @@ private fun runGeneration(args: Array<String>) {
         }
     }
 
-    // Service interfaces (LanguageServer/LanguageClient) are deferred until
-    // ksrpc 1.0.0 ships — they need @KsService/@KsMethod/@KsNotification annotations.
-
     println("Generated files in ${packageDir.absolutePath}")
 }
 
-/**
- * Group structure names by a namespace prefix for file organization.
- * Names like "TextDocumentSyncOptions" → "TextDocument" group.
- * Names starting with "_" → grouped with their non-underscore parent.
- */
 /**
  * Walk the model and ask the UnionGenerator to register sealed interfaces for every
  * `NAMED_REFERENCES` and `LITERAL_UNION` it finds. This pre-pass populates the
  * `structureInterfaces` map so structures know which interfaces to implement.
  */
-private fun preClassifyUnions(
-    model: MetaModel,
-    resolver: TypeResolver,
-    unionGen: UnionGenerator
-) {
+private fun preClassifyUnions(model: MetaModel, resolver: TypeResolver, unionGen: UnionGenerator) {
     fun visit(contextName: String, type: LspType, topLevelAliasName: String? = null) {
         when (type) {
             is LspType.Or -> {
@@ -221,8 +230,11 @@ private fun preClassifyUnions(
                 // Recurse into the union's items in case nested unions exist.
                 cls.nonNullItems.forEach { visit(contextName, it) }
             }
+
             is LspType.Array -> visit(contextName, type.element)
+
             is LspType.Map -> visit(contextName, type.value)
+
             is LspType.Literal ->
                 type.value.properties.forEach {
                     visit(
@@ -230,6 +242,7 @@ private fun preClassifyUnions(
                         it.type
                     )
                 }
+
             else -> {}
         }
     }
@@ -245,6 +258,30 @@ private fun preClassifyUnions(
     for (a in model.typeAliases) {
         visit(a.name, a.type, topLevelAliasName = a.name)
     }
+    // Walk request/notification result/param/error types so unions there get
+    // sealed interfaces too.
+    for (req in model.requests) {
+        val methodKey = req.method.toContextName()
+        visit("${methodKey}Result", req.result)
+        req.params?.let { visit("${methodKey}Params", it) }
+        req.errorData?.let { visit("${methodKey}ErrorData", it) }
+    }
+    for (notif in model.notifications) {
+        val methodKey = notif.method.toContextName()
+        notif.params?.let { visit("${methodKey}Params", it) }
+    }
+}
+
+/** Convert a wire method name to a PascalCase context prefix (matches ServiceGenerator). */
+private fun String.toContextName(): String {
+    val cleaned = removePrefix("$/")
+    return cleaned.split("/").mapIndexed { i, part ->
+        if (i == 0) {
+            part.replaceFirstChar { c -> c.uppercase() }
+        } else {
+            part.replaceFirstChar { c -> c.uppercase() }
+        }
+    }.joinToString("")
 }
 
 private fun groupByNamespace(names: List<String>): Map<String, List<String>> {

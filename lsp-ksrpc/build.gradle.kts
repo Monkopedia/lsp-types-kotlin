@@ -33,6 +33,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(project(":lsp"))
+            api(libs.ksrpc.api)
             api(libs.ksrpc.core)
             implementation(libs.kotlinx.coroutines.core)
         }

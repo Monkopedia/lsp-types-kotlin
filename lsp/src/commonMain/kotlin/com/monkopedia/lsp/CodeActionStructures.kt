@@ -107,7 +107,7 @@ data class CodeAction(
      * @since 3.16.0
      */
     @kotlinx.serialization.SerialName("data") val `data`: LSPAny? = null
-)
+) : TextDocumentCodeActionResult
 
 @kotlinx.serialization.Serializable
 data class CodeActionDisabled(

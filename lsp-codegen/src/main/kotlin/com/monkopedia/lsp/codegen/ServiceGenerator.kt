@@ -82,10 +82,20 @@ class ServiceGenerator(private val resolver: TypeResolver, private val model: Me
             w.line("// errorData: $errorType")
         }
 
-        val returnType = resolver.resolve(req.result)
+        val returnType = resolver.resolve(
+            req.result,
+            "${methodName.replaceFirstChar {
+                it.uppercase()
+            }}Result"
+        )
         val params = req.params
         if (params != null) {
-            val paramType = resolver.resolve(params, "${methodName}Params")
+            val paramType = resolver.resolve(
+                params,
+                "${methodName.replaceFirstChar {
+                    it.uppercase()
+                }}Params"
+            )
             w.line("suspend fun $methodName(params: $paramType): $returnType")
         } else {
             w.line("suspend fun $methodName(): $returnType")
@@ -102,7 +112,12 @@ class ServiceGenerator(private val resolver: TypeResolver, private val model: Me
 
         val params = notif.params
         if (params != null) {
-            val paramType = resolver.resolve(params, "${methodName}Params")
+            val paramType = resolver.resolve(
+                params,
+                "${methodName.replaceFirstChar {
+                    it.uppercase()
+                }}Params"
+            )
             w.line("suspend fun $methodName(params: $paramType)")
         } else {
             w.line("suspend fun $methodName()")

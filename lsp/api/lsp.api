@@ -554,7 +554,7 @@ public final class com/monkopedia/lsp/ClientCapabilities$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class com/monkopedia/lsp/CodeAction {
+public final class com/monkopedia/lsp/CodeAction : com/monkopedia/lsp/TextDocumentCodeActionResult {
 	public static final field Companion Lcom/monkopedia/lsp/CodeAction$Companion;
 	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/lang/Boolean;Lcom/monkopedia/lsp/CodeActionDisabled;Lcom/monkopedia/lsp/WorkspaceEdit;Lcom/monkopedia/lsp/Command;Lkotlinx/serialization/json/JsonElement;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/lang/Boolean;Lcom/monkopedia/lsp/CodeActionDisabled;Lcom/monkopedia/lsp/WorkspaceEdit;Lcom/monkopedia/lsp/Command;Lkotlinx/serialization/json/JsonElement;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -1293,7 +1293,7 @@ public final class com/monkopedia/lsp/ColorPresentationParams$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class com/monkopedia/lsp/Command {
+public final class com/monkopedia/lsp/Command : com/monkopedia/lsp/TextDocumentCodeActionResult {
 	public static final field Companion Lcom/monkopedia/lsp/Command$Companion;
 	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/util/List;)V
 	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -9660,7 +9660,7 @@ public final class com/monkopedia/lsp/SemanticTokenTypes$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class com/monkopedia/lsp/SemanticTokens {
+public final class com/monkopedia/lsp/SemanticTokens : com/monkopedia/lsp/TextDocumentSemanticTokensFullDeltaResult {
 	public static final field Companion Lcom/monkopedia/lsp/SemanticTokens$Companion;
 	public fun <init> (Ljava/lang/String;Ljava/util/List;)V
 	public synthetic fun <init> (Ljava/lang/String;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -9765,7 +9765,7 @@ public final class com/monkopedia/lsp/SemanticTokensClientCapabilitiesRequests$C
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class com/monkopedia/lsp/SemanticTokensDelta {
+public final class com/monkopedia/lsp/SemanticTokensDelta : com/monkopedia/lsp/TextDocumentSemanticTokensFullDeltaResult {
 	public static final field Companion Lcom/monkopedia/lsp/SemanticTokensDelta$Companion;
 	public fun <init> (Ljava/lang/String;Ljava/util/List;)V
 	public synthetic fun <init> (Ljava/lang/String;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -11374,6 +11374,18 @@ public final class com/monkopedia/lsp/TextDocumentClientCapabilities$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
+public abstract interface class com/monkopedia/lsp/TextDocumentCodeActionResult {
+	public static final field Companion Lcom/monkopedia/lsp/TextDocumentCodeActionResult$Companion;
+}
+
+public final class com/monkopedia/lsp/TextDocumentCodeActionResult$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/TextDocumentCodeActionResultSerializer : kotlinx/serialization/json/JsonContentPolymorphicSerializer {
+	public static final field INSTANCE Lcom/monkopedia/lsp/TextDocumentCodeActionResultSerializer;
+}
+
 public abstract interface class com/monkopedia/lsp/TextDocumentContentChangeEvent {
 	public static final field Companion Lcom/monkopedia/lsp/TextDocumentContentChangeEvent$Companion;
 }
@@ -11771,6 +11783,18 @@ public final synthetic class com/monkopedia/lsp/TextDocumentSaveRegistrationOpti
 
 public final class com/monkopedia/lsp/TextDocumentSaveRegistrationOptions$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public abstract interface class com/monkopedia/lsp/TextDocumentSemanticTokensFullDeltaResult {
+	public static final field Companion Lcom/monkopedia/lsp/TextDocumentSemanticTokensFullDeltaResult$Companion;
+}
+
+public final class com/monkopedia/lsp/TextDocumentSemanticTokensFullDeltaResult$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/TextDocumentSemanticTokensFullDeltaResultSerializer : kotlinx/serialization/json/JsonContentPolymorphicSerializer {
+	public static final field INSTANCE Lcom/monkopedia/lsp/TextDocumentSemanticTokensFullDeltaResultSerializer;
 }
 
 public final class com/monkopedia/lsp/TextDocumentSyncClientCapabilities {
