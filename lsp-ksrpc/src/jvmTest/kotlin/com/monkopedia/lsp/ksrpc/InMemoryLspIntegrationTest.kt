@@ -86,6 +86,50 @@ class InMemoryLspIntegrationTest {
     }
 
     @Test
+    fun `bidirectional - server publishes diagnostics back to client`() =
+        runBlocking(Dispatchers.IO) {
+            val publishedDiagnostics =
+                CompletableDeferred<com.monkopedia.lsp.PublishDiagnosticsParams>()
+
+            // Capture the client stub from the server side so the server can call back.
+            val serverSideClient = CompletableDeferred<com.monkopedia.lsp.LanguageClient>()
+
+            val server = object : DefaultLanguageServer() {
+                override suspend fun initialize(params: InitializeParams): InitializeResult {
+                    // Simulate the server pushing a diagnostic immediately after init.
+                    serverSideClient.await().textDocumentPublishDiagnostics(
+                        com.monkopedia.lsp.PublishDiagnosticsParams(
+                            uri = "file:///foo.kt",
+                            diagnostics = emptyList()
+                        )
+                    )
+                    return InitializeResult(capabilities = ServerCapabilities())
+                }
+            }
+            val client = object : DefaultLanguageClient() {
+                override suspend fun textDocumentPublishDiagnostics(
+                    params: com.monkopedia.lsp.PublishDiagnosticsParams
+                ) {
+                    publishedDiagnostics.complete(params)
+                }
+            }
+
+            runWithLspConnectionCapturingClient(server, client, serverSideClient) { remoteServer ->
+                withTimeout(5_000) {
+                    remoteServer.initialize(
+                        InitializeParams(
+                            capabilities = ClientCapabilities(),
+                            processId = null,
+                            rootUri = null
+                        )
+                    )
+                    val diag = publishedDiagnostics.await()
+                    assertEquals("file:///foo.kt", diag.uri)
+                }
+            }
+        }
+
+    @Test
     fun `notification reaches server without expecting a response`() = runBlocking(Dispatchers.IO) {
         val opened = CompletableDeferred<DidOpenTextDocumentParams>()
         val server = object : DefaultLanguageServer() {
@@ -120,6 +164,35 @@ class InMemoryLspIntegrationTest {
                 assertEquals("file:///foo.kt", params.textDocument.uri)
             }
         }
+    }
+}
+
+/**
+ * Like [runWithLspConnection] but completes [serverSideClient] with the server's
+ * stub of the client, so the server can call back to the client during the test.
+ */
+private suspend fun runWithLspConnectionCapturingClient(
+    server: LanguageServer,
+    client: LanguageClient,
+    serverSideClient: CompletableDeferred<LanguageClient>,
+    block: suspend (LanguageServer) -> Unit
+) {
+    val clientToServer = ByteChannel(autoFlush = true)
+    val serverToClient = ByteChannel(autoFlush = true)
+
+    GlobalScope.launch(Dispatchers.Default) {
+        val conn = (clientToServer to serverToClient).asLspConnection()
+        serverSideClient.complete(conn.connectAsLspServer(server))
+    }
+
+    try {
+        val conn = (serverToClient to clientToServer).asLspConnection()
+        conn.connectAsLspClient(client).let { remoteServer ->
+            block(remoteServer)
+        }
+    } finally {
+        clientToServer.close()
+        serverToClient.close()
     }
 }
 
