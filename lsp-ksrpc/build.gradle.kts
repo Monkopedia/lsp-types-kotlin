@@ -42,6 +42,9 @@ kotlin {
             implementation(kotlin("test"))
             implementation(libs.kotlinx.coroutines.test)
         }
+        jvmTest.dependencies {
+            implementation(libs.lsp4j)
+        }
         // jsonrpc wiring — only available on targets ksrpc-jsonrpc supports.
         val jsonrpcMain by creating {
             dependsOn(commonMain.get())
