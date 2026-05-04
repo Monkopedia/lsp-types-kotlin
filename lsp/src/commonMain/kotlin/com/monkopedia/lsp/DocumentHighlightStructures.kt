@@ -12,10 +12,15 @@
 
 package com.monkopedia.lsp
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+
 /**
  * Parameters for a {@link DocumentHighlightRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DocumentHighlightParams(
     /**
      * The text document.
@@ -41,7 +46,7 @@ data class DocumentHighlightParams(
  * special attention. Usually a document highlight is visualized by changing
  * the background color of its range.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DocumentHighlight(
     /**
      * The range this highlight applies to.
@@ -56,7 +61,7 @@ data class DocumentHighlight(
 /**
  * Registration options for a {@link DocumentHighlightRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DocumentHighlightRegistrationOptions(
     /**
      * A document selector to identify the scope of the registration. If set to null
@@ -69,13 +74,13 @@ data class DocumentHighlightRegistrationOptions(
 /**
  * Provider options for a {@link DocumentHighlightRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DocumentHighlightOptions(val workDoneProgress: Boolean? = null)
 
 /**
  * Client Capabilities for a {@link DocumentHighlightRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DocumentHighlightClientCapabilities(
     /**
      * Whether document highlight supports dynamic registration.

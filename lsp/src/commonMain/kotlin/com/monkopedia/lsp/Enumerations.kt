@@ -12,6 +12,10 @@
 
 package com.monkopedia.lsp
 
+import kotlin.jvm.JvmInline
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
 /**
  * A set of predefined token types. This set is not fixed
  * an clients can specify additional token types via the
@@ -19,8 +23,8 @@ package com.monkopedia.lsp
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
-@kotlin.jvm.JvmInline
+@Serializable
+@JvmInline
 value class SemanticTokenTypes(val value: String) {
     companion object {
         val NAMESPACE = SemanticTokenTypes("namespace")
@@ -65,8 +69,8 @@ value class SemanticTokenTypes(val value: String) {
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
-@kotlin.jvm.JvmInline
+@Serializable
+@JvmInline
 value class SemanticTokenModifiers(val value: String) {
     companion object {
         val DECLARATION = SemanticTokenModifiers("declaration")
@@ -87,28 +91,28 @@ value class SemanticTokenModifiers(val value: String) {
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 enum class DocumentDiagnosticReportKind {
     /**
      * A diagnostic report with a full
      * set of problems.
      */
-    @kotlinx.serialization.SerialName("full")
+    @SerialName("full")
     FULL,
 
     /**
      * A report indicating that the last
      * returned report is still accurate.
      */
-    @kotlinx.serialization.SerialName("unchanged")
+    @SerialName("unchanged")
     UNCHANGED
 }
 
 /**
  * Predefined error codes.
  */
-@kotlinx.serialization.Serializable
-@kotlin.jvm.JvmInline
+@Serializable
+@JvmInline
 value class ErrorCodes(val value: Int) {
     companion object {
         val PARSE_ERROR = ErrorCodes(-32700)
@@ -126,8 +130,8 @@ value class ErrorCodes(val value: Int) {
     }
 }
 
-@kotlinx.serialization.Serializable
-@kotlin.jvm.JvmInline
+@Serializable
+@JvmInline
 value class LSPErrorCodes(val value: Int) {
     companion object {
         /**
@@ -172,8 +176,8 @@ value class LSPErrorCodes(val value: Int) {
 /**
  * A set of predefined range kinds.
  */
-@kotlinx.serialization.Serializable
-@kotlin.jvm.JvmInline
+@Serializable
+@JvmInline
 value class FoldingRangeKind(val value: String) {
     companion object {
         /**
@@ -196,8 +200,8 @@ value class FoldingRangeKind(val value: String) {
 /**
  * A symbol kind.
  */
-@kotlinx.serialization.Serializable
-@kotlin.jvm.JvmInline
+@Serializable
+@JvmInline
 value class SymbolKind(val value: UInt) {
     companion object {
         val FILE = SymbolKind(1u)
@@ -234,8 +238,8 @@ value class SymbolKind(val value: UInt) {
  *
  * @since 3.16
  */
-@kotlinx.serialization.Serializable
-@kotlin.jvm.JvmInline
+@Serializable
+@JvmInline
 value class SymbolTag(val value: UInt) {
     companion object {
         /**
@@ -250,36 +254,36 @@ value class SymbolTag(val value: UInt) {
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 enum class UniquenessLevel {
     /**
      * The moniker is only unique inside a document
      */
-    @kotlinx.serialization.SerialName("document")
+    @SerialName("document")
     DOCUMENT,
 
     /**
      * The moniker is unique inside a project for which a dump got created
      */
-    @kotlinx.serialization.SerialName("project")
+    @SerialName("project")
     PROJECT,
 
     /**
      * The moniker is unique inside the group to which a project belongs
      */
-    @kotlinx.serialization.SerialName("group")
+    @SerialName("group")
     GROUP,
 
     /**
      * The moniker is unique inside the moniker scheme.
      */
-    @kotlinx.serialization.SerialName("scheme")
+    @SerialName("scheme")
     SCHEME,
 
     /**
      * The moniker is globally unique
      */
-    @kotlinx.serialization.SerialName("global")
+    @SerialName("global")
     GLOBAL
 }
 
@@ -288,25 +292,25 @@ enum class UniquenessLevel {
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 enum class MonikerKind {
     /**
      * The moniker represent a symbol that is imported into a project
      */
-    @kotlinx.serialization.SerialName("import")
+    @SerialName("import")
     IMPORT,
 
     /**
      * The moniker represents a symbol that is exported from a project
      */
-    @kotlinx.serialization.SerialName("export")
+    @SerialName("export")
     EXPORT,
 
     /**
      * The moniker represents a symbol that is local to a project (e.g. a local
      * variable of a function, a class not visible outside the project, ...)
      */
-    @kotlinx.serialization.SerialName("local")
+    @SerialName("local")
     LOCAL
 }
 
@@ -315,8 +319,8 @@ enum class MonikerKind {
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
-@kotlin.jvm.JvmInline
+@Serializable
+@JvmInline
 value class InlayHintKind(val value: UInt) {
     companion object {
         /**
@@ -334,8 +338,8 @@ value class InlayHintKind(val value: UInt) {
 /**
  * The message type
  */
-@kotlinx.serialization.Serializable
-@kotlin.jvm.JvmInline
+@Serializable
+@JvmInline
 value class MessageType(val value: UInt) {
     companion object {
         /**
@@ -371,8 +375,8 @@ value class MessageType(val value: UInt) {
  * Defines how the host (editor) should sync
  * document changes to the language server.
  */
-@kotlinx.serialization.Serializable
-@kotlin.jvm.JvmInline
+@Serializable
+@JvmInline
 value class TextDocumentSyncKind(val value: UInt) {
     companion object {
         /**
@@ -398,8 +402,8 @@ value class TextDocumentSyncKind(val value: UInt) {
 /**
  * Represents reasons why a text document is saved.
  */
-@kotlinx.serialization.Serializable
-@kotlin.jvm.JvmInline
+@Serializable
+@JvmInline
 value class TextDocumentSaveReason(val value: UInt) {
     companion object {
         /**
@@ -423,8 +427,8 @@ value class TextDocumentSaveReason(val value: UInt) {
 /**
  * The kind of a completion entry.
  */
-@kotlinx.serialization.Serializable
-@kotlin.jvm.JvmInline
+@Serializable
+@JvmInline
 value class CompletionItemKind(val value: UInt) {
     companion object {
         val TEXT = CompletionItemKind(1u)
@@ -461,8 +465,8 @@ value class CompletionItemKind(val value: UInt) {
  *
  * @since 3.15.0
  */
-@kotlinx.serialization.Serializable
-@kotlin.jvm.JvmInline
+@Serializable
+@JvmInline
 value class CompletionItemTag(val value: UInt) {
     companion object {
         /**
@@ -476,8 +480,8 @@ value class CompletionItemTag(val value: UInt) {
  * Defines whether the insert text in a completion item should be interpreted as
  * plain text or a snippet.
  */
-@kotlinx.serialization.Serializable
-@kotlin.jvm.JvmInline
+@Serializable
+@JvmInline
 value class InsertTextFormat(val value: UInt) {
     companion object {
         /**
@@ -505,8 +509,8 @@ value class InsertTextFormat(val value: UInt) {
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
-@kotlin.jvm.JvmInline
+@Serializable
+@JvmInline
 value class InsertTextMode(val value: UInt) {
     companion object {
         /**
@@ -534,8 +538,8 @@ value class InsertTextMode(val value: UInt) {
 /**
  * A document highlight kind.
  */
-@kotlinx.serialization.Serializable
-@kotlin.jvm.JvmInline
+@Serializable
+@JvmInline
 value class DocumentHighlightKind(val value: UInt) {
     companion object {
         /**
@@ -558,8 +562,8 @@ value class DocumentHighlightKind(val value: UInt) {
 /**
  * A set of predefined code action kinds
  */
-@kotlinx.serialization.Serializable
-@kotlin.jvm.JvmInline
+@Serializable
+@JvmInline
 value class CodeActionKind(val value: String) {
     companion object {
         /**
@@ -640,24 +644,24 @@ value class CodeActionKind(val value: String) {
     }
 }
 
-@kotlinx.serialization.Serializable
+@Serializable
 enum class TraceValues {
     /**
      * Turn tracing off.
      */
-    @kotlinx.serialization.SerialName("off")
+    @SerialName("off")
     OFF,
 
     /**
      * Trace messages only.
      */
-    @kotlinx.serialization.SerialName("messages")
+    @SerialName("messages")
     MESSAGES,
 
     /**
      * Verbose message tracing.
      */
-    @kotlinx.serialization.SerialName("verbose")
+    @SerialName("verbose")
     VERBOSE
 }
 
@@ -668,18 +672,18 @@ enum class TraceValues {
  * Please note that `MarkupKinds` must not start with a `$`. This kinds
  * are reserved for internal usage.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 enum class MarkupKind {
     /**
      * Plain text is supported as a content format
      */
-    @kotlinx.serialization.SerialName("plaintext")
+    @SerialName("plaintext")
     PLAIN_TEXT,
 
     /**
      * Markdown is supported as a content format
      */
-    @kotlinx.serialization.SerialName("markdown")
+    @SerialName("markdown")
     MARKDOWN
 }
 
@@ -689,8 +693,8 @@ enum class MarkupKind {
  * @since 3.18.0
  * @proposed
  */
-@kotlinx.serialization.Serializable
-@kotlin.jvm.JvmInline
+@Serializable
+@JvmInline
 value class InlineCompletionTriggerKind(val value: UInt) {
     companion object {
         /**
@@ -710,8 +714,8 @@ value class InlineCompletionTriggerKind(val value: UInt) {
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
-@kotlin.jvm.JvmInline
+@Serializable
+@JvmInline
 value class PositionEncodingKind(val value: String) {
     companion object {
         /**
@@ -741,8 +745,8 @@ value class PositionEncodingKind(val value: String) {
 /**
  * The file event type
  */
-@kotlinx.serialization.Serializable
-@kotlin.jvm.JvmInline
+@Serializable
+@JvmInline
 value class FileChangeType(val value: UInt) {
     companion object {
         /**
@@ -762,8 +766,8 @@ value class FileChangeType(val value: UInt) {
     }
 }
 
-@kotlinx.serialization.Serializable
-@kotlin.jvm.JvmInline
+@Serializable
+@JvmInline
 value class WatchKind(val value: UInt) {
     companion object {
         /**
@@ -786,8 +790,8 @@ value class WatchKind(val value: UInt) {
 /**
  * The diagnostic's severity.
  */
-@kotlinx.serialization.Serializable
-@kotlin.jvm.JvmInline
+@Serializable
+@JvmInline
 value class DiagnosticSeverity(val value: UInt) {
     companion object {
         /**
@@ -817,8 +821,8 @@ value class DiagnosticSeverity(val value: UInt) {
  *
  * @since 3.15.0
  */
-@kotlinx.serialization.Serializable
-@kotlin.jvm.JvmInline
+@Serializable
+@JvmInline
 value class DiagnosticTag(val value: UInt) {
     companion object {
         /**
@@ -841,8 +845,8 @@ value class DiagnosticTag(val value: UInt) {
 /**
  * How a completion was triggered
  */
-@kotlinx.serialization.Serializable
-@kotlin.jvm.JvmInline
+@Serializable
+@JvmInline
 value class CompletionTriggerKind(val value: UInt) {
     companion object {
         /**
@@ -869,8 +873,8 @@ value class CompletionTriggerKind(val value: UInt) {
  *
  * @since 3.15.0
  */
-@kotlinx.serialization.Serializable
-@kotlin.jvm.JvmInline
+@Serializable
+@JvmInline
 value class SignatureHelpTriggerKind(val value: UInt) {
     companion object {
         /**
@@ -895,8 +899,8 @@ value class SignatureHelpTriggerKind(val value: UInt) {
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
-@kotlin.jvm.JvmInline
+@Serializable
+@JvmInline
 value class CodeActionTriggerKind(val value: UInt) {
     companion object {
         /**
@@ -920,18 +924,18 @@ value class CodeActionTriggerKind(val value: UInt) {
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 enum class FileOperationPatternKind {
     /**
      * The pattern matches a file only.
      */
-    @kotlinx.serialization.SerialName("file")
+    @SerialName("file")
     FILE,
 
     /**
      * The pattern matches a folder only.
      */
-    @kotlinx.serialization.SerialName("folder")
+    @SerialName("folder")
     FOLDER
 }
 
@@ -940,8 +944,8 @@ enum class FileOperationPatternKind {
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
-@kotlin.jvm.JvmInline
+@Serializable
+@JvmInline
 value class NotebookCellKind(val value: UInt) {
     companion object {
         /**
@@ -956,41 +960,41 @@ value class NotebookCellKind(val value: UInt) {
     }
 }
 
-@kotlinx.serialization.Serializable
+@Serializable
 enum class ResourceOperationKind {
     /**
      * Supports creating new files and folders.
      */
-    @kotlinx.serialization.SerialName("create")
+    @SerialName("create")
     CREATE,
 
     /**
      * Supports renaming existing files and folders.
      */
-    @kotlinx.serialization.SerialName("rename")
+    @SerialName("rename")
     RENAME,
 
     /**
      * Supports deleting existing files and folders.
      */
-    @kotlinx.serialization.SerialName("delete")
+    @SerialName("delete")
     DELETE
 }
 
-@kotlinx.serialization.Serializable
+@Serializable
 enum class FailureHandlingKind {
     /**
      * Applying the workspace change is simply aborted if one of the changes provided
      * fails. All operations executed before the failing operation stay executed.
      */
-    @kotlinx.serialization.SerialName("abort")
+    @SerialName("abort")
     ABORT,
 
     /**
      * All operations are executed transactional. That means they either all
      * succeed or no changes at all are applied to the workspace.
      */
-    @kotlinx.serialization.SerialName("transactional")
+    @SerialName("transactional")
     TRANSACTIONAL,
 
     /**
@@ -998,19 +1002,19 @@ enum class FailureHandlingKind {
      * If resource changes (create, rename or delete file) are part of the change the failure
      * handling strategy is abort.
      */
-    @kotlinx.serialization.SerialName("textOnlyTransactional")
+    @SerialName("textOnlyTransactional")
     TEXT_ONLY_TRANSACTIONAL,
 
     /**
      * The client tries to undo the operations already executed. But there is no
      * guarantee that this is succeeding.
      */
-    @kotlinx.serialization.SerialName("undo")
+    @SerialName("undo")
     UNDO
 }
 
-@kotlinx.serialization.Serializable
-@kotlin.jvm.JvmInline
+@Serializable
+@JvmInline
 value class PrepareSupportDefaultBehavior(val value: UInt) {
     companion object {
         /**
@@ -1021,8 +1025,8 @@ value class PrepareSupportDefaultBehavior(val value: UInt) {
     }
 }
 
-@kotlinx.serialization.Serializable
+@Serializable
 enum class TokenFormat {
-    @kotlinx.serialization.SerialName("relative")
+    @SerialName("relative")
     RELATIVE
 }

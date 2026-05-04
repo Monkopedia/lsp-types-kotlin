@@ -74,7 +74,7 @@ class TypeResolver(private val model: MetaModel) {
 
         is LspType.StringLiteral -> "String"
 
-        is LspType.Tuple -> "kotlinx.serialization.json.JsonArray"
+        is LspType.Tuple -> "JsonArray"
     }
 
     private fun resolveBase(name: String): String = when (name) {
@@ -114,7 +114,7 @@ class TypeResolver(private val model: MetaModel) {
         }
 
         // Fallback for tests / generators not wired up yet.
-        return "kotlinx.serialization.json.JsonElement"
+        return "JsonElement"
     }
 
     private fun resolveAnd(type: LspType.And, context: String): String {

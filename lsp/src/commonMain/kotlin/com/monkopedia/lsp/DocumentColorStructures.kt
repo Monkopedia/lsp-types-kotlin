@@ -12,10 +12,15 @@
 
 package com.monkopedia.lsp
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+
 /**
  * Parameters for a {@link DocumentColorRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DocumentColorParams(
     /**
      * An optional token that a server can use to report work done progress.
@@ -32,7 +37,7 @@ data class DocumentColorParams(
     val textDocument: TextDocumentIdentifier
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class DocumentColorRegistrationOptions(
     /**
      * A document selector to identify the scope of the registration. If set to null
@@ -47,11 +52,11 @@ data class DocumentColorRegistrationOptions(
     val id: String? = null
 ) : ServerCapabilitiesColorProviderOptions
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class DocumentColorOptions(val workDoneProgress: Boolean? = null) :
     ServerCapabilitiesColorProviderOptions
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class DocumentColorClientCapabilities(
     /**
      * Whether implementation supports dynamic registration. If this is set to `true`

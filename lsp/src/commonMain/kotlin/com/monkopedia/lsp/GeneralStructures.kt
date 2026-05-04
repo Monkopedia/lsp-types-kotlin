@@ -12,12 +12,17 @@
 
 package com.monkopedia.lsp
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+
 /**
  * General client capabilities.
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class GeneralClientCapabilities(
     /**
      * Client capability that signals how the client
@@ -63,7 +68,7 @@ data class GeneralClientCapabilities(
     val positionEncodings: List<PositionEncodingKind>? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class GeneralClientCapabilitiesStaleRequestSupport(
     /**
      * The client will actively cancel the request.

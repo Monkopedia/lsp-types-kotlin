@@ -68,9 +68,9 @@ fun CodeWriter.kdoc(documentation: String?, since: String? = null) {
 }
 
 /**
- * Emit file header with license and package declaration.
+ * Emit file header with license, package declaration, and optional imports.
  */
-fun fileHeader(packageName: String): String = buildString {
+fun fileHeader(packageName: String, imports: List<String> = emptyList()): String = buildString {
     appendLine("// Auto-generated from LSP metaModel.json — do not edit manually.")
     appendLine("// Generator: lsp-codegen")
     appendLine()
@@ -84,6 +84,12 @@ fun fileHeader(packageName: String): String = buildString {
     appendLine(")")
     appendLine()
     appendLine("package $packageName")
+    if (imports.isNotEmpty()) {
+        appendLine()
+        for (import in imports.sorted()) {
+            appendLine("import $import")
+        }
+    }
     appendLine()
 }
 

@@ -12,16 +12,21 @@
 
 package com.monkopedia.lsp
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+
 /**
  * The parameters of a configuration request.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class ConfigurationParams(val items: List<ConfigurationItem>)
 
 /**
  * Represents a color range from a document.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class ColorInformation(
     /**
      * The range in the document where this color appears.
@@ -36,7 +41,7 @@ data class ColorInformation(
 /**
  * Parameters for a {@link ColorPresentationRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class ColorPresentationParams(
     /**
      * An optional token that a server can use to report work done progress.
@@ -61,7 +66,7 @@ data class ColorPresentationParams(
     val range: Range
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class ColorPresentation(
     /**
      * The label of this color presentation. It will be shown on the color
@@ -87,7 +92,7 @@ data class ColorPresentation(
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class CallHierarchyPrepareParams(
     /**
      * The text document.
@@ -109,7 +114,7 @@ data class CallHierarchyPrepareParams(
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class CallHierarchyItem(
     /**
      * The name of this item.
@@ -144,7 +149,7 @@ data class CallHierarchyItem(
      * A data entry field that is preserved between a call hierarchy prepare and
      * incoming calls or outgoing calls requests.
      */
-    @kotlinx.serialization.SerialName("data") val `data`: LSPAny? = null
+    @SerialName("data") val `data`: LSPAny? = null
 )
 
 /**
@@ -152,7 +157,7 @@ data class CallHierarchyItem(
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class CallHierarchyRegistrationOptions(
     /**
      * A document selector to identify the scope of the registration. If set to null
@@ -172,7 +177,7 @@ data class CallHierarchyRegistrationOptions(
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class CallHierarchyIncomingCallsParams(
     /**
      * An optional token that a server can use to report work done progress.
@@ -191,7 +196,7 @@ data class CallHierarchyIncomingCallsParams(
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class CallHierarchyIncomingCall(
     /**
      * The item that makes the call.
@@ -209,7 +214,7 @@ data class CallHierarchyIncomingCall(
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class CallHierarchyOutgoingCallsParams(
     /**
      * An optional token that a server can use to report work done progress.
@@ -228,7 +233,7 @@ data class CallHierarchyOutgoingCallsParams(
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class CallHierarchyOutgoingCall(
     /**
      * The item that is called.
@@ -247,7 +252,7 @@ data class CallHierarchyOutgoingCall(
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class ShowDocumentParams(
     /**
      * The uri to show.
@@ -280,7 +285,7 @@ data class ShowDocumentParams(
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class ShowDocumentResult(
     /**
      * A boolean indicating if the show was successful.
@@ -288,7 +293,7 @@ data class ShowDocumentResult(
     val success: Boolean
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class LinkedEditingRangeParams(
     /**
      * The text document.
@@ -309,7 +314,7 @@ data class LinkedEditingRangeParams(
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class LinkedEditingRanges(
     /**
      * A list of ranges that can be edited together. The ranges must have
@@ -324,7 +329,7 @@ data class LinkedEditingRanges(
     val wordPattern: String? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class LinkedEditingRangeRegistrationOptions(
     /**
      * A document selector to identify the scope of the registration. If set to null
@@ -345,7 +350,7 @@ data class LinkedEditingRangeRegistrationOptions(
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class CreateFilesParams(
     /**
      * An array of all files/folders created in this operation.
@@ -359,7 +364,7 @@ data class CreateFilesParams(
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class RenameFilesParams(
     /**
      * An array of all files/folders renamed in this operation. When a folder is renamed, only
@@ -374,7 +379,7 @@ data class RenameFilesParams(
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DeleteFilesParams(
     /**
      * An array of all files/folders deleted in this operation.
@@ -387,7 +392,7 @@ data class DeleteFilesParams(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class TypeHierarchyPrepareParams(
     /**
      * The text document.
@@ -406,7 +411,7 @@ data class TypeHierarchyPrepareParams(
 /**
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class TypeHierarchyItem(
     /**
      * The name of this item.
@@ -445,7 +450,7 @@ data class TypeHierarchyItem(
      * type hierarchy in the server, helping improve the performance on
      * resolving supertypes and subtypes.
      */
-    @kotlinx.serialization.SerialName("data") val `data`: LSPAny? = null
+    @SerialName("data") val `data`: LSPAny? = null
 )
 
 /**
@@ -453,7 +458,7 @@ data class TypeHierarchyItem(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class TypeHierarchyRegistrationOptions(
     /**
      * A document selector to identify the scope of the registration. If set to null
@@ -473,7 +478,7 @@ data class TypeHierarchyRegistrationOptions(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class TypeHierarchySupertypesParams(
     /**
      * An optional token that a server can use to report work done progress.
@@ -492,7 +497,7 @@ data class TypeHierarchySupertypesParams(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class TypeHierarchySubtypesParams(
     /**
      * An optional token that a server can use to report work done progress.
@@ -511,7 +516,7 @@ data class TypeHierarchySubtypesParams(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DocumentDiagnosticParams(
     /**
      * An optional token that a server can use to report work done progress.
@@ -541,18 +546,18 @@ data class DocumentDiagnosticParams(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DocumentDiagnosticReportPartialResult(
     val relatedDocuments: Map<DocumentUri, DocumentDiagnosticReportPartialResultRelatedDocuments>
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class RegistrationParams(val registrations: List<Registration>)
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class UnregistrationParams(val unregisterations: List<Unregistration>)
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class InitializeParams(
     /**
      * An optional token that a server can use to report work done progress.
@@ -622,7 +627,7 @@ data class InitializeParams(
     val workspaceFolders: List<WorkspaceFolder>? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class InitializeParamsClientInfo(
     /**
      * The name of the client as defined by the client.
@@ -637,7 +642,7 @@ data class InitializeParamsClientInfo(
 /**
  * The result returned from an initialize request.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class InitializeResult(
     /**
      * The capabilities the language server provides.
@@ -651,7 +656,7 @@ data class InitializeResult(
     val serverInfo: InitializeResultServerInfo? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class InitializeResultServerInfo(
     /**
      * The name of the server as defined by the server.
@@ -667,7 +672,7 @@ data class InitializeResultServerInfo(
  * The data type of the ResponseError if the
  * initialize request fails.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class InitializeError(
     /**
      * Indicates whether the client execute the following retry logic:
@@ -678,30 +683,30 @@ data class InitializeError(
     val retry: Boolean
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 class InitializedParams
 
 /**
  * The parameters of a notification message.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class ShowMessageParams(
     /**
      * The message type. See {@link MessageType}
      */
-    @kotlinx.serialization.SerialName("type") val `type`: MessageType,
+    @SerialName("type") val `type`: MessageType,
     /**
      * The actual message.
      */
     val message: String
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class ShowMessageRequestParams(
     /**
      * The message type. See {@link MessageType}
      */
-    @kotlinx.serialization.SerialName("type") val `type`: MessageType,
+    @SerialName("type") val `type`: MessageType,
     /**
      * The actual message.
      */
@@ -712,7 +717,7 @@ data class ShowMessageRequestParams(
     val actions: List<MessageActionItem>? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class MessageActionItem(
     /**
      * A short title like 'Retry', 'Open Log' etc.
@@ -723,12 +728,12 @@ data class MessageActionItem(
 /**
  * The log message parameters.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class LogMessageParams(
     /**
      * The message type. See {@link MessageType}
      */
-    @kotlinx.serialization.SerialName("type") val `type`: MessageType,
+    @SerialName("type") val `type`: MessageType,
     /**
      * The actual message.
      */
@@ -738,7 +743,7 @@ data class LogMessageParams(
 /**
  * A text edit applicable to a text document.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class TextEdit(
     /**
      * The range of the text document to be manipulated. To insert
@@ -756,7 +761,7 @@ data class TextEdit(
 /**
  * Parameters for a {@link ReferencesRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class ReferenceParams(
     /**
      * The text document.
@@ -781,7 +786,7 @@ data class ReferenceParams(
 /**
  * Registration options for a {@link ReferencesRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class ReferenceRegistrationOptions(
     /**
      * A document selector to identify the scope of the registration. If set to null
@@ -795,7 +800,7 @@ data class ReferenceRegistrationOptions(
  * Represents information about programming constructs like variables, classes,
  * interfaces etc.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class SymbolInformation(
     /**
      * The name of this symbol.
@@ -844,7 +849,7 @@ data class SymbolInformation(
  * an array of arguments which will be passed to the command handler
  * function when invoked.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class Command(
     /**
      * Title of the command, like `save`.
@@ -864,7 +869,7 @@ data class Command(
 /**
  * The parameters of a {@link DocumentFormattingRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DocumentFormattingParams(
     /**
      * An optional token that a server can use to report work done progress.
@@ -883,7 +888,7 @@ data class DocumentFormattingParams(
 /**
  * Registration options for a {@link DocumentFormattingRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DocumentFormattingRegistrationOptions(
     /**
      * A document selector to identify the scope of the registration. If set to null
@@ -896,7 +901,7 @@ data class DocumentFormattingRegistrationOptions(
 /**
  * The parameters of a {@link DocumentRangeFormattingRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DocumentRangeFormattingParams(
     /**
      * An optional token that a server can use to report work done progress.
@@ -919,7 +924,7 @@ data class DocumentRangeFormattingParams(
 /**
  * Registration options for a {@link DocumentRangeFormattingRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DocumentRangeFormattingRegistrationOptions(
     /**
      * A document selector to identify the scope of the registration. If set to null
@@ -942,7 +947,7 @@ data class DocumentRangeFormattingRegistrationOptions(
  * @since 3.18.0
  * @proposed
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DocumentRangesFormattingParams(
     /**
      * An optional token that a server can use to report work done progress.
@@ -965,7 +970,7 @@ data class DocumentRangesFormattingParams(
 /**
  * The parameters of a {@link DocumentOnTypeFormattingRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DocumentOnTypeFormattingParams(
     /**
      * The document to format.
@@ -993,7 +998,7 @@ data class DocumentOnTypeFormattingParams(
 /**
  * Registration options for a {@link DocumentOnTypeFormattingRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DocumentOnTypeFormattingRegistrationOptions(
     /**
      * A document selector to identify the scope of the registration. If set to null
@@ -1013,7 +1018,7 @@ data class DocumentOnTypeFormattingRegistrationOptions(
 /**
  * The parameters of a {@link RenameRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class RenameParams(
     /**
      * An optional token that a server can use to report work done progress.
@@ -1038,7 +1043,7 @@ data class RenameParams(
 /**
  * Registration options for a {@link RenameRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class RenameRegistrationOptions(
     /**
      * A document selector to identify the scope of the registration. If set to null
@@ -1054,7 +1059,7 @@ data class RenameRegistrationOptions(
     val prepareProvider: Boolean? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class PrepareRenameParams(
     /**
      * The text document.
@@ -1073,7 +1078,7 @@ data class PrepareRenameParams(
 /**
  * The parameters of a {@link ExecuteCommandRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class ExecuteCommandParams(
     /**
      * An optional token that a server can use to report work done progress.
@@ -1092,7 +1097,7 @@ data class ExecuteCommandParams(
 /**
  * Registration options for a {@link ExecuteCommandRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class ExecuteCommandRegistrationOptions(
     val workDoneProgress: Boolean? = null,
     /**
@@ -1104,7 +1109,7 @@ data class ExecuteCommandRegistrationOptions(
 /**
  * The parameters passed via an apply workspace edit request.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class ApplyWorkspaceEditParams(
     /**
      * An optional label of the workspace edit. This label is
@@ -1123,7 +1128,7 @@ data class ApplyWorkspaceEditParams(
  *
  * @since 3.17 renamed from ApplyWorkspaceEditResponse
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class ApplyWorkspaceEditResult(
     /**
      * Indicates whether the edit was applied or not.
@@ -1143,13 +1148,13 @@ data class ApplyWorkspaceEditResult(
     val failedChange: UInt? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class SetTraceParams(val value: TraceValues)
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class LogTraceParams(val message: String, val verbose: String? = null)
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class CancelParams(
     /**
      * The request id to cancel.
@@ -1157,7 +1162,7 @@ data class CancelParams(
     val id: IntOrString
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class ProgressParams(
     /**
      * The progress token provided by the client or server.
@@ -1169,7 +1174,7 @@ data class ProgressParams(
     val value: LSPAny
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class PartialResultParams(
     /**
      * An optional token that a server can use to report partial results (e.g. streaming) to
@@ -1191,7 +1196,7 @@ data class PartialResultParams(
  * }
  * ```
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class Range(
     /**
      * The range's start position.
@@ -1207,7 +1212,7 @@ data class Range(
  * Static registration options to be returned in the initialize
  * request.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class StaticRegistrationOptions(
     /**
      * The id used to register the request. The id can be used to deregister
@@ -1216,7 +1221,7 @@ data class StaticRegistrationOptions(
     val id: String? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class ConfigurationItem(
     /**
      * The scope to get the configuration section for.
@@ -1231,7 +1236,7 @@ data class ConfigurationItem(
 /**
  * Represents a color in RGBA space.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class Color(
     /**
      * The red component of this color in the range [0-1].
@@ -1280,7 +1285,7 @@ data class Color(
  *
  * @since 3.17.0 - support for negotiated position encoding.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class Position(
     /**
      * Line position in a document (zero-based).
@@ -1306,11 +1311,11 @@ data class Position(
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class CallHierarchyOptions(val workDoneProgress: Boolean? = null) :
     ServerCapabilitiesCallHierarchyProviderOptions
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class LinkedEditingRangeOptions(val workDoneProgress: Boolean? = null) :
     ServerCapabilitiesLinkedEditingRangeProviderOptions
 
@@ -1319,7 +1324,7 @@ data class LinkedEditingRangeOptions(val workDoneProgress: Boolean? = null) :
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class FileCreate(
     /**
      * A file:// URI for the location of the file/folder being created.
@@ -1330,7 +1335,7 @@ data class FileCreate(
 /**
  * Create file operation.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class CreateFile(
     /**
      * An optional annotation identifier describing the operation.
@@ -1355,7 +1360,7 @@ data class CreateFile(
 /**
  * Rename file operation
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class RenameFile(
     /**
      * An optional annotation identifier describing the operation.
@@ -1384,7 +1389,7 @@ data class RenameFile(
 /**
  * Delete file operation
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DeleteFile(
     /**
      * An optional annotation identifier describing the operation.
@@ -1411,7 +1416,7 @@ data class DeleteFile(
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class ChangeAnnotation(
     /**
      * A human-readable string describing the actual change. The string
@@ -1435,7 +1440,7 @@ data class ChangeAnnotation(
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class FileRename(
     /**
      * A file:// URI for the original location of the file/folder being renamed.
@@ -1452,7 +1457,7 @@ data class FileRename(
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class FileDelete(
     /**
      * A file:// URI for the location of the file/folder being deleted.
@@ -1465,7 +1470,7 @@ data class FileDelete(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class TypeHierarchyOptions(val workDoneProgress: Boolean? = null) :
     ServerCapabilitiesTypeHierarchyProviderOptions
 
@@ -1493,7 +1498,7 @@ data class TypeHierarchyOptions(val workDoneProgress: Boolean? = null) :
  * *Please Note* that clients might sanitize the return markdown. A client could decide to
  * remove HTML from the markdown to avoid script execution.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class MarkupContent(
     /**
      * The type of the Markup
@@ -1510,7 +1515,7 @@ data class MarkupContent(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class RelatedFullDocumentDiagnosticReport(
     /**
      * A full document diagnostic report.
@@ -1543,7 +1548,7 @@ data class RelatedFullDocumentDiagnosticReport(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class RelatedUnchangedDocumentDiagnosticReport(
     /**
      * A document diagnostic report indicating
@@ -1574,7 +1579,7 @@ data class RelatedUnchangedDocumentDiagnosticReport(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class FullDocumentDiagnosticReport(
     /**
      * A full document diagnostic report.
@@ -1600,7 +1605,7 @@ data class FullDocumentDiagnosticReport(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class UnchangedDocumentDiagnosticReport(
     /**
      * A document diagnostic report indicating
@@ -1623,7 +1628,7 @@ data class UnchangedDocumentDiagnosticReport(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class PreviousResultId(
     /**
      * The URI for which the client knowns a
@@ -1641,7 +1646,7 @@ data class PreviousResultId(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class VersionedNotebookDocumentIdentifier(
     /**
      * The version number of this notebook document.
@@ -1665,7 +1670,7 @@ data class VersionedNotebookDocumentIdentifier(
  * @since 3.18.0
  * @proposed
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class StringValue(
     /**
      * The kind of string value.
@@ -1680,7 +1685,7 @@ data class StringValue(
 /**
  * General parameters to register for a notification or to register a provider.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class Registration(
     /**
      * The id used to register the request. The id can be used to deregister
@@ -1700,7 +1705,7 @@ data class Registration(
 /**
  * General parameters to unregister a request or notification.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class Unregistration(
     /**
      * The id used to unregister the request or notification. Usually an id
@@ -1716,7 +1721,7 @@ data class Unregistration(
 /**
  * The initialize parameters
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class _InitializeParams(
     /**
      * An optional token that a server can use to report work done progress.
@@ -1776,7 +1781,7 @@ data class _InitializeParams(
     val trace: TraceValues? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class _InitializeParamsClientInfo(
     /**
      * The name of the client as defined by the client.
@@ -1792,7 +1797,7 @@ data class _InitializeParamsClientInfo(
  * Defines the capabilities provided by a language
  * server.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class ServerCapabilities(
     /**
      * The position encoding the server picked from the encodings offered
@@ -1811,7 +1816,7 @@ data class ServerCapabilities(
      * defining each notification or for backwards compatibility the
      * TextDocumentSyncKind number.
      */
-    val textDocumentSync: kotlinx.serialization.json.JsonElement? = null,
+    val textDocumentSync: JsonElement? = null,
     /**
      * Defines how notebook documents are synced.
      *
@@ -1975,7 +1980,7 @@ data class ServerCapabilities(
     val experimental: LSPAny? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class ServerCapabilitiesWorkspace(
     /**
      * The server supports workspace folder.
@@ -1994,7 +1999,7 @@ data class ServerCapabilitiesWorkspace(
 /**
  * A text document identifier to denote a specific version of a text document.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class VersionedTextDocumentIdentifier(
     /**
      * The text document's uri.
@@ -2009,7 +2014,7 @@ data class VersionedTextDocumentIdentifier(
 /**
  * Save options.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class SaveOptions(
     /**
      * The client is supposed to include the content on save.
@@ -2020,7 +2025,7 @@ data class SaveOptions(
 /**
  * An event describing a file change.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class FileEvent(
     /**
      * The file's uri.
@@ -2029,10 +2034,10 @@ data class FileEvent(
     /**
      * The change type.
      */
-    @kotlinx.serialization.SerialName("type") val `type`: FileChangeType
+    @SerialName("type") val `type`: FileChangeType
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class FileSystemWatcher(
     /**
      * The glob pattern to watch. See {@link GlobPattern glob pattern} for more detail.
@@ -2053,7 +2058,7 @@ data class FileSystemWatcher(
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class InsertReplaceEdit(
     /**
      * The string to be inserted.
@@ -2074,7 +2079,7 @@ data class InsertReplaceEdit(
  * can have a label, like a function-name, a doc-comment, and
  * a set of parameters.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class SignatureInformation(
     /**
      * The label of this signature. Will be shown in
@@ -2104,7 +2109,7 @@ data class SignatureInformation(
  * Value-object that contains additional information when
  * requesting references.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class ReferenceContext(
     /**
      * Include the declaration of the current symbol.
@@ -2115,13 +2120,13 @@ data class ReferenceContext(
 /**
  * Reference options.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class ReferenceOptions(val workDoneProgress: Boolean? = null)
 
 /**
  * A base for all symbol information.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class BaseSymbolInformation(
     /**
      * The name of this symbol.
@@ -2149,7 +2154,7 @@ data class BaseSymbolInformation(
 /**
  * Value-object describing what options formatting should use.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class FormattingOptions(
     /**
      * Size of a tab in spaces.
@@ -2182,13 +2187,13 @@ data class FormattingOptions(
 /**
  * Provider options for a {@link DocumentFormattingRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DocumentFormattingOptions(val workDoneProgress: Boolean? = null)
 
 /**
  * Provider options for a {@link DocumentRangeFormattingRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DocumentRangeFormattingOptions(
     val workDoneProgress: Boolean? = null,
     /**
@@ -2203,7 +2208,7 @@ data class DocumentRangeFormattingOptions(
 /**
  * Provider options for a {@link DocumentOnTypeFormattingRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DocumentOnTypeFormattingOptions(
     /**
      * A character on which formatting should be triggered, like `{`.
@@ -2218,7 +2223,7 @@ data class DocumentOnTypeFormattingOptions(
 /**
  * Provider options for a {@link RenameRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class RenameOptions(
     val workDoneProgress: Boolean? = null,
     /**
@@ -2232,7 +2237,7 @@ data class RenameOptions(
 /**
  * The server capabilities of a {@link ExecuteCommandRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class ExecuteCommandOptions(
     val workDoneProgress: Boolean? = null,
     /**
@@ -2244,7 +2249,7 @@ data class ExecuteCommandOptions(
 /**
  * A text document identifier to optionally denote a specific version of a text document.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class OptionalVersionedTextDocumentIdentifier(
     /**
      * The text document's uri.
@@ -2265,7 +2270,7 @@ data class OptionalVersionedTextDocumentIdentifier(
  *
  * @since 3.16.0.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class AnnotatedTextEdit(
     /**
      * The range of the text document to be manipulated. To insert
@@ -2286,7 +2291,7 @@ data class AnnotatedTextEdit(
 /**
  * A generic resource operation.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class ResourceOperation(
     /**
      * The resource operation kind.
@@ -2303,7 +2308,7 @@ data class ResourceOperation(
 /**
  * Options to create a file.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class CreateFileOptions(
     /**
      * Overwrite existing file. Overwrite wins over `ignoreIfExists`
@@ -2318,7 +2323,7 @@ data class CreateFileOptions(
 /**
  * Rename file options
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class RenameFileOptions(
     /**
      * Overwrite target if existing. Overwrite wins over `ignoreIfExists`
@@ -2333,7 +2338,7 @@ data class RenameFileOptions(
 /**
  * Delete file options
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DeleteFileOptions(
     /**
      * Delete the content recursively if a folder is denoted.
@@ -2351,7 +2356,7 @@ data class DeleteFileOptions(
  * @since 3.18.0
  * @proposed
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class SelectedCompletionInfo(
     /**
      * The range that will be replaced if this completion item is accepted.
@@ -2366,7 +2371,7 @@ data class SelectedCompletionInfo(
 /**
  * Defines the capabilities provided by the client.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class ClientCapabilities(
     /**
      * Workspace specific client capabilities.
@@ -2403,7 +2408,7 @@ data class ClientCapabilities(
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class CodeDescription(
     /**
      * An URI to open with more information about the diagnostic error.
@@ -2415,7 +2420,7 @@ data class CodeDescription(
  * Represents a parameter of a callable-signature. A parameter can
  * have a label and a doc-comment.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class ParameterInformation(
     /**
      * The label of this parameter information.
@@ -2427,7 +2432,7 @@ data class ParameterInformation(
      * *Note*: a label of type string should be a substring of its containing signature label.
      * Its intended use case is to highlight the parameter label part in the `SignatureInformation.label`.
      */
-    val label: kotlinx.serialization.json.JsonElement,
+    val label: JsonElement,
     /**
      * The human-readable doc-comment of this parameter. Will be shown
      * in the UI but can be omitted.
@@ -2435,7 +2440,7 @@ data class ParameterInformation(
     val documentation: StringOr<MarkupContent>? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class ExecutionSummary(
     /**
      * A strict monotonically increasing value
@@ -2457,13 +2462,13 @@ data class ExecutionSummary(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class RelativePattern(
     /**
      * A workspace folder or a base URI to which this pattern will be matched
      * against relatively.
      */
-    val baseUri: kotlinx.serialization.json.JsonElement,
+    val baseUri: JsonElement,
     /**
      * The actual glob pattern;
      */
@@ -2473,7 +2478,7 @@ data class RelativePattern(
 /**
  * The client capabilities of a {@link ExecuteCommandRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class ExecuteCommandClientCapabilities(
     /**
      * Execute command supports dynamic registration.
@@ -2484,7 +2489,7 @@ data class ExecuteCommandClientCapabilities(
 /**
  * Client Capabilities for a {@link ReferencesRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class ReferenceClientCapabilities(
     /**
      * Whether references supports dynamic registration.
@@ -2495,7 +2500,7 @@ data class ReferenceClientCapabilities(
 /**
  * Client capabilities of a {@link DocumentFormattingRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DocumentFormattingClientCapabilities(
     /**
      * Whether formatting supports dynamic registration.
@@ -2506,7 +2511,7 @@ data class DocumentFormattingClientCapabilities(
 /**
  * Client capabilities of a {@link DocumentRangeFormattingRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DocumentRangeFormattingClientCapabilities(
     /**
      * Whether range formatting supports dynamic registration.
@@ -2524,7 +2529,7 @@ data class DocumentRangeFormattingClientCapabilities(
 /**
  * Client capabilities of a {@link DocumentOnTypeFormattingRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DocumentOnTypeFormattingClientCapabilities(
     /**
      * Whether on type formatting supports dynamic registration.
@@ -2532,7 +2537,7 @@ data class DocumentOnTypeFormattingClientCapabilities(
     val dynamicRegistration: Boolean? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class RenameClientCapabilities(
     /**
      * Whether rename supports dynamic registration.
@@ -2569,7 +2574,7 @@ data class RenameClientCapabilities(
 /**
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class CallHierarchyClientCapabilities(
     /**
      * Whether implementation supports dynamic registration. If this is set to `true`
@@ -2584,7 +2589,7 @@ data class CallHierarchyClientCapabilities(
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class LinkedEditingRangeClientCapabilities(
     /**
      * Whether implementation supports dynamic registration. If this is set to `true`
@@ -2597,7 +2602,7 @@ data class LinkedEditingRangeClientCapabilities(
 /**
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class TypeHierarchyClientCapabilities(
     /**
      * Whether implementation supports dynamic registration. If this is set to `true`
@@ -2610,7 +2615,7 @@ data class TypeHierarchyClientCapabilities(
 /**
  * Show message request client capabilities
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class ShowMessageRequestClientCapabilities(
     /**
      * Capabilities specific to the `MessageActionItem` type.
@@ -2618,7 +2623,7 @@ data class ShowMessageRequestClientCapabilities(
     val messageActionItem: ShowMessageRequestClientCapabilitiesMessageActionItem? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class ShowMessageRequestClientCapabilitiesMessageActionItem(
     /**
      * Whether the client supports additional attributes which
@@ -2633,7 +2638,7 @@ data class ShowMessageRequestClientCapabilitiesMessageActionItem(
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class ShowDocumentClientCapabilities(
     /**
      * The client has support for the showDocument
@@ -2647,7 +2652,7 @@ data class ShowDocumentClientCapabilities(
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class RegularExpressionsClientCapabilities(
     /**
      * The engine's name.
@@ -2664,7 +2669,7 @@ data class RegularExpressionsClientCapabilities(
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class MarkdownClientCapabilities(
     /**
      * The name of the parser.

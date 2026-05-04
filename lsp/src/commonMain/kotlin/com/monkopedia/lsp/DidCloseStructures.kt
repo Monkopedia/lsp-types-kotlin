@@ -12,12 +12,17 @@
 
 package com.monkopedia.lsp
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+
 /**
  * The params sent in a close notebook document notification.
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DidCloseNotebookDocumentParams(
     /**
      * The notebook document that got closed.
@@ -33,7 +38,7 @@ data class DidCloseNotebookDocumentParams(
 /**
  * The parameters sent in a close text document notification
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DidCloseTextDocumentParams(
     /**
      * The document that was closed.

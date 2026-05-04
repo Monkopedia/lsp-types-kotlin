@@ -12,10 +12,15 @@
 
 package com.monkopedia.lsp
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+
 /**
  * Parameters for a {@link DocumentSymbolRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DocumentSymbolParams(
     /**
      * An optional token that a server can use to report work done progress.
@@ -38,7 +43,7 @@ data class DocumentSymbolParams(
  * have two ranges: one that encloses its definition and one that points to
  * its most interesting range, e.g. the range of an identifier.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DocumentSymbol(
     /**
      * The name of this symbol. Will be displayed in the user interface and therefore must not be
@@ -85,7 +90,7 @@ data class DocumentSymbol(
 /**
  * Registration options for a {@link DocumentSymbolRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DocumentSymbolRegistrationOptions(
     /**
      * A document selector to identify the scope of the registration. If set to null
@@ -105,7 +110,7 @@ data class DocumentSymbolRegistrationOptions(
 /**
  * Provider options for a {@link DocumentSymbolRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DocumentSymbolOptions(
     val workDoneProgress: Boolean? = null,
     /**
@@ -120,7 +125,7 @@ data class DocumentSymbolOptions(
 /**
  * Client Capabilities for a {@link DocumentSymbolRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DocumentSymbolClientCapabilities(
     /**
      * Whether document symbol supports dynamic registration.
@@ -152,7 +157,7 @@ data class DocumentSymbolClientCapabilities(
     val labelSupport: Boolean? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class DocumentSymbolClientCapabilitiesSymbolKind(
     /**
      * The symbol kind values the client supports. When this
@@ -167,7 +172,7 @@ data class DocumentSymbolClientCapabilitiesSymbolKind(
     val valueSet: List<SymbolKind>? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class DocumentSymbolClientCapabilitiesTagSupport(
     /**
      * The tags supported by the client.

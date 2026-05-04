@@ -100,8 +100,6 @@ private fun runGeneration(args: Array<String>) {
     // --- Base types ---
     writeFile(packageDir, "Base.kt") {
         appendLine(fileHeader(LSP_PACKAGE))
-        appendLine("import kotlinx.serialization.Serializable")
-        appendLine()
         appendLine("/**")
         appendLine(" * A document URI as defined by the LSP specification.")
         appendLine(" * Typically a `file://` URI string.")
@@ -114,9 +112,25 @@ private fun runGeneration(args: Array<String>) {
         appendLine("typealias URI = String")
     }
 
+    val structureImports = listOf(
+        "kotlinx.serialization.SerialName",
+        "kotlinx.serialization.Serializable",
+        "kotlinx.serialization.json.JsonArray",
+        "kotlinx.serialization.json.JsonElement"
+    )
+
     // --- Enumerations ---
     writeFile(packageDir, "Enumerations.kt") {
-        appendLine(fileHeader(LSP_PACKAGE))
+        appendLine(
+            fileHeader(
+                LSP_PACKAGE,
+                imports = listOf(
+                    "kotlin.jvm.JvmInline",
+                    "kotlinx.serialization.SerialName",
+                    "kotlinx.serialization.Serializable"
+                )
+            )
+        )
         for (enum in model.enumerations) {
             appendLine(enumGen.generate(enum))
             appendLine()
@@ -125,7 +139,12 @@ private fun runGeneration(args: Array<String>) {
 
     // --- Type aliases ---
     writeFile(packageDir, "TypeAliases.kt") {
-        appendLine(fileHeader(LSP_PACKAGE))
+        appendLine(
+            fileHeader(
+                LSP_PACKAGE,
+                imports = listOf("kotlinx.serialization.json.JsonElement")
+            )
+        )
         for (alias in model.typeAliases) {
             val src = aliasGen.generate(alias)
             if (src.isNotBlank()) {
@@ -141,7 +160,7 @@ private fun runGeneration(args: Array<String>) {
             model.structures.find { it.name == name }
         }
         writeFile(packageDir, "${group}Structures.kt") {
-            appendLine(fileHeader(LSP_PACKAGE))
+            appendLine(fileHeader(LSP_PACKAGE, imports = structureImports))
             for (struct in structures) {
                 System.err.println("  generating ${struct.name}")
                 appendLine(structGen.generate(struct))
@@ -159,20 +178,31 @@ private fun runGeneration(args: Array<String>) {
         servicesPackageDir.mkdirs()
         val serviceGen = ServiceGenerator(resolver, model)
 
+        val serviceImports = listOf(
+            "com.monkopedia.ksrpc.RpcService",
+            "com.monkopedia.ksrpc.annotation.KsMethod",
+            "com.monkopedia.ksrpc.annotation.KsNotification",
+            "com.monkopedia.ksrpc.annotation.KsService",
+            "kotlinx.serialization.json.JsonElement"
+        )
+        // Default classes need JsonElement too because some method signatures
+        // include it; everything else comes via the implemented interface.
+        val defaultImports = listOf("kotlinx.serialization.json.JsonElement")
+
         writeFile(servicesPackageDir, "LanguageServer.kt") {
-            appendLine(fileHeader(LSP_PACKAGE))
+            appendLine(fileHeader(LSP_PACKAGE, imports = serviceImports))
             appendLine(serviceGen.generateServer())
         }
         writeFile(servicesPackageDir, "LanguageClient.kt") {
-            appendLine(fileHeader(LSP_PACKAGE))
+            appendLine(fileHeader(LSP_PACKAGE, imports = serviceImports))
             appendLine(serviceGen.generateClient())
         }
         writeFile(servicesPackageDir, "DefaultLanguageServer.kt") {
-            appendLine(fileHeader(LSP_PACKAGE))
+            appendLine(fileHeader(LSP_PACKAGE, imports = defaultImports))
             appendLine(serviceGen.generateDefaultServer())
         }
         writeFile(servicesPackageDir, "DefaultLanguageClient.kt") {
-            appendLine(fileHeader(LSP_PACKAGE))
+            appendLine(fileHeader(LSP_PACKAGE, imports = defaultImports))
             appendLine(serviceGen.generateDefaultClient())
         }
         println("Generated services in ${servicesPackageDir.absolutePath}")
@@ -181,7 +211,7 @@ private fun runGeneration(args: Array<String>) {
     // Emit any remaining inline literals that weren't emitted with their parent
     if (resolver.inlineLiterals.isNotEmpty()) {
         writeFile(packageDir, "InlineLiterals.kt") {
-            appendLine(fileHeader(LSP_PACKAGE))
+            appendLine(fileHeader(LSP_PACKAGE, imports = structureImports))
             for ((name, props) in resolver.inlineLiterals.toMap()) {
                 val w = CodeWriter()
                 structGen.generateClass(w, name, props, null, null)
@@ -195,7 +225,7 @@ private fun runGeneration(args: Array<String>) {
     // --- Generated literal-branch data classes (for LITERAL_UNION sealed interfaces) ---
     if (unionGen.literalBranches.isNotEmpty()) {
         writeFile(packageDir, "UnionBranches.kt") {
-            appendLine(fileHeader(LSP_PACKAGE))
+            appendLine(fileHeader(LSP_PACKAGE, imports = structureImports))
             for ((name, props) in unionGen.literalBranches.toMap()) {
                 val w = CodeWriter()
                 structGen.generateClass(w, name, props, null, null)
@@ -209,10 +239,21 @@ private fun runGeneration(args: Array<String>) {
     val unionsSrc = unionGen.generateUnionsFile()
     if (unionsSrc.isNotBlank()) {
         writeFile(packageDir, "Unions.kt") {
-            appendLine(fileHeader(LSP_PACKAGE))
-            appendLine("import kotlinx.serialization.json.contentOrNull")
-            appendLine("import kotlinx.serialization.json.jsonObject")
-            appendLine()
+            appendLine(
+                fileHeader(
+                    LSP_PACKAGE,
+                    imports = listOf(
+                        "kotlinx.serialization.DeserializationStrategy",
+                        "kotlinx.serialization.SerializationException",
+                        "kotlinx.serialization.Serializable",
+                        "kotlinx.serialization.json.JsonContentPolymorphicSerializer",
+                        "kotlinx.serialization.json.JsonElement",
+                        "kotlinx.serialization.json.JsonPrimitive",
+                        "kotlinx.serialization.json.contentOrNull",
+                        "kotlinx.serialization.json.jsonObject"
+                    )
+                )
+            )
             appendLine(unionsSrc)
         }
     }

@@ -12,12 +12,17 @@
 
 package com.monkopedia.lsp
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+
 /**
  * The options to register for file operations.
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class FileOperationRegistrationOptions(
     /**
      * The actual filters.
@@ -31,7 +36,7 @@ data class FileOperationRegistrationOptions(
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class FileOperationFilter(
     /**
      * A Uri scheme like `file` or `untitled`.
@@ -49,7 +54,7 @@ data class FileOperationFilter(
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class FileOperationPattern(
     /**
      * The glob pattern to match. Glob patterns can have the following syntax:
@@ -78,7 +83,7 @@ data class FileOperationPattern(
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class FileOperationOptions(
     /**
      * The server is interested in receiving didCreateFiles notifications.
@@ -111,7 +116,7 @@ data class FileOperationOptions(
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class FileOperationPatternOptions(
     /**
      * The pattern should be matched ignoring casing.
@@ -127,7 +132,7 @@ data class FileOperationPatternOptions(
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class FileOperationClientCapabilities(
     /**
      * Whether the client supports dynamic registration for file requests/notifications.

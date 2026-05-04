@@ -12,7 +12,12 @@
 
 package com.monkopedia.lsp
 
-@kotlinx.serialization.Serializable
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+
+@Serializable
 data class MonikerParams(
     /**
      * The text document.
@@ -38,7 +43,7 @@ data class MonikerParams(
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class Moniker(
     /**
      * The scheme of the moniker. For example tsc or .Net
@@ -59,7 +64,7 @@ data class Moniker(
     val kind: MonikerKind? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class MonikerRegistrationOptions(
     /**
      * A document selector to identify the scope of the registration. If set to null
@@ -69,7 +74,7 @@ data class MonikerRegistrationOptions(
     val workDoneProgress: Boolean? = null
 ) : ServerCapabilitiesMonikerProviderOptions
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class MonikerOptions(val workDoneProgress: Boolean? = null) :
     ServerCapabilitiesMonikerProviderOptions
 
@@ -78,7 +83,7 @@ data class MonikerOptions(val workDoneProgress: Boolean? = null) :
  *
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class MonikerClientCapabilities(
     /**
      * Whether moniker supports dynamic registration. If this is set to `true`

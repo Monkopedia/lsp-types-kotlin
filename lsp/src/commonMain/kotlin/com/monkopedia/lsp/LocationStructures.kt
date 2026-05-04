@@ -12,18 +12,23 @@
 
 package com.monkopedia.lsp
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+
 /**
  * Represents a location inside a resource, such as a line
  * inside a text file.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class Location(val uri: DocumentUri, val range: Range)
 
 /**
  * Represents the connection of two locations. Provides additional metadata over normal {@link Location locations},
  * including an origin range.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class LocationLink(
     /**
      * Span of the origin of this link.

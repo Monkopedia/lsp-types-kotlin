@@ -62,7 +62,7 @@ class UnionGenerator(private val resolver: TypeResolver) {
             UnionCategory.NAMED_REFERENCES -> {
                 val name = topLevelAliasName ?: contextName.ifEmpty { "" }
                 if (name.isEmpty()) {
-                    "kotlinx.serialization.json.JsonElement"
+                    "JsonElement"
                 } else {
                     emitNamedReferenceSealed(name, cls.nonNullItems)
                     name
@@ -72,7 +72,7 @@ class UnionGenerator(private val resolver: TypeResolver) {
             UnionCategory.LITERAL_UNION -> {
                 val name = topLevelAliasName ?: contextName.ifEmpty { "" }
                 if (name.isEmpty()) {
-                    "kotlinx.serialization.json.JsonElement"
+                    "JsonElement"
                 } else {
                     emitLiteralUnionSealed(name, cls.nonNullItems)
                     name
@@ -82,7 +82,7 @@ class UnionGenerator(private val resolver: TypeResolver) {
             UnionCategory.STRING_OR -> {
                 val other = cls.nonNullItems
                     .firstOrNull { it !is LspType.Base || it.name != "string" }
-                    ?: return "kotlinx.serialization.json.JsonElement"
+                    ?: return "JsonElement"
                 // Use a suffix so an inline literal in the other branch doesn't collide
                 // with the parent alias/context name (would create a recursive typealias).
                 val subContext = if (contextName.isNotEmpty()) "${contextName}Object" else ""
@@ -92,7 +92,7 @@ class UnionGenerator(private val resolver: TypeResolver) {
 
             UnionCategory.INT_OR_STRING -> "IntOrString"
 
-            UnionCategory.KEEP_JSON_ELEMENT -> "kotlinx.serialization.json.JsonElement"
+            UnionCategory.KEEP_JSON_ELEMENT -> "JsonElement"
         }
     }
 
@@ -126,18 +126,18 @@ class UnionGenerator(private val resolver: TypeResolver) {
                 return "BooleanOr<${onlyType.name}>"
             }
             // Inline literal/empty object — use JsonElement as the option type.
-            return "BooleanOr<kotlinx.serialization.json.JsonElement>"
+            return "BooleanOr<JsonElement>"
         }
 
         // Multi-options case: generate a sub-sealed interface for the options portion.
         // Naming: ${contextName}Options if contextName is set, else fall back to JsonElement.
         if (contextName.isEmpty()) {
-            return "BooleanOr<kotlinx.serialization.json.JsonElement>"
+            return "BooleanOr<JsonElement>"
         }
         val optionsTypeName = "${contextName}Options"
         // For multi-options, we conservatively use JsonElement to avoid emitting
         // additional sealed interfaces for now. Future work: emit a sub-sealed.
-        return "BooleanOr<kotlinx.serialization.json.JsonElement>"
+        return "BooleanOr<JsonElement>"
             .also { /* TODO: improve */ }
             .let {
                 // Actually emit a sub-sealed interface so consumers get type safety.
@@ -168,29 +168,29 @@ class UnionGenerator(private val resolver: TypeResolver) {
         w.line(" * Sealed interface for the LSP union type: ${branchTypes.joinToString(" | ")}.")
         w.line(" */")
         w.line(
-            "@kotlinx.serialization.Serializable(with = ${name}Serializer::class)"
+            "@Serializable(with = ${name}Serializer::class)"
         )
         w.line("sealed interface $name")
         w.line()
         w.line("object ${name}Serializer :")
         w.indent {
             line(
-                "kotlinx.serialization.json.JsonContentPolymorphicSerializer<$name>(" +
+                "JsonContentPolymorphicSerializer<$name>(" +
                     "$name::class) {"
             )
             indent {
                 line("override fun selectDeserializer(")
                 indent {
-                    line("element: kotlinx.serialization.json.JsonElement")
+                    line("element: JsonElement")
                 }
-                line("): kotlinx.serialization.DeserializationStrategy<$name> {")
+                line("): DeserializationStrategy<$name> {")
                 indent {
                     line("val obj = element.jsonObject")
                     line("return when {")
                     indent {
                         emitDiscriminationCases(this, branchTypes, name)
                         line(
-                            "else -> throw kotlinx.serialization.SerializationException(" +
+                            "else -> throw SerializationException(" +
                                 "\"Unknown $name variant: \$obj\")"
                         )
                     }
@@ -216,7 +216,7 @@ class UnionGenerator(private val resolver: TypeResolver) {
         val branches = branchTypes.mapNotNull { name ->
             resolver.getStructure(name)?.let { name to resolver.collectAllProperties(it) }
         }
-        val cast = "as kotlinx.serialization.DeserializationStrategy<$sealedName>"
+        val cast = "as DeserializationStrategy<$sealedName>"
 
         // Try kind-discriminator first (most reliable when branches use string literals).
         val kindMap = branches.mapNotNull { (name, props) ->
@@ -228,7 +228,7 @@ class UnionGenerator(private val resolver: TypeResolver) {
         if (kindMap.size == branches.size && kindMap.isNotEmpty()) {
             for ((name, kindValue) in kindMap) {
                 w.line(
-                    "(obj[\"kind\"] as? kotlinx.serialization.json.JsonPrimitive)" +
+                    "(obj[\"kind\"] as? JsonPrimitive)" +
                         "?.contentOrNull == \"$kindValue\" -> $name.serializer() $cast"
                 )
             }
@@ -278,28 +278,28 @@ class UnionGenerator(private val resolver: TypeResolver) {
         w.line(" * Sealed interface for the LSP literal union: $name.")
         w.line(" * Branches: ${branchNames.joinToString(", ")}.")
         w.line(" */")
-        w.line("@kotlinx.serialization.Serializable(with = ${name}Serializer::class)")
+        w.line("@Serializable(with = ${name}Serializer::class)")
         w.line("sealed interface $name")
         w.line()
         w.line("object ${name}Serializer :")
         w.indent {
             line(
-                "kotlinx.serialization.json.JsonContentPolymorphicSerializer<$name>(" +
+                "JsonContentPolymorphicSerializer<$name>(" +
                     "$name::class) {"
             )
             indent {
                 line("override fun selectDeserializer(")
                 indent {
-                    line("element: kotlinx.serialization.json.JsonElement")
+                    line("element: JsonElement")
                 }
-                line("): kotlinx.serialization.DeserializationStrategy<$name> {")
+                line("): DeserializationStrategy<$name> {")
                 indent {
                     line("val obj = element.jsonObject")
                     line("return when {")
                     indent {
                         emitLiteralDiscrimination(this, branchNames, literals, name)
                         line(
-                            "else -> throw kotlinx.serialization.SerializationException(" +
+                            "else -> throw SerializationException(" +
                                 "\"Unknown $name variant: \$obj\")"
                         )
                     }
@@ -319,7 +319,7 @@ class UnionGenerator(private val resolver: TypeResolver) {
         literals: List<LspType.Literal>,
         sealedName: String
     ) {
-        val cast = "as kotlinx.serialization.DeserializationStrategy<$sealedName>"
+        val cast = "as DeserializationStrategy<$sealedName>"
         // Try to find a unique required field per branch.
         for ((branchName, lit) in branchNames.zip(literals)) {
             val required = lit.value.properties.filter { !it.optional }.map { it.name }.toSet()

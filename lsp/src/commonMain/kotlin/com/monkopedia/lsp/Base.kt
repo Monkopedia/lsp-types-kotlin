@@ -12,8 +12,6 @@
 
 package com.monkopedia.lsp
 
-import kotlinx.serialization.Serializable
-
 /**
  * A document URI as defined by the LSP specification.
  * Typically a `file://` URI string.

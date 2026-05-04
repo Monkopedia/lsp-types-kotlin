@@ -12,12 +12,17 @@
 
 package com.monkopedia.lsp
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+
 /**
  * Cancellation data returned from a diagnostic request.
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DiagnosticServerCancellationData(val retriggerRequest: Boolean)
 
 /**
@@ -25,7 +30,7 @@ data class DiagnosticServerCancellationData(val retriggerRequest: Boolean)
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DiagnosticRegistrationOptions(
     /**
      * A document selector to identify the scope of the registration. If set to null
@@ -61,7 +66,7 @@ data class DiagnosticRegistrationOptions(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DiagnosticOptions(
     val workDoneProgress: Boolean? = null,
     /**
@@ -86,7 +91,7 @@ data class DiagnosticOptions(
  * Represents a diagnostic, such as a compiler error or warning. Diagnostic objects
  * are only valid in the scope of a resource.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class Diagnostic(
     /**
      * The range at which the message applies
@@ -135,7 +140,7 @@ data class Diagnostic(
      *
      * @since 3.16.0
      */
-    @kotlinx.serialization.SerialName("data") val `data`: LSPAny? = null
+    @SerialName("data") val `data`: LSPAny? = null
 )
 
 /**
@@ -143,7 +148,7 @@ data class Diagnostic(
  * used to point to code locations that cause or related to a diagnostics, e.g when duplicating
  * a symbol in a scope.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DiagnosticRelatedInformation(
     /**
      * The location of this related diagnostic information.
@@ -160,7 +165,7 @@ data class DiagnosticRelatedInformation(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DiagnosticWorkspaceClientCapabilities(
     /**
      * Whether the client implementation supports a refresh request sent from
@@ -179,7 +184,7 @@ data class DiagnosticWorkspaceClientCapabilities(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DiagnosticClientCapabilities(
     /**
      * Whether implementation supports dynamic registration. If this is set to `true`

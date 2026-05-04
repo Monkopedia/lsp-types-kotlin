@@ -108,8 +108,8 @@ class ServiceGenerator(private val resolver: TypeResolver, private val model: Me
     ): String {
         val w = CodeWriter()
         w.kdoc(doc)
-        w.line("@com.monkopedia.ksrpc.annotation.KsService")
-        w.block("interface $name : com.monkopedia.ksrpc.RpcService") {
+        w.line("@KsService")
+        w.block("interface $name : RpcService") {
             for (req in requests) {
                 line()
                 generateRequestMethod(this, req)
@@ -127,7 +127,7 @@ class ServiceGenerator(private val resolver: TypeResolver, private val model: Me
         val methodName = req.method.toMethodName()
         val wireName = req.method
 
-        w.line("@com.monkopedia.ksrpc.annotation.KsMethod(\"$wireName\")")
+        w.line("@KsMethod(\"$wireName\")")
 
         // Add @KsError for methods with typed error data
         if (req.errorData != null) {
@@ -160,8 +160,8 @@ class ServiceGenerator(private val resolver: TypeResolver, private val model: Me
         val methodName = notif.method.toMethodName()
         val wireName = notif.method
 
-        w.line("@com.monkopedia.ksrpc.annotation.KsMethod(\"$wireName\")")
-        w.line("@com.monkopedia.ksrpc.annotation.KsNotification")
+        w.line("@KsMethod(\"$wireName\")")
+        w.line("@KsNotification")
 
         val params = notif.params
         if (params != null) {

@@ -12,12 +12,17 @@
 
 package com.monkopedia.lsp
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+
 /**
  * A parameter literal used in inlay hint requests.
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class InlayHintParams(
     /**
      * An optional token that a server can use to report work done progress.
@@ -38,7 +43,7 @@ data class InlayHintParams(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class InlayHint(
     /**
      * The position of this hint.
@@ -53,7 +58,7 @@ data class InlayHint(
      *
      * *Note* that neither the string nor the label part can be empty.
      */
-    val label: kotlinx.serialization.json.JsonElement,
+    val label: JsonElement,
     /**
      * The kind of this hint. Can be omitted in which case the client
      * should fall back to a reasonable default.
@@ -91,7 +96,7 @@ data class InlayHint(
      * A data entry field that is preserved on an inlay hint between
      * a `textDocument/inlayHint` and a `inlayHint/resolve` request.
      */
-    @kotlinx.serialization.SerialName("data") val `data`: LSPAny? = null
+    @SerialName("data") val `data`: LSPAny? = null
 )
 
 /**
@@ -99,7 +104,7 @@ data class InlayHint(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class InlayHintRegistrationOptions(
     val workDoneProgress: Boolean? = null,
     /**
@@ -125,7 +130,7 @@ data class InlayHintRegistrationOptions(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class InlayHintLabelPart(
     /**
      * The value of this label part.
@@ -165,7 +170,7 @@ data class InlayHintLabelPart(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class InlayHintOptions(
     val workDoneProgress: Boolean? = null,
     /**
@@ -180,7 +185,7 @@ data class InlayHintOptions(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class InlayHintWorkspaceClientCapabilities(
     /**
      * Whether the client implementation supports a refresh request sent from
@@ -199,7 +204,7 @@ data class InlayHintWorkspaceClientCapabilities(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class InlayHintClientCapabilities(
     /**
      * Whether inlay hints support dynamic registration.
@@ -212,7 +217,7 @@ data class InlayHintClientCapabilities(
     val resolveSupport: InlayHintClientCapabilitiesResolveSupport? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class InlayHintClientCapabilitiesResolveSupport(
     /**
      * The properties that a client can resolve lazily.

@@ -12,12 +12,17 @@
 
 package com.monkopedia.lsp
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+
 /**
  * A notebook document.
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class NotebookDocument(
     /**
      * The notebook document's uri.
@@ -50,7 +55,7 @@ data class NotebookDocument(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class NotebookDocumentChangeEvent(
     /**
      * The changed meta data if any.
@@ -64,7 +69,7 @@ data class NotebookDocumentChangeEvent(
     val cells: NotebookDocumentChangeEventCells? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class NotebookDocumentChangeEventCells(
     /**
      * Changes to the cell structure to add or
@@ -75,14 +80,14 @@ data class NotebookDocumentChangeEventCells(
      * Changes to notebook cells properties like its
      * kind, execution summary or metadata.
      */
-    @kotlinx.serialization.SerialName("data") val `data`: List<NotebookCell>? = null,
+    @SerialName("data") val `data`: List<NotebookCell>? = null,
     /**
      * Changes to the text content of notebook cells.
      */
     val textContent: List<NotebookDocumentChangeEventCellsTextContent>? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class NotebookDocumentChangeEventCellsStructure(
     /**
      * The change to the cell array.
@@ -98,7 +103,7 @@ data class NotebookDocumentChangeEventCellsStructure(
     val didClose: List<TextDocumentIdentifier>? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class NotebookDocumentChangeEventCellsTextContent(
     val document: VersionedTextDocumentIdentifier,
     val changes: List<TextDocumentContentChangeEvent>
@@ -109,7 +114,7 @@ data class NotebookDocumentChangeEventCellsTextContent(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class NotebookDocumentIdentifier(
     /**
      * The notebook document's uri.
@@ -126,7 +131,7 @@ data class NotebookDocumentIdentifier(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class NotebookCell(
     /**
      * The cell's kind
@@ -156,7 +161,7 @@ data class NotebookCell(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class NotebookCellArrayChange(
     /**
      * The start oftest of the cell that changed.
@@ -187,7 +192,7 @@ data class NotebookCellArrayChange(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class NotebookDocumentSyncOptions(
     /**
      * The notebooks to be synced
@@ -205,7 +210,7 @@ data class NotebookDocumentSyncOptions(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class NotebookDocumentSyncRegistrationOptions(
     /**
      * The notebooks to be synced
@@ -229,7 +234,7 @@ data class NotebookDocumentSyncRegistrationOptions(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class NotebookCellTextDocumentFilter(
     /**
      * A filter that matches against the notebook
@@ -237,7 +242,7 @@ data class NotebookCellTextDocumentFilter(
      * value is provided it matches against the
      * notebook type. '*' matches every notebook.
      */
-    val notebook: kotlinx.serialization.json.JsonElement,
+    val notebook: JsonElement,
     /**
      * A language id like `python`.
      *
@@ -252,7 +257,7 @@ data class NotebookCellTextDocumentFilter(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class NotebookDocumentClientCapabilities(
     /**
      * Capabilities specific to notebook document synchronization
@@ -267,7 +272,7 @@ data class NotebookDocumentClientCapabilities(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class NotebookDocumentSyncClientCapabilities(
     /**
      * Whether implementation supports dynamic registration. If this is

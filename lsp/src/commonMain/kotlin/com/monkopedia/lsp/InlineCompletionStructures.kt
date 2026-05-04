@@ -12,13 +12,18 @@
 
 package com.monkopedia.lsp
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+
 /**
  * A parameter literal used in inline completion requests.
  *
  * @since 3.18.0
  * @proposed
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class InlineCompletionParams(
     /**
      * The text document.
@@ -45,7 +50,7 @@ data class InlineCompletionParams(
  * @since 3.18.0
  * @proposed
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class InlineCompletionList(
     /**
      * The inline completion items
@@ -59,7 +64,7 @@ data class InlineCompletionList(
  * @since 3.18.0
  * @proposed
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class InlineCompletionItem(
     /**
      * The text to replace the range with. Must be set.
@@ -85,7 +90,7 @@ data class InlineCompletionItem(
  * @since 3.18.0
  * @proposed
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class InlineCompletionRegistrationOptions(
     val workDoneProgress: Boolean? = null,
     /**
@@ -106,7 +111,7 @@ data class InlineCompletionRegistrationOptions(
  * @since 3.18.0
  * @proposed
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class InlineCompletionContext(
     /**
      * Describes how the inline completion was triggered.
@@ -124,7 +129,7 @@ data class InlineCompletionContext(
  * @since 3.18.0
  * @proposed
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class InlineCompletionOptions(val workDoneProgress: Boolean? = null)
 
 /**
@@ -133,7 +138,7 @@ data class InlineCompletionOptions(val workDoneProgress: Boolean? = null)
  * @since 3.18.0
  * @proposed
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class InlineCompletionClientCapabilities(
     /**
      * Whether implementation supports dynamic registration for inline completion providers.

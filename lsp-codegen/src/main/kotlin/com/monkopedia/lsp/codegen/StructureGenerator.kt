@@ -56,7 +56,7 @@ class StructureGenerator(
             ?: ""
 
         if (properties.isEmpty()) {
-            w.line("@kotlinx.serialization.Serializable")
+            w.line("@Serializable")
             w.line("class $name$implementsClause")
             return
         }
@@ -64,7 +64,7 @@ class StructureGenerator(
         // Snapshot which literals exist before resolving this class's properties.
         val literalsBefore = resolver.inlineLiterals.keys.toSet()
 
-        w.line("@kotlinx.serialization.Serializable")
+        w.line("@Serializable")
         w.line("data class $name(")
         w.indent {
             properties.forEachIndexed { i, prop ->
@@ -72,7 +72,7 @@ class StructureGenerator(
                 val isNullable = prop.optional || isNullableType(prop.type)
                 val kotlinType = resolver.resolve(prop.type, propContext, nullable = isNullable)
                 val serialName = if (prop.name != prop.name.toKotlinPropertyName()) {
-                    "@kotlinx.serialization.SerialName(\"${prop.name}\") "
+                    "@SerialName(\"${prop.name}\") "
                 } else {
                     ""
                 }

@@ -12,12 +12,17 @@
 
 package com.monkopedia.lsp
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+
 /**
  * The params sent in an open notebook document notification.
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DidOpenNotebookDocumentParams(
     /**
      * The notebook document that got opened.
@@ -33,7 +38,7 @@ data class DidOpenNotebookDocumentParams(
 /**
  * The parameters sent in an open text document notification
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DidOpenTextDocumentParams(
     /**
      * The document that was opened.

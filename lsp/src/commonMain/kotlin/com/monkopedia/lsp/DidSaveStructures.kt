@@ -12,12 +12,17 @@
 
 package com.monkopedia.lsp
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+
 /**
  * The params sent in a save notebook document notification.
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DidSaveNotebookDocumentParams(
     /**
      * The notebook document that got saved.
@@ -28,7 +33,7 @@ data class DidSaveNotebookDocumentParams(
 /**
  * The parameters sent in a save text document notification
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DidSaveTextDocumentParams(
     /**
      * The document that was saved.

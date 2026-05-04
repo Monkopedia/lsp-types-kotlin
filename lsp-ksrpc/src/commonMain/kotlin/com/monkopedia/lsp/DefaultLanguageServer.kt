@@ -12,20 +12,18 @@
 
 package com.monkopedia.lsp
 
+import kotlinx.serialization.json.JsonElement
+
 /**
  * Default LanguageServer where every method throws NotImplementedError.
  * Subclass and override only what you need.
  */
 open class DefaultLanguageServer : LanguageServer {
 
-    override suspend fun textDocumentImplementation(
-        params: ImplementationParams
-    ): kotlinx.serialization.json.JsonElement =
+    override suspend fun textDocumentImplementation(params: ImplementationParams): JsonElement =
         throw NotImplementedError("textDocumentImplementation not implemented")
 
-    override suspend fun textDocumentTypeDefinition(
-        params: TypeDefinitionParams
-    ): kotlinx.serialization.json.JsonElement =
+    override suspend fun textDocumentTypeDefinition(params: TypeDefinitionParams): JsonElement =
         throw NotImplementedError("textDocumentTypeDefinition not implemented")
 
     override suspend fun textDocumentDocumentColor(
@@ -41,9 +39,7 @@ open class DefaultLanguageServer : LanguageServer {
     override suspend fun textDocumentFoldingRange(params: FoldingRangeParams): List<FoldingRange> =
         throw NotImplementedError("textDocumentFoldingRange not implemented")
 
-    override suspend fun textDocumentDeclaration(
-        params: DeclarationParams
-    ): kotlinx.serialization.json.JsonElement =
+    override suspend fun textDocumentDeclaration(params: DeclarationParams): JsonElement =
         throw NotImplementedError("textDocumentDeclaration not implemented")
 
     override suspend fun textDocumentSelectionRange(
@@ -128,9 +124,7 @@ open class DefaultLanguageServer : LanguageServer {
         params: WorkspaceDiagnosticParams
     ): WorkspaceDiagnosticReport = throw NotImplementedError("workspaceDiagnostic not implemented")
 
-    override suspend fun textDocumentInlineCompletion(
-        params: InlineCompletionParams
-    ): kotlinx.serialization.json.JsonElement =
+    override suspend fun textDocumentInlineCompletion(params: InlineCompletionParams): JsonElement =
         throw NotImplementedError("textDocumentInlineCompletion not implemented")
 
     override suspend fun initialize(params: InitializeParams): InitializeResult =
@@ -143,9 +137,7 @@ open class DefaultLanguageServer : LanguageServer {
         params: WillSaveTextDocumentParams
     ): List<TextEdit> = throw NotImplementedError("textDocumentWillSaveWaitUntil not implemented")
 
-    override suspend fun textDocumentCompletion(
-        params: CompletionParams
-    ): kotlinx.serialization.json.JsonElement =
+    override suspend fun textDocumentCompletion(params: CompletionParams): JsonElement =
         throw NotImplementedError("textDocumentCompletion not implemented")
 
     override suspend fun completionItemResolve(params: CompletionItem): CompletionItem =
@@ -157,9 +149,7 @@ open class DefaultLanguageServer : LanguageServer {
     override suspend fun textDocumentSignatureHelp(params: SignatureHelpParams): SignatureHelp =
         throw NotImplementedError("textDocumentSignatureHelp not implemented")
 
-    override suspend fun textDocumentDefinition(
-        params: DefinitionParams
-    ): kotlinx.serialization.json.JsonElement =
+    override suspend fun textDocumentDefinition(params: DefinitionParams): JsonElement =
         throw NotImplementedError("textDocumentDefinition not implemented")
 
     override suspend fun textDocumentReferences(params: ReferenceParams): List<Location> =
@@ -170,9 +160,7 @@ open class DefaultLanguageServer : LanguageServer {
     ): List<DocumentHighlight> =
         throw NotImplementedError("textDocumentDocumentHighlight not implemented")
 
-    override suspend fun textDocumentDocumentSymbol(
-        params: DocumentSymbolParams
-    ): kotlinx.serialization.json.JsonElement =
+    override suspend fun textDocumentDocumentSymbol(params: DocumentSymbolParams): JsonElement =
         throw NotImplementedError("textDocumentDocumentSymbol not implemented")
 
     override suspend fun textDocumentCodeAction(
@@ -183,9 +171,7 @@ open class DefaultLanguageServer : LanguageServer {
     override suspend fun codeActionResolve(params: CodeAction): CodeAction =
         throw NotImplementedError("codeActionResolve not implemented")
 
-    override suspend fun workspaceSymbol(
-        params: WorkspaceSymbolParams
-    ): kotlinx.serialization.json.JsonElement =
+    override suspend fun workspaceSymbol(params: WorkspaceSymbolParams): JsonElement =
         throw NotImplementedError("workspaceSymbol not implemented")
 
     override suspend fun workspaceSymbolResolve(params: WorkspaceSymbol): WorkspaceSymbol =

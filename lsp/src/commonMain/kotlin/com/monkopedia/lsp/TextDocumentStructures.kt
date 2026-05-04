@@ -12,10 +12,15 @@
 
 package com.monkopedia.lsp
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+
 /**
  * General text document registration options.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class TextDocumentRegistrationOptions(
     /**
      * A document selector to identify the scope of the registration. If set to null
@@ -27,7 +32,7 @@ data class TextDocumentRegistrationOptions(
 /**
  * Describe options to be used when registered for text document change events.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class TextDocumentChangeRegistrationOptions(
     /**
      * A document selector to identify the scope of the registration. If set to null
@@ -43,7 +48,7 @@ data class TextDocumentChangeRegistrationOptions(
 /**
  * Save registration options.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class TextDocumentSaveRegistrationOptions(
     /**
      * A document selector to identify the scope of the registration. If set to null
@@ -60,7 +65,7 @@ data class TextDocumentSaveRegistrationOptions(
  * A parameter literal used in requests to pass a text document and a position inside that
  * document.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class TextDocumentPositionParams(
     /**
      * The text document.
@@ -75,7 +80,7 @@ data class TextDocumentPositionParams(
 /**
  * A literal to identify a text document in the client.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class TextDocumentIdentifier(
     /**
      * The text document's uri.
@@ -89,7 +94,7 @@ data class TextDocumentIdentifier(
  * So the creator of a TextDocumentEdit doesn't need to sort the array of edits or do any
  * kind of ordering. However the edits must be non overlapping.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class TextDocumentEdit(
     /**
      * The text document to change.
@@ -108,7 +113,7 @@ data class TextDocumentEdit(
  * An item to transfer a text document from the client to the
  * server.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class TextDocumentItem(
     /**
      * The text document's uri.
@@ -129,7 +134,7 @@ data class TextDocumentItem(
     val text: String
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class TextDocumentSyncOptions(
     /**
      * Open and close notifications are sent to the server. If omitted open close notification should not
@@ -161,7 +166,7 @@ data class TextDocumentSyncOptions(
 /**
  * Text document specific client capabilities.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class TextDocumentClientCapabilities(
     /**
      * Defines which synchronization capabilities the client supports.
@@ -321,7 +326,7 @@ data class TextDocumentClientCapabilities(
     val inlineCompletion: InlineCompletionClientCapabilities? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class TextDocumentSyncClientCapabilities(
     /**
      * Whether text document synchronization supports dynamic registration.

@@ -12,10 +12,15 @@
 
 package com.monkopedia.lsp
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+
 /**
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class SemanticTokensParams(
     /**
      * An optional token that a server can use to report work done progress.
@@ -35,7 +40,7 @@ data class SemanticTokensParams(
 /**
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class SemanticTokens(
     /**
      * An optional result id. If provided and clients support delta updating
@@ -47,21 +52,19 @@ data class SemanticTokens(
     /**
      * The actual tokens.
      */
-    @kotlinx.serialization.SerialName("data") val `data`: List<UInt>
+    @SerialName("data") val `data`: List<UInt>
 ) : TextDocumentSemanticTokensFullDeltaResult
 
 /**
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
-data class SemanticTokensPartialResult(
-    @kotlinx.serialization.SerialName("data") val `data`: List<UInt>
-)
+@Serializable
+data class SemanticTokensPartialResult(@SerialName("data") val `data`: List<UInt>)
 
 /**
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class SemanticTokensRegistrationOptions(
     /**
      * A document selector to identify the scope of the registration. If set to null
@@ -77,11 +80,11 @@ data class SemanticTokensRegistrationOptions(
      * Server supports providing semantic tokens for a specific range
      * of a document.
      */
-    val range: BooleanOr<kotlinx.serialization.json.JsonElement>? = null,
+    val range: BooleanOr<JsonElement>? = null,
     /**
      * Server supports providing semantic tokens for a full document.
      */
-    val full: BooleanOr<kotlinx.serialization.json.JsonElement>? = null,
+    val full: BooleanOr<JsonElement>? = null,
     /**
      * The id used to register the request. The id can be used to deregister
      * the request again. See also Registration#id.
@@ -92,7 +95,7 @@ data class SemanticTokensRegistrationOptions(
 /**
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class SemanticTokensDeltaParams(
     /**
      * An optional token that a server can use to report work done progress.
@@ -117,7 +120,7 @@ data class SemanticTokensDeltaParams(
 /**
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class SemanticTokensDelta(
     val resultId: String? = null,
     /**
@@ -129,13 +132,13 @@ data class SemanticTokensDelta(
 /**
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class SemanticTokensDeltaPartialResult(val edits: List<SemanticTokensEdit>)
 
 /**
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class SemanticTokensRangeParams(
     /**
      * An optional token that a server can use to report work done progress.
@@ -159,7 +162,7 @@ data class SemanticTokensRangeParams(
 /**
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class SemanticTokensOptions(
     val workDoneProgress: Boolean? = null,
     /**
@@ -170,17 +173,17 @@ data class SemanticTokensOptions(
      * Server supports providing semantic tokens for a specific range
      * of a document.
      */
-    val range: BooleanOr<kotlinx.serialization.json.JsonElement>? = null,
+    val range: BooleanOr<JsonElement>? = null,
     /**
      * Server supports providing semantic tokens for a full document.
      */
-    val full: BooleanOr<kotlinx.serialization.json.JsonElement>? = null
+    val full: BooleanOr<JsonElement>? = null
 ) : ServerCapabilitiesSemanticTokensProvider
 
 /**
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class SemanticTokensEdit(
     /**
      * The start offset of the edit.
@@ -193,13 +196,13 @@ data class SemanticTokensEdit(
     /**
      * The elements to insert.
      */
-    @kotlinx.serialization.SerialName("data") val `data`: List<UInt>? = null
+    @SerialName("data") val `data`: List<UInt>? = null
 )
 
 /**
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class SemanticTokensLegend(
     /**
      * The token types a server uses.
@@ -214,7 +217,7 @@ data class SemanticTokensLegend(
 /**
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class SemanticTokensWorkspaceClientCapabilities(
     /**
      * Whether the client implementation supports a refresh request sent from
@@ -231,7 +234,7 @@ data class SemanticTokensWorkspaceClientCapabilities(
 /**
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class SemanticTokensClientCapabilities(
     /**
      * Whether implementation supports dynamic registration. If this is set to `true`
@@ -294,16 +297,16 @@ data class SemanticTokensClientCapabilities(
     val augmentsSyntaxTokens: Boolean? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class SemanticTokensClientCapabilitiesRequests(
     /**
      * The client will send the `textDocument/semanticTokens/range` request if
      * the server provides a corresponding handler.
      */
-    val range: BooleanOr<kotlinx.serialization.json.JsonElement>? = null,
+    val range: BooleanOr<JsonElement>? = null,
     /**
      * The client will send the `textDocument/semanticTokens/full` request if
      * the server provides a corresponding handler.
      */
-    val full: BooleanOr<kotlinx.serialization.json.JsonElement>? = null
+    val full: BooleanOr<JsonElement>? = null
 )

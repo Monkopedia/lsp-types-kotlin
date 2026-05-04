@@ -12,41 +12,46 @@
 
 package com.monkopedia.lsp
 
-@kotlinx.serialization.Serializable
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+
+@Serializable
 data class NotebookDocumentSyncOptionsNotebookSelectorNotebook(
     /**
      * The notebook to be synced If a string
      * value is provided it matches against the
      * notebook type. '*' matches every notebook.
      */
-    val notebook: kotlinx.serialization.json.JsonElement,
+    val notebook: JsonElement,
     /**
      * The cells of the matching notebook to be synced.
      */
     val cells: List<NotebookDocumentSyncOptionsNotebookSelectorNotebookCells>? = null
 ) : NotebookDocumentSyncOptionsNotebookSelector
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class NotebookDocumentSyncOptionsNotebookSelectorNotebookCells(val language: String)
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class NotebookDocumentSyncOptionsNotebookSelectorCells(
     /**
      * The notebook to be synced If a string
      * value is provided it matches against the
      * notebook type. '*' matches every notebook.
      */
-    val notebook: kotlinx.serialization.json.JsonElement? = null,
+    val notebook: JsonElement? = null,
     /**
      * The cells of the matching notebook to be synced.
      */
     val cells: List<NotebookDocumentSyncOptionsNotebookSelectorCellsCells>
 ) : NotebookDocumentSyncOptionsNotebookSelector
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class NotebookDocumentSyncOptionsNotebookSelectorCellsCells(val language: String)
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class TextDocumentContentChangeEventRange(
     /**
      * The range of the document that changed.
@@ -64,7 +69,7 @@ data class TextDocumentContentChangeEventRange(
     val text: String
 ) : TextDocumentContentChangeEvent
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class TextDocumentContentChangeEventVariant(
     /**
      * The new text of the whole document.
@@ -72,7 +77,7 @@ data class TextDocumentContentChangeEventVariant(
     val text: String
 ) : TextDocumentContentChangeEvent
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class TextDocumentFilterLanguage(
     /**
      * A language id, like `typescript`.
@@ -88,7 +93,7 @@ data class TextDocumentFilterLanguage(
     val pattern: String? = null
 ) : TextDocumentFilter
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class TextDocumentFilterScheme(
     /**
      * A language id, like `typescript`.
@@ -104,7 +109,7 @@ data class TextDocumentFilterScheme(
     val pattern: String? = null
 ) : TextDocumentFilter
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class TextDocumentFilterPattern(
     /**
      * A language id, like `typescript`.
@@ -120,7 +125,7 @@ data class TextDocumentFilterPattern(
     val pattern: String
 ) : TextDocumentFilter
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class NotebookDocumentFilterNotebookType(
     /**
      * The type of the enclosing notebook.
@@ -136,7 +141,7 @@ data class NotebookDocumentFilterNotebookType(
     val pattern: String? = null
 ) : NotebookDocumentFilter
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class NotebookDocumentFilterScheme(
     /**
      * The type of the enclosing notebook.
@@ -152,7 +157,7 @@ data class NotebookDocumentFilterScheme(
     val pattern: String? = null
 ) : NotebookDocumentFilter
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class NotebookDocumentFilterPattern(
     /**
      * The type of the enclosing notebook.
@@ -168,38 +173,38 @@ data class NotebookDocumentFilterPattern(
     val pattern: String
 ) : NotebookDocumentFilter
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class NotebookDocumentSyncRegistrationOptionsNotebookSelectorNotebook(
     /**
      * The notebook to be synced If a string
      * value is provided it matches against the
      * notebook type. '*' matches every notebook.
      */
-    val notebook: kotlinx.serialization.json.JsonElement,
+    val notebook: JsonElement,
     /**
      * The cells of the matching notebook to be synced.
      */
     val cells: List<NotebookDocumentSyncRegistrationOptionsNotebookSelectorNotebookCells>? = null
 ) : NotebookDocumentSyncRegistrationOptionsNotebookSelector
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class NotebookDocumentSyncRegistrationOptionsNotebookSelectorNotebookCells(
     val language: String
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class NotebookDocumentSyncRegistrationOptionsNotebookSelectorCells(
     /**
      * The notebook to be synced If a string
      * value is provided it matches against the
      * notebook type. '*' matches every notebook.
      */
-    val notebook: kotlinx.serialization.json.JsonElement? = null,
+    val notebook: JsonElement? = null,
     /**
      * The cells of the matching notebook to be synced.
      */
     val cells: List<NotebookDocumentSyncRegistrationOptionsNotebookSelectorCellsCells>
 ) : NotebookDocumentSyncRegistrationOptionsNotebookSelector
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class NotebookDocumentSyncRegistrationOptionsNotebookSelectorCellsCells(val language: String)

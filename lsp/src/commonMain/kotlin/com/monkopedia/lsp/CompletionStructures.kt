@@ -12,10 +12,15 @@
 
 package com.monkopedia.lsp
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+
 /**
  * Completion parameters
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class CompletionParams(
     /**
      * The text document.
@@ -45,7 +50,7 @@ data class CompletionParams(
  * A completion item represents a text snippet that is
  * proposed to complete text that is being typed.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class CompletionItem(
     /**
      * The label of this completion item.
@@ -201,14 +206,14 @@ data class CompletionItem(
      * A data entry field that is preserved on a completion item between a
      * {@link CompletionRequest} and a {@link CompletionResolveRequest}.
      */
-    @kotlinx.serialization.SerialName("data") val `data`: LSPAny? = null
+    @SerialName("data") val `data`: LSPAny? = null
 )
 
 /**
  * Represents a collection of {@link CompletionItem completion items} to be presented
  * in the editor.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class CompletionList(
     /**
      * This list it not complete. Further typing results in recomputing this list.
@@ -239,7 +244,7 @@ data class CompletionList(
     val items: List<CompletionItem>
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class CompletionListItemDefaults(
     /**
      * A default commit character set.
@@ -252,7 +257,7 @@ data class CompletionListItemDefaults(
      *
      * @since 3.17.0
      */
-    val editRange: kotlinx.serialization.json.JsonElement? = null,
+    val editRange: JsonElement? = null,
     /**
      * A default insert text format.
      *
@@ -270,13 +275,13 @@ data class CompletionListItemDefaults(
      *
      * @since 3.17.0
      */
-    @kotlinx.serialization.SerialName("data") val `data`: LSPAny? = null
+    @SerialName("data") val `data`: LSPAny? = null
 )
 
 /**
  * Registration options for a {@link CompletionRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class CompletionRegistrationOptions(
     /**
      * A document selector to identify the scope of the registration. If set to null
@@ -320,7 +325,7 @@ data class CompletionRegistrationOptions(
     val completionItem: CompletionRegistrationOptionsCompletionItem? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class CompletionRegistrationOptionsCompletionItem(
     /**
      * The server has support for completion item label
@@ -335,7 +340,7 @@ data class CompletionRegistrationOptionsCompletionItem(
 /**
  * Contains additional information about the context in which a completion request is triggered.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class CompletionContext(
     /**
      * How the completion was triggered.
@@ -353,7 +358,7 @@ data class CompletionContext(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class CompletionItemLabelDetails(
     /**
      * An optional string which is rendered less prominently directly after {@link CompletionItem.label label},
@@ -370,7 +375,7 @@ data class CompletionItemLabelDetails(
 /**
  * Completion options.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class CompletionOptions(
     val workDoneProgress: Boolean? = null,
     /**
@@ -409,7 +414,7 @@ data class CompletionOptions(
     val completionItem: CompletionOptionsCompletionItem? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class CompletionOptionsCompletionItem(
     /**
      * The server has support for completion item label
@@ -424,7 +429,7 @@ data class CompletionOptionsCompletionItem(
 /**
  * Completion client capabilities
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class CompletionClientCapabilities(
     /**
      * Whether completion supports dynamic registration.
@@ -458,7 +463,7 @@ data class CompletionClientCapabilities(
     val completionList: CompletionClientCapabilitiesCompletionList? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class CompletionClientCapabilitiesCompletionItem(
     /**
      * Client supports snippets as insert text.
@@ -527,12 +532,12 @@ data class CompletionClientCapabilitiesCompletionItem(
     val labelDetailsSupport: Boolean? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class CompletionClientCapabilitiesCompletionItemInsertTextModeSupport(
     val valueSet: List<InsertTextMode>
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class CompletionClientCapabilitiesCompletionItemResolveSupport(
     /**
      * The properties that a client can resolve lazily.
@@ -540,7 +545,7 @@ data class CompletionClientCapabilitiesCompletionItemResolveSupport(
     val properties: List<String>
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class CompletionClientCapabilitiesCompletionItemTagSupport(
     /**
      * The tags supported by the client.
@@ -548,7 +553,7 @@ data class CompletionClientCapabilitiesCompletionItemTagSupport(
     val valueSet: List<CompletionItemTag>
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class CompletionClientCapabilitiesCompletionItemKind(
     /**
      * The completion item kind values the client supports. When this
@@ -563,7 +568,7 @@ data class CompletionClientCapabilitiesCompletionItemKind(
     val valueSet: List<CompletionItemKind>? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class CompletionClientCapabilitiesCompletionList(
     /**
      * The client supports the following itemDefaults on

@@ -12,6 +12,8 @@
 
 package com.monkopedia.lsp
 
+import kotlinx.serialization.json.JsonElement
+
 /**
  * The definition of a symbol represented as one or many {@link Location locations}.
  * For most programming languages there is only one location at which a symbol is
@@ -44,7 +46,7 @@ typealias LSPArray = List<LSPAny>
  * optional as well.
  * @since 3.17.0
  */
-typealias LSPAny = kotlinx.serialization.json.JsonElement
+typealias LSPAny = JsonElement
 
 /**
  * The declaration of a symbol representation as one or many {@link Location locations}.
@@ -62,7 +64,7 @@ typealias Declaration = SingleOrArray<Location>
  */
 typealias DeclarationLink = LocationLink
 
-typealias PrepareRenameResult = kotlinx.serialization.json.JsonElement
+typealias PrepareRenameResult = JsonElement
 
 /**
  * A document selector is the combination of one or many document filters.
@@ -102,7 +104,7 @@ typealias MarkedString = StringOr<MarkedStringObject>
  *
  * @since 3.17.0 - proposed support for NotebookCellTextDocumentFilter.
  */
-typealias DocumentFilter = kotlinx.serialization.json.JsonElement
+typealias DocumentFilter = JsonElement
 
 /**
  * LSP object definition.
@@ -115,7 +117,7 @@ typealias LSPObject = Map<String, LSPAny>
  *
  * @since 3.17.0
  */
-typealias GlobPattern = kotlinx.serialization.json.JsonElement
+typealias GlobPattern = JsonElement
 
 /**
  * The glob pattern to watch relative to the base path. Glob patterns can have the following syntax:

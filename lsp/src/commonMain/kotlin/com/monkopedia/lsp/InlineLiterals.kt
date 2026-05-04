@@ -12,5 +12,10 @@
 
 package com.monkopedia.lsp
 
-@kotlinx.serialization.Serializable
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+
+@Serializable
 data class MarkedStringObject(val language: String, val value: String)

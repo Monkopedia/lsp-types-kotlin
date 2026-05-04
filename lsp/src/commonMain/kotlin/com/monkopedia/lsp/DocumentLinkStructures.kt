@@ -12,10 +12,15 @@
 
 package com.monkopedia.lsp
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+
 /**
  * The parameters of a {@link DocumentLinkRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DocumentLinkParams(
     /**
      * An optional token that a server can use to report work done progress.
@@ -36,7 +41,7 @@ data class DocumentLinkParams(
  * A document link is a range in a text document that links to an internal or external resource, like another
  * text document or a web site.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DocumentLink(
     /**
      * The range this link applies to.
@@ -60,13 +65,13 @@ data class DocumentLink(
      * A data entry field that is preserved on a document link between a
      * DocumentLinkRequest and a DocumentLinkResolveRequest.
      */
-    @kotlinx.serialization.SerialName("data") val `data`: LSPAny? = null
+    @SerialName("data") val `data`: LSPAny? = null
 )
 
 /**
  * Registration options for a {@link DocumentLinkRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DocumentLinkRegistrationOptions(
     /**
      * A document selector to identify the scope of the registration. If set to null
@@ -83,7 +88,7 @@ data class DocumentLinkRegistrationOptions(
 /**
  * Provider options for a {@link DocumentLinkRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DocumentLinkOptions(
     val workDoneProgress: Boolean? = null,
     /**
@@ -95,7 +100,7 @@ data class DocumentLinkOptions(
 /**
  * The client capabilities of a {@link DocumentLinkRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DocumentLinkClientCapabilities(
     /**
      * Whether document link supports dynamic registration.

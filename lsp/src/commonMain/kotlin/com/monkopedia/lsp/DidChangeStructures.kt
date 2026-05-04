@@ -12,10 +12,15 @@
 
 package com.monkopedia.lsp
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+
 /**
  * The parameters of a `workspace/didChangeWorkspaceFolders` notification.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DidChangeWorkspaceFoldersParams(
     /**
      * The actual workspace folder change event.
@@ -28,7 +33,7 @@ data class DidChangeWorkspaceFoldersParams(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DidChangeNotebookDocumentParams(
     /**
      * The notebook document that did change. The version number points
@@ -58,7 +63,7 @@ data class DidChangeNotebookDocumentParams(
 /**
  * The parameters of a change configuration notification.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DidChangeConfigurationParams(
     /**
      * The actual changed settings
@@ -66,15 +71,13 @@ data class DidChangeConfigurationParams(
     val settings: LSPAny
 )
 
-@kotlinx.serialization.Serializable
-data class DidChangeConfigurationRegistrationOptions(
-    val section: kotlinx.serialization.json.JsonElement? = null
-)
+@Serializable
+data class DidChangeConfigurationRegistrationOptions(val section: JsonElement? = null)
 
 /**
  * The change text document notification's parameters.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DidChangeTextDocumentParams(
     /**
      * The document that did change. The version number points
@@ -101,7 +104,7 @@ data class DidChangeTextDocumentParams(
 /**
  * The watched files change notification's parameters.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DidChangeWatchedFilesParams(
     /**
      * The actual file events.
@@ -112,7 +115,7 @@ data class DidChangeWatchedFilesParams(
 /**
  * Describe options to be used when registered for text document change events.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DidChangeWatchedFilesRegistrationOptions(
     /**
      * The watchers to register.
@@ -120,7 +123,7 @@ data class DidChangeWatchedFilesRegistrationOptions(
     val watchers: List<FileSystemWatcher>
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class DidChangeConfigurationClientCapabilities(
     /**
      * Did change configuration notification supports dynamic registration.
@@ -128,7 +131,7 @@ data class DidChangeConfigurationClientCapabilities(
     val dynamicRegistration: Boolean? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class DidChangeWatchedFilesClientCapabilities(
     /**
      * Did change watched files notification supports dynamic registration. Please note

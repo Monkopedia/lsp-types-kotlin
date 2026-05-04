@@ -12,10 +12,15 @@
 
 package com.monkopedia.lsp
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+
 /**
  * Parameters for a {@link HoverRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class HoverParams(
     /**
      * The text document.
@@ -34,12 +39,12 @@ data class HoverParams(
 /**
  * The result of a hover request.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class Hover(
     /**
      * The hover's content
      */
-    val contents: kotlinx.serialization.json.JsonElement,
+    val contents: JsonElement,
     /**
      * An optional range inside the text document that is used to
      * visualize the hover, e.g. by changing the background color.
@@ -50,7 +55,7 @@ data class Hover(
 /**
  * Registration options for a {@link HoverRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class HoverRegistrationOptions(
     /**
      * A document selector to identify the scope of the registration. If set to null
@@ -63,10 +68,10 @@ data class HoverRegistrationOptions(
 /**
  * Hover options.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class HoverOptions(val workDoneProgress: Boolean? = null)
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class HoverClientCapabilities(
     /**
      * Whether hover supports dynamic registration.

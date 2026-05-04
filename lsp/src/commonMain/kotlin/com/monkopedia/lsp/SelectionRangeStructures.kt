@@ -12,10 +12,15 @@
 
 package com.monkopedia.lsp
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+
 /**
  * A parameter literal used in selection range requests.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class SelectionRangeParams(
     /**
      * An optional token that a server can use to report work done progress.
@@ -40,7 +45,7 @@ data class SelectionRangeParams(
  * A selection range represents a part of a selection hierarchy. A selection range
  * may have a parent selection range that contains it.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class SelectionRange(
     /**
      * The {@link Range range} of this selection range.
@@ -52,7 +57,7 @@ data class SelectionRange(
     val parent: SelectionRange? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class SelectionRangeRegistrationOptions(
     val workDoneProgress: Boolean? = null,
     /**
@@ -67,11 +72,11 @@ data class SelectionRangeRegistrationOptions(
     val id: String? = null
 ) : ServerCapabilitiesSelectionRangeProviderOptions
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class SelectionRangeOptions(val workDoneProgress: Boolean? = null) :
     ServerCapabilitiesSelectionRangeProviderOptions
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class SelectionRangeClientCapabilities(
     /**
      * Whether implementation supports dynamic registration for selection range providers. If this is set to `true`

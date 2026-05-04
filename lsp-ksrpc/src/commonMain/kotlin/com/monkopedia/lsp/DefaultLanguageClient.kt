@@ -12,6 +12,8 @@
 
 package com.monkopedia.lsp
 
+import kotlinx.serialization.json.JsonElement
+
 /**
  * Default LanguageClient where every method throws NotImplementedError.
  * Subclass and override only what you need.

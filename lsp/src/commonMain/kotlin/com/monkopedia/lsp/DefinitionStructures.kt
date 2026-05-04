@@ -12,10 +12,15 @@
 
 package com.monkopedia.lsp
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+
 /**
  * Parameters for a {@link DefinitionRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DefinitionParams(
     /**
      * The text document.
@@ -39,7 +44,7 @@ data class DefinitionParams(
 /**
  * Registration options for a {@link DefinitionRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DefinitionRegistrationOptions(
     /**
      * A document selector to identify the scope of the registration. If set to null
@@ -52,13 +57,13 @@ data class DefinitionRegistrationOptions(
 /**
  * Server Capabilities for a {@link DefinitionRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DefinitionOptions(val workDoneProgress: Boolean? = null)
 
 /**
  * Client Capabilities for a {@link DefinitionRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class DefinitionClientCapabilities(
     /**
      * Whether definition supports dynamic registration.

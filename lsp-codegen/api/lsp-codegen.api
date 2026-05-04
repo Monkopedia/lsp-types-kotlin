@@ -9,7 +9,8 @@ public final class com/monkopedia/lsp/codegen/CodeWriter {
 
 public final class com/monkopedia/lsp/codegen/CodeWriterKt {
 	public static final field LSP_PACKAGE Ljava/lang/String;
-	public static final fun fileHeader (Ljava/lang/String;)Ljava/lang/String;
+	public static final fun fileHeader (Ljava/lang/String;Ljava/util/List;)Ljava/lang/String;
+	public static synthetic fun fileHeader$default (Ljava/lang/String;Ljava/util/List;ILjava/lang/Object;)Ljava/lang/String;
 	public static final fun kdoc (Lcom/monkopedia/lsp/codegen/CodeWriter;Ljava/lang/String;Ljava/lang/String;)V
 	public static synthetic fun kdoc$default (Lcom/monkopedia/lsp/codegen/CodeWriter;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)V
 }

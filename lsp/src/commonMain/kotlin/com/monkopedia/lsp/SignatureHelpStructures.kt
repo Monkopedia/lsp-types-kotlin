@@ -12,10 +12,15 @@
 
 package com.monkopedia.lsp
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+
 /**
  * Parameters for a {@link SignatureHelpRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class SignatureHelpParams(
     /**
      * The text document.
@@ -43,7 +48,7 @@ data class SignatureHelpParams(
  * callable. There can be multiple signature but only one
  * active and only one active parameter.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class SignatureHelp(
     /**
      * One or more signatures.
@@ -76,7 +81,7 @@ data class SignatureHelp(
 /**
  * Registration options for a {@link SignatureHelpRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class SignatureHelpRegistrationOptions(
     /**
      * A document selector to identify the scope of the registration. If set to null
@@ -104,7 +109,7 @@ data class SignatureHelpRegistrationOptions(
  *
  * @since 3.15.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class SignatureHelpContext(
     /**
      * Action that caused signature help to be triggered.
@@ -135,7 +140,7 @@ data class SignatureHelpContext(
 /**
  * Server Capabilities for a {@link SignatureHelpRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class SignatureHelpOptions(
     val workDoneProgress: Boolean? = null,
     /**
@@ -156,7 +161,7 @@ data class SignatureHelpOptions(
 /**
  * Client Capabilities for a {@link SignatureHelpRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class SignatureHelpClientCapabilities(
     /**
      * Whether signature help supports dynamic registration.
@@ -178,7 +183,7 @@ data class SignatureHelpClientCapabilities(
     val contextSupport: Boolean? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class SignatureHelpClientCapabilitiesSignatureInformation(
     /**
      * Client supports the following content formats for the documentation
@@ -198,7 +203,7 @@ data class SignatureHelpClientCapabilitiesSignatureInformation(
     val activeParameterSupport: Boolean? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class SignatureHelpClientCapabilitiesSignatureInformationParameterInformation(
     /**
      * The client supports processing label offsets instead of a

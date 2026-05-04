@@ -40,7 +40,7 @@ class EnumGenerator(private val resolver: TypeResolver) {
 
     private fun generateEnumClass(w: CodeWriter, enum: Enumeration) {
         w.kdoc(enum.documentation, enum.since)
-        w.line("@kotlinx.serialization.Serializable")
+        w.line("@Serializable")
         w.block("enum class ${enum.name}") {
             enum.values.forEachIndexed { i, v ->
                 val comma = if (i < enum.values.lastIndex) "," else ","
@@ -48,7 +48,7 @@ class EnumGenerator(private val resolver: TypeResolver) {
                 kdoc(v.documentation, v.since)
                 val enumName = v.name.toEnumEntryName()
                 if (wireValue != enumName) {
-                    line("@kotlinx.serialization.SerialName(\"$wireValue\")")
+                    line("@SerialName(\"$wireValue\")")
                 }
                 line("$enumName$comma")
             }
@@ -64,8 +64,8 @@ class EnumGenerator(private val resolver: TypeResolver) {
         }
 
         w.kdoc(enum.documentation, enum.since)
-        w.line("@kotlinx.serialization.Serializable")
-        w.line("@kotlin.jvm.JvmInline")
+        w.line("@Serializable")
+        w.line("@JvmInline")
         w.block("value class ${enum.name}(val value: $kotlinType)") {
             w.block("companion object") {
                 for (v in enum.values) {

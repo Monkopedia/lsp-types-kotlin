@@ -12,10 +12,15 @@
 
 package com.monkopedia.lsp
 
-@kotlinx.serialization.Serializable
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+
+@Serializable
 data class WorkDoneProgressOptions(val workDoneProgress: Boolean? = null)
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class WorkDoneProgressCreateParams(
     /**
      * The token to be used to report progress.
@@ -23,7 +28,7 @@ data class WorkDoneProgressCreateParams(
     val token: ProgressToken
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class WorkDoneProgressCancelParams(
     /**
      * The token to be used to report progress.
@@ -31,7 +36,7 @@ data class WorkDoneProgressCancelParams(
     val token: ProgressToken
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class WorkDoneProgressBegin(
     val kind: String,
     /**
@@ -66,7 +71,7 @@ data class WorkDoneProgressBegin(
     val percentage: UInt? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class WorkDoneProgressReport(
     val kind: String,
     /**
@@ -95,7 +100,7 @@ data class WorkDoneProgressReport(
     val percentage: UInt? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class WorkDoneProgressEnd(
     val kind: String,
     /**
@@ -105,7 +110,7 @@ data class WorkDoneProgressEnd(
     val message: String? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class WorkDoneProgressParams(
     /**
      * An optional token that a server can use to report work done progress.

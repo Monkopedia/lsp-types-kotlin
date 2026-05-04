@@ -12,10 +12,15 @@
 
 package com.monkopedia.lsp
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+
 /**
  * The parameters sent in a will save text document notification.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class WillSaveTextDocumentParams(
     /**
      * The document that will be saved.

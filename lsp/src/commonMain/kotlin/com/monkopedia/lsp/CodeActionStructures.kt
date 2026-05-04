@@ -12,10 +12,15 @@
 
 package com.monkopedia.lsp
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+
 /**
  * The parameters of a {@link CodeActionRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class CodeActionParams(
     /**
      * An optional token that a server can use to report work done progress.
@@ -46,7 +51,7 @@ data class CodeActionParams(
  *
  * A CodeAction must set either `edit` and/or a `command`. If both are supplied, the `edit` is applied first, then the `command` is executed.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class CodeAction(
     /**
      * A short, human-readable, title for this code action.
@@ -106,10 +111,10 @@ data class CodeAction(
      *
      * @since 3.16.0
      */
-    @kotlinx.serialization.SerialName("data") val `data`: LSPAny? = null
+    @SerialName("data") val `data`: LSPAny? = null
 ) : TextDocumentCodeActionResult
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class CodeActionDisabled(
     /**
      * Human readable description of why the code action is currently disabled.
@@ -122,7 +127,7 @@ data class CodeActionDisabled(
 /**
  * Registration options for a {@link CodeActionRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class CodeActionRegistrationOptions(
     /**
      * A document selector to identify the scope of the registration. If set to null
@@ -150,7 +155,7 @@ data class CodeActionRegistrationOptions(
  * Contains additional diagnostic information about the context in which
  * a {@link CodeActionProvider.provideCodeActions code action} is run.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class CodeActionContext(
     /**
      * An array of diagnostics known on the client side overlapping the range provided to the
@@ -178,7 +183,7 @@ data class CodeActionContext(
 /**
  * Provider options for a {@link CodeActionRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class CodeActionOptions(
     val workDoneProgress: Boolean? = null,
     /**
@@ -200,7 +205,7 @@ data class CodeActionOptions(
 /**
  * The Client Capabilities of a {@link CodeActionRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class CodeActionClientCapabilities(
     /**
      * Whether code action supports dynamic registration.
@@ -253,7 +258,7 @@ data class CodeActionClientCapabilities(
     val honorsChangeAnnotations: Boolean? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class CodeActionClientCapabilitiesCodeActionLiteralSupport(
     /**
      * The code action kind is support with the following value
@@ -262,7 +267,7 @@ data class CodeActionClientCapabilitiesCodeActionLiteralSupport(
     val codeActionKind: CodeActionClientCapabilitiesCodeActionLiteralSupportCodeActionKind
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class CodeActionClientCapabilitiesCodeActionLiteralSupportCodeActionKind(
     /**
      * The code action kind values the client supports. When this
@@ -273,7 +278,7 @@ data class CodeActionClientCapabilitiesCodeActionLiteralSupportCodeActionKind(
     val valueSet: List<CodeActionKind>
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class CodeActionClientCapabilitiesResolveSupport(
     /**
      * The properties that a client can resolve lazily.

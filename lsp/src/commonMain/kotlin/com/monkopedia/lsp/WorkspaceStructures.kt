@@ -12,10 +12,15 @@
 
 package com.monkopedia.lsp
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+
 /**
  * A workspace folder inside a client.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class WorkspaceFolder(
     /**
      * The associated URI for this workspace folder.
@@ -42,7 +47,7 @@ data class WorkspaceFolder(
  * cause failure of the operation. How the client recovers from the failure is described by
  * the client capability: `workspace.workspaceEdit.failureHandling`
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class WorkspaceEdit(
     /**
      * Holds changes to existing resources.
@@ -77,7 +82,7 @@ data class WorkspaceEdit(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class WorkspaceDiagnosticParams(
     /**
      * An optional token that a server can use to report work done progress.
@@ -104,7 +109,7 @@ data class WorkspaceDiagnosticParams(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class WorkspaceDiagnosticReport(val items: List<WorkspaceDocumentDiagnosticReport>)
 
 /**
@@ -112,7 +117,7 @@ data class WorkspaceDiagnosticReport(val items: List<WorkspaceDocumentDiagnostic
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class WorkspaceDiagnosticReportPartialResult(
     val items: List<WorkspaceDocumentDiagnosticReport>
 )
@@ -120,7 +125,7 @@ data class WorkspaceDiagnosticReportPartialResult(
 /**
  * The parameters of a {@link WorkspaceSymbolRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class WorkspaceSymbolParams(
     /**
      * An optional token that a server can use to report work done progress.
@@ -145,7 +150,7 @@ data class WorkspaceSymbolParams(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class WorkspaceSymbol(
     /**
      * The name of this symbol.
@@ -175,18 +180,18 @@ data class WorkspaceSymbol(
      *
      * See SymbolInformation#location for more details.
      */
-    val location: kotlinx.serialization.json.JsonElement,
+    val location: JsonElement,
     /**
      * A data entry field that is preserved on a workspace symbol between a
      * workspace symbol request and a workspace symbol resolve request.
      */
-    @kotlinx.serialization.SerialName("data") val `data`: LSPAny? = null
+    @SerialName("data") val `data`: LSPAny? = null
 )
 
 /**
  * Registration options for a {@link WorkspaceSymbolRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class WorkspaceSymbolRegistrationOptions(
     val workDoneProgress: Boolean? = null,
     /**
@@ -201,7 +206,7 @@ data class WorkspaceSymbolRegistrationOptions(
 /**
  * The workspace folder change event.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class WorkspaceFoldersChangeEvent(
     /**
      * The array of added workspace folders
@@ -213,7 +218,7 @@ data class WorkspaceFoldersChangeEvent(
     val removed: List<WorkspaceFolder>
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class WorkspaceFoldersInitializeParams(
     /**
      * The workspace folders configured in the client when the server starts.
@@ -230,7 +235,7 @@ data class WorkspaceFoldersInitializeParams(
 /**
  * Server capabilities for a {@link WorkspaceSymbolRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class WorkspaceSymbolOptions(
     val workDoneProgress: Boolean? = null,
     /**
@@ -247,7 +252,7 @@ data class WorkspaceSymbolOptions(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class WorkspaceFullDocumentDiagnosticReport(
     /**
      * A full document diagnostic report.
@@ -279,7 +284,7 @@ data class WorkspaceFullDocumentDiagnosticReport(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class WorkspaceUnchangedDocumentDiagnosticReport(
     /**
      * A document diagnostic report indicating
@@ -304,7 +309,7 @@ data class WorkspaceUnchangedDocumentDiagnosticReport(
     val version: Int?
 ) : WorkspaceDocumentDiagnosticReport
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class WorkspaceFoldersServerCapabilities(
     /**
      * The server has support for workspace folders
@@ -319,13 +324,13 @@ data class WorkspaceFoldersServerCapabilities(
      * side. The ID can be used to unregister for these events
      * using the `client/unregisterCapability` request.
      */
-    val changeNotifications: kotlinx.serialization.json.JsonElement? = null
+    val changeNotifications: JsonElement? = null
 )
 
 /**
  * Workspace specific client capabilities.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class WorkspaceClientCapabilities(
     /**
      * The client supports applying batch edits
@@ -415,7 +420,7 @@ data class WorkspaceClientCapabilities(
     val foldingRange: FoldingRangeWorkspaceClientCapabilities? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class WorkspaceEditClientCapabilities(
     /**
      * The client supports versioned document changes in `WorkspaceEdit`s
@@ -454,7 +459,7 @@ data class WorkspaceEditClientCapabilities(
     val changeAnnotationSupport: WorkspaceEditClientCapabilitiesChangeAnnotationSupport? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class WorkspaceEditClientCapabilitiesChangeAnnotationSupport(
     /**
      * Whether the client groups edits with equal labels into tree nodes,
@@ -467,7 +472,7 @@ data class WorkspaceEditClientCapabilitiesChangeAnnotationSupport(
 /**
  * Client capabilities for a {@link WorkspaceSymbolRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class WorkspaceSymbolClientCapabilities(
     /**
      * Symbol request supports dynamic registration.
@@ -494,7 +499,7 @@ data class WorkspaceSymbolClientCapabilities(
     val resolveSupport: WorkspaceSymbolClientCapabilitiesResolveSupport? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class WorkspaceSymbolClientCapabilitiesResolveSupport(
     /**
      * The properties that a client can resolve lazily. Usually
@@ -503,7 +508,7 @@ data class WorkspaceSymbolClientCapabilitiesResolveSupport(
     val properties: List<String>
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class WorkspaceSymbolClientCapabilitiesSymbolKind(
     /**
      * The symbol kind values the client supports. When this
@@ -518,7 +523,7 @@ data class WorkspaceSymbolClientCapabilitiesSymbolKind(
     val valueSet: List<SymbolKind>? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class WorkspaceSymbolClientCapabilitiesTagSupport(
     /**
      * The tags supported by the client.

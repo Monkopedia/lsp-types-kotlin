@@ -12,7 +12,12 @@
 
 package com.monkopedia.lsp
 
-@kotlinx.serialization.Serializable
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+
+@Serializable
 data class ImplementationParams(
     /**
      * The text document.
@@ -33,7 +38,7 @@ data class ImplementationParams(
     val partialResultToken: ProgressToken? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class ImplementationRegistrationOptions(
     /**
      * A document selector to identify the scope of the registration. If set to null
@@ -48,14 +53,14 @@ data class ImplementationRegistrationOptions(
     val id: String? = null
 ) : ServerCapabilitiesImplementationProviderOptions
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class ImplementationOptions(val workDoneProgress: Boolean? = null) :
     ServerCapabilitiesImplementationProviderOptions
 
 /**
  * @since 3.6.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class ImplementationClientCapabilities(
     /**
      * Whether implementation supports dynamic registration. If this is set to `true`

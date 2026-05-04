@@ -12,12 +12,17 @@
 
 package com.monkopedia.lsp
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+
 /**
  * A parameter literal used in inline value requests.
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class InlineValueParams(
     /**
      * An optional token that a server can use to report work done progress.
@@ -43,7 +48,7 @@ data class InlineValueParams(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class InlineValueRegistrationOptions(
     val workDoneProgress: Boolean? = null,
     /**
@@ -61,7 +66,7 @@ data class InlineValueRegistrationOptions(
 /**
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class InlineValueContext(
     /**
      * The stack frame (as a DAP Id) where the execution has stopped.
@@ -79,7 +84,7 @@ data class InlineValueContext(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class InlineValueText(
     /**
      * The document range for which the inline value applies.
@@ -98,7 +103,7 @@ data class InlineValueText(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class InlineValueVariableLookup(
     /**
      * The document range for which the inline value applies.
@@ -122,7 +127,7 @@ data class InlineValueVariableLookup(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class InlineValueEvaluatableExpression(
     /**
      * The document range for which the inline value applies.
@@ -140,7 +145,7 @@ data class InlineValueEvaluatableExpression(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class InlineValueOptions(val workDoneProgress: Boolean? = null) :
     ServerCapabilitiesInlineValueProviderOptions
 
@@ -149,7 +154,7 @@ data class InlineValueOptions(val workDoneProgress: Boolean? = null) :
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class InlineValueWorkspaceClientCapabilities(
     /**
      * Whether the client implementation supports a refresh request sent from the
@@ -168,7 +173,7 @@ data class InlineValueWorkspaceClientCapabilities(
  *
  * @since 3.17.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class InlineValueClientCapabilities(
     /**
      * Whether implementation supports dynamic registration for inline value providers.

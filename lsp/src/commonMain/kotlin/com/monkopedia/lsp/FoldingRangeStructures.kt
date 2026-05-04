@@ -12,10 +12,15 @@
 
 package com.monkopedia.lsp
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+
 /**
  * Parameters for a {@link FoldingRangeRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class FoldingRangeParams(
     /**
      * An optional token that a server can use to report work done progress.
@@ -36,7 +41,7 @@ data class FoldingRangeParams(
  * Represents a folding range. To be valid, start and end line must be bigger than zero and smaller
  * than the number of lines in the document. Clients are free to ignore invalid ranges.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class FoldingRange(
     /**
      * The zero-based start line of the range to fold. The folded area starts after the line's last character.
@@ -72,7 +77,7 @@ data class FoldingRange(
     val collapsedText: String? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class FoldingRangeRegistrationOptions(
     /**
      * A document selector to identify the scope of the registration. If set to null
@@ -87,7 +92,7 @@ data class FoldingRangeRegistrationOptions(
     val id: String? = null
 ) : ServerCapabilitiesFoldingRangeProviderOptions
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class FoldingRangeOptions(val workDoneProgress: Boolean? = null) :
     ServerCapabilitiesFoldingRangeProviderOptions
 
@@ -97,7 +102,7 @@ data class FoldingRangeOptions(val workDoneProgress: Boolean? = null) :
  * @since 3.18.0
  * @proposed
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class FoldingRangeWorkspaceClientCapabilities(
     /**
      * Whether the client implementation supports a refresh request sent from the
@@ -114,7 +119,7 @@ data class FoldingRangeWorkspaceClientCapabilities(
     val refreshSupport: Boolean? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class FoldingRangeClientCapabilities(
     /**
      * Whether implementation supports dynamic registration for folding range
@@ -149,7 +154,7 @@ data class FoldingRangeClientCapabilities(
     val foldingRange: FoldingRangeClientCapabilitiesFoldingRange? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class FoldingRangeClientCapabilitiesFoldingRange(
     /**
      * If set, the client signals that it supports setting collapsedText on
@@ -160,7 +165,7 @@ data class FoldingRangeClientCapabilitiesFoldingRange(
     val collapsedText: Boolean? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class FoldingRangeClientCapabilitiesFoldingRangeKind(
     /**
      * The folding range kind values the client supports. When this

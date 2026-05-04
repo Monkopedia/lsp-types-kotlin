@@ -12,10 +12,15 @@
 
 package com.monkopedia.lsp
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+
 /**
  * The parameters of a {@link CodeLensRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class CodeLensParams(
     /**
      * An optional token that a server can use to report work done progress.
@@ -39,7 +44,7 @@ data class CodeLensParams(
  * A code lens is _unresolved_ when no command is associated to it. For performance
  * reasons the creation of a code lens and resolving should be done in two stages.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class CodeLens(
     /**
      * The range in which this code lens is valid. Should only span a single line.
@@ -53,13 +58,13 @@ data class CodeLens(
      * A data entry field that is preserved on a code lens item between
      * a {@link CodeLensRequest} and a {@link CodeLensResolveRequest}
      */
-    @kotlinx.serialization.SerialName("data") val `data`: LSPAny? = null
+    @SerialName("data") val `data`: LSPAny? = null
 )
 
 /**
  * Registration options for a {@link CodeLensRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class CodeLensRegistrationOptions(
     /**
      * A document selector to identify the scope of the registration. If set to null
@@ -76,7 +81,7 @@ data class CodeLensRegistrationOptions(
 /**
  * Code Lens provider options of a {@link CodeLensRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class CodeLensOptions(
     val workDoneProgress: Boolean? = null,
     /**
@@ -88,7 +93,7 @@ data class CodeLensOptions(
 /**
  * @since 3.16.0
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class CodeLensWorkspaceClientCapabilities(
     /**
      * Whether the client implementation supports a refresh request sent from the
@@ -105,7 +110,7 @@ data class CodeLensWorkspaceClientCapabilities(
 /**
  * The client capabilities  of a {@link CodeLensRequest}.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class CodeLensClientCapabilities(
     /**
      * Whether code lens supports dynamic registration.

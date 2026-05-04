@@ -12,10 +12,15 @@
 
 package com.monkopedia.lsp
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+
 /**
  * The publish diagnostic notification's parameters.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class PublishDiagnosticsParams(
     /**
      * The URI for which diagnostic information is reported.
@@ -36,7 +41,7 @@ data class PublishDiagnosticsParams(
 /**
  * The publish diagnostic client capabilities.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class PublishDiagnosticsClientCapabilities(
     /**
      * Whether the clients accepts diagnostics with related information.
@@ -72,7 +77,7 @@ data class PublishDiagnosticsClientCapabilities(
     val dataSupport: Boolean? = null
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class PublishDiagnosticsClientCapabilitiesTagSupport(
     /**
      * The tags supported by the client.
