@@ -86,42 +86,41 @@ class InMemoryLspIntegrationTest {
     }
 
     @Test
-    fun `notification reaches server without expecting a response`() =
-        runBlocking(Dispatchers.IO) {
-            val opened = CompletableDeferred<DidOpenTextDocumentParams>()
-            val server = object : DefaultLanguageServer() {
-                override suspend fun initialize(params: InitializeParams): InitializeResult =
-                    InitializeResult(capabilities = ServerCapabilities())
+    fun `notification reaches server without expecting a response`() = runBlocking(Dispatchers.IO) {
+        val opened = CompletableDeferred<DidOpenTextDocumentParams>()
+        val server = object : DefaultLanguageServer() {
+            override suspend fun initialize(params: InitializeParams): InitializeResult =
+                InitializeResult(capabilities = ServerCapabilities())
 
-                override suspend fun textDocumentDidOpen(params: DidOpenTextDocumentParams) {
-                    opened.complete(params)
-                }
-            }
-
-            runWithLspConnection(server, DefaultLanguageClient()) { remoteServer ->
-                withTimeout(5_000) {
-                    remoteServer.initialize(
-                        InitializeParams(
-                            capabilities = ClientCapabilities(),
-                            processId = null,
-                            rootUri = null
-                        )
-                    )
-                    remoteServer.textDocumentDidOpen(
-                        DidOpenTextDocumentParams(
-                            textDocument = TextDocumentItem(
-                                uri = "file:///foo.kt",
-                                languageId = "kotlin",
-                                version = 1,
-                                text = "fun main() {}"
-                            )
-                        )
-                    )
-                    val params = opened.await()
-                    assertEquals("file:///foo.kt", params.textDocument.uri)
-                }
+            override suspend fun textDocumentDidOpen(params: DidOpenTextDocumentParams) {
+                opened.complete(params)
             }
         }
+
+        runWithLspConnection(server, DefaultLanguageClient()) { remoteServer ->
+            withTimeout(5_000) {
+                remoteServer.initialize(
+                    InitializeParams(
+                        capabilities = ClientCapabilities(),
+                        processId = null,
+                        rootUri = null
+                    )
+                )
+                remoteServer.textDocumentDidOpen(
+                    DidOpenTextDocumentParams(
+                        textDocument = TextDocumentItem(
+                            uri = "file:///foo.kt",
+                            languageId = "kotlin",
+                            version = 1,
+                            text = "fun main() {}"
+                        )
+                    )
+                )
+                val params = opened.await()
+                assertEquals("file:///foo.kt", params.textDocument.uri)
+            }
+        }
+    }
 }
 
 /**
