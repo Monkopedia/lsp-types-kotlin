@@ -697,6 +697,7 @@ public final class com/monkopedia/lsp/codegen/TypeAliasGenerator {
 public final class com/monkopedia/lsp/codegen/TypeResolver {
 	public fun <init> (Lcom/monkopedia/lsp/codegen/MetaModel;)V
 	public final fun collectAllProperties (Lcom/monkopedia/lsp/codegen/Structure;)Ljava/util/List;
+	public final fun defaultForRequiredField (Lcom/monkopedia/lsp/codegen/LspType;)Ljava/lang/String;
 	public final fun getEmittedLiterals ()Ljava/util/Set;
 	public final fun getInlineLiterals ()Ljava/util/Map;
 	public final fun getStructure (Ljava/lang/String;)Lcom/monkopedia/lsp/codegen/Structure;

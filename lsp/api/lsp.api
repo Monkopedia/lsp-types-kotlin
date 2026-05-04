@@ -31,6 +31,7 @@ public final class com/monkopedia/lsp/AnnotatedTextEdit$Companion {
 
 public final class com/monkopedia/lsp/ApplyWorkspaceEditParams {
 	public static final field Companion Lcom/monkopedia/lsp/ApplyWorkspaceEditParams$Companion;
+	public fun <init> ()V
 	public fun <init> (Ljava/lang/String;Lcom/monkopedia/lsp/WorkspaceEdit;)V
 	public synthetic fun <init> (Ljava/lang/String;Lcom/monkopedia/lsp/WorkspaceEdit;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/String;
@@ -2920,6 +2921,7 @@ public final class com/monkopedia/lsp/DidChangeConfigurationRegistrationOptions$
 public final class com/monkopedia/lsp/DidChangeNotebookDocumentParams {
 	public static final field Companion Lcom/monkopedia/lsp/DidChangeNotebookDocumentParams$Companion;
 	public fun <init> (Lcom/monkopedia/lsp/VersionedNotebookDocumentIdentifier;Lcom/monkopedia/lsp/NotebookDocumentChangeEvent;)V
+	public synthetic fun <init> (Lcom/monkopedia/lsp/VersionedNotebookDocumentIdentifier;Lcom/monkopedia/lsp/NotebookDocumentChangeEvent;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Lcom/monkopedia/lsp/VersionedNotebookDocumentIdentifier;
 	public final fun component2 ()Lcom/monkopedia/lsp/NotebookDocumentChangeEvent;
 	public final fun copy (Lcom/monkopedia/lsp/VersionedNotebookDocumentIdentifier;Lcom/monkopedia/lsp/NotebookDocumentChangeEvent;)Lcom/monkopedia/lsp/DidChangeNotebookDocumentParams;
@@ -5858,6 +5860,7 @@ public final class com/monkopedia/lsp/InitializeParamsClientInfo$Companion {
 
 public final class com/monkopedia/lsp/InitializeResult {
 	public static final field Companion Lcom/monkopedia/lsp/InitializeResult$Companion;
+	public fun <init> ()V
 	public fun <init> (Lcom/monkopedia/lsp/ServerCapabilities;Lcom/monkopedia/lsp/InitializeResultServerInfo;)V
 	public synthetic fun <init> (Lcom/monkopedia/lsp/ServerCapabilities;Lcom/monkopedia/lsp/InitializeResultServerInfo;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Lcom/monkopedia/lsp/ServerCapabilities;
@@ -8127,7 +8130,9 @@ public final class com/monkopedia/lsp/NotebookDocumentChangeEventCellsTextConten
 
 public final class com/monkopedia/lsp/NotebookDocumentClientCapabilities {
 	public static final field Companion Lcom/monkopedia/lsp/NotebookDocumentClientCapabilities$Companion;
+	public fun <init> ()V
 	public fun <init> (Lcom/monkopedia/lsp/NotebookDocumentSyncClientCapabilities;)V
+	public synthetic fun <init> (Lcom/monkopedia/lsp/NotebookDocumentSyncClientCapabilities;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Lcom/monkopedia/lsp/NotebookDocumentSyncClientCapabilities;
 	public final fun copy (Lcom/monkopedia/lsp/NotebookDocumentSyncClientCapabilities;)Lcom/monkopedia/lsp/NotebookDocumentClientCapabilities;
 	public static synthetic fun copy$default (Lcom/monkopedia/lsp/NotebookDocumentClientCapabilities;Lcom/monkopedia/lsp/NotebookDocumentSyncClientCapabilities;ILjava/lang/Object;)Lcom/monkopedia/lsp/NotebookDocumentClientCapabilities;

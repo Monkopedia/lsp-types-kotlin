@@ -12,6 +12,7 @@
 
 package com.monkopedia.lsp
 
+import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonArray
@@ -57,7 +58,9 @@ data class DidChangeNotebookDocumentParams(
      * - apply the `NotebookChangeEvent`s in a single notification in the order
      *   you receive them.
      */
-    val change: NotebookDocumentChangeEvent
+    @EncodeDefault(
+        EncodeDefault.Mode.ALWAYS
+    ) val change: NotebookDocumentChangeEvent = NotebookDocumentChangeEvent()
 )
 
 /**

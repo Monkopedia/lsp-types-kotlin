@@ -12,6 +12,7 @@
 
 package com.monkopedia.lsp
 
+import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonArray
@@ -264,7 +265,9 @@ data class NotebookDocumentClientCapabilities(
      *
      * @since 3.17.0
      */
-    val synchronization: NotebookDocumentSyncClientCapabilities
+    @EncodeDefault(
+        EncodeDefault.Mode.ALWAYS
+    ) val synchronization: NotebookDocumentSyncClientCapabilities = NotebookDocumentSyncClientCapabilities()
 )
 
 /**

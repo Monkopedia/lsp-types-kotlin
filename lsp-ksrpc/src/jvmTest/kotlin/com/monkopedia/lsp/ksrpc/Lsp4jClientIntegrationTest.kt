@@ -21,7 +21,6 @@ import java.util.concurrent.TimeUnit
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import org.eclipse.lsp4j.ClientCapabilities
 import org.eclipse.lsp4j.DidOpenTextDocumentParams
 import org.eclipse.lsp4j.HoverParams
 import org.eclipse.lsp4j.InitializeParams
@@ -78,10 +77,11 @@ class Lsp4jClientIntegrationTest {
             val listening = launcher.startListening()
             val server = launcher.remoteProxy
 
-            val initParams = InitializeParams().apply {
-                capabilities = ClientCapabilities()
-            }
-            val initResult = server.initialize(initParams).get(15, TimeUnit.SECONDS)
+            // Use the default-constructed InitializeParams — lsp4j omits the
+            // (spec-required) capabilities field in that case. Our generated
+            // InitializeParams has @EncodeDefault(ALWAYS) capabilities = ClientCapabilities(),
+            // so the missing field deserializes to a default empty instance.
+            val initResult = server.initialize(InitializeParams()).get(15, TimeUnit.SECONDS)
             assertNotNull(initResult, "initialize must return a result")
             // echo-server advertises hoverProvider = true.
             assertEquals(true, initResult.capabilities.hoverProvider?.left)

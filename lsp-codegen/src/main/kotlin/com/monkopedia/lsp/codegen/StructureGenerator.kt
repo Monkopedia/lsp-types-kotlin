@@ -71,16 +71,38 @@ class StructureGenerator(
                 val propContext = "${name}${prop.name.replaceFirstChar { it.uppercase() }}"
                 val isNullable = prop.optional || isNullableType(prop.type)
                 val kotlinType = resolver.resolve(prop.type, propContext, nullable = isNullable)
+                // For required structured fields whose type is itself an "options
+                // bag" (a struct with no required properties), emit a default-
+                // constructed value + @EncodeDefault(ALWAYS). This lets us accept
+                // wire payloads that omit the field (some real clients do, e.g.
+                // lsp4j with `new InitializeParams()`) while still always emitting
+                // the field ourselves to honour the spec contract.
+                val structuredDefault =
+                    if (!prop.optional && !isNullable) {
+                        resolver.defaultForRequiredField(prop.type)
+                    } else {
+                        null
+                    }
                 val serialName = if (prop.name != prop.name.toKotlinPropertyName()) {
                     "@SerialName(\"${prop.name}\") "
                 } else {
                     ""
                 }
+                val encodeDefault = if (structuredDefault != null) {
+                    "@EncodeDefault(EncodeDefault.Mode.ALWAYS) "
+                } else {
+                    ""
+                }
                 kdoc(prop.documentation, prop.since)
-                val default = if (prop.optional) " = null" else ""
+                val default = when {
+                    prop.optional -> " = null"
+                    structuredDefault != null -> " = $structuredDefault"
+                    else -> ""
+                }
                 val comma = if (i < properties.lastIndex) "," else ""
                 line(
-                    "${serialName}val ${prop.name.toKotlinPropertyName()}: $kotlinType$default$comma"
+                    "${serialName}${encodeDefault}val " +
+                        "${prop.name.toKotlinPropertyName()}: $kotlinType$default$comma"
                 )
             }
         }

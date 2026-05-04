@@ -192,4 +192,29 @@ class TypeResolver(private val model: MetaModel) {
     fun isEnum(name: String) = name in enumsByName
     fun isAlias(name: String) = name in aliasesByName
     fun getStructure(name: String) = structuresByName[name]
+
+    /**
+     * If [type] refers to a [Structure] with no required properties (every property
+     * is `optional` or has a `T | null` shape), return the Kotlin expression to
+     * default-construct it (e.g. `"ClientCapabilities()"`). Otherwise return null.
+     *
+     * Used to make spec-required structured fields tolerant of being omitted on the
+     * wire (some real clients, like lsp4j, omit `capabilities` from `InitializeParams`
+     * when constructed default). Combined with `@EncodeDefault(ALWAYS)` on the
+     * generated property, we deserialize liberally but always serialize the field
+     * ourselves so the spec contract is preserved when *we* are the sender.
+     */
+    fun defaultForRequiredField(type: LspType): String? {
+        if (type !is LspType.Reference) return null
+        val struct = structuresByName[type.name] ?: return null
+        val allProps = collectAllProperties(struct)
+        val allOptional = allProps.all { it.optional || isNullableLspType(it.type) }
+        return if (allOptional) "${type.name}()" else null
+    }
+
+    private fun isNullableLspType(t: LspType): Boolean {
+        if (t is LspType.Base && t.name == "null") return true
+        if (t is LspType.Or) return t.items.any { it is LspType.Base && it.name == "null" }
+        return false
+    }
 }

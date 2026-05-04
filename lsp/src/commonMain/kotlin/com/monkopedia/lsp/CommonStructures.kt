@@ -12,6 +12,7 @@
 
 package com.monkopedia.lsp
 
+import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonArray
@@ -606,7 +607,9 @@ data class InitializeParams(
     /**
      * The capabilities provided by the client (editor or tool)
      */
-    val capabilities: ClientCapabilities,
+    @EncodeDefault(
+        EncodeDefault.Mode.ALWAYS
+    ) val capabilities: ClientCapabilities = ClientCapabilities(),
     /**
      * User provided initialization options.
      */
@@ -647,7 +650,9 @@ data class InitializeResult(
     /**
      * The capabilities the language server provides.
      */
-    val capabilities: ServerCapabilities,
+    @EncodeDefault(
+        EncodeDefault.Mode.ALWAYS
+    ) val capabilities: ServerCapabilities = ServerCapabilities(),
     /**
      * Information about the server.
      *
@@ -1120,7 +1125,7 @@ data class ApplyWorkspaceEditParams(
     /**
      * The edits to apply.
      */
-    val edit: WorkspaceEdit
+    @EncodeDefault(EncodeDefault.Mode.ALWAYS) val edit: WorkspaceEdit = WorkspaceEdit()
 )
 
 /**
@@ -1770,7 +1775,9 @@ data class _InitializeParams(
     /**
      * The capabilities provided by the client (editor or tool)
      */
-    val capabilities: ClientCapabilities,
+    @EncodeDefault(
+        EncodeDefault.Mode.ALWAYS
+    ) val capabilities: ClientCapabilities = ClientCapabilities(),
     /**
      * User provided initialization options.
      */

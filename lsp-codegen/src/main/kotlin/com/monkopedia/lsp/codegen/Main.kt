@@ -113,6 +113,7 @@ private fun runGeneration(args: Array<String>) {
     }
 
     val structureImports = listOf(
+        "kotlinx.serialization.EncodeDefault",
         "kotlinx.serialization.SerialName",
         "kotlinx.serialization.Serializable",
         "kotlinx.serialization.json.JsonArray",
