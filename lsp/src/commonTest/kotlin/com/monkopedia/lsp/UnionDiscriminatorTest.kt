@@ -183,6 +183,35 @@ class UnionDiscriminatorTest {
         assertEquals("my-token", result.value)
     }
 
+    // ---- Discriminator specificity ----
+
+    @Test
+    fun `declarationProvider picks RegistrationOptions when documentSelector present`() {
+        val result = json.decodeFromString<ServerCapabilities>(
+            """{
+                "declarationProvider": {
+                    "documentSelector": [{"language": "kotlin"}],
+                    "id": "decl-1"
+                }
+            }"""
+        )
+        val provider = result.declarationProvider
+        assertIs<BooleanOr.Value<ServerCapabilitiesDeclarationProviderOptions>>(provider)
+        // The unique field `documentSelector` is on RegistrationOptions, not on
+        // the parent Options — so the discriminator must pick the more specific branch.
+        assertIs<DeclarationRegistrationOptions>(provider.value)
+    }
+
+    @Test
+    fun `declarationProvider picks Options when no extra fields present`() {
+        val result = json.decodeFromString<ServerCapabilities>(
+            """{"declarationProvider": {"workDoneProgress": true}}"""
+        )
+        val provider = result.declarationProvider
+        assertIs<BooleanOr.Value<ServerCapabilitiesDeclarationProviderOptions>>(provider)
+        assertIs<DeclarationOptions>(provider.value)
+    }
+
     // ---- Round-trip tests for round-trip stability ----
 
     @Test
