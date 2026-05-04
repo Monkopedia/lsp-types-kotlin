@@ -236,23 +236,34 @@ class UnionGenerator(private val resolver: TypeResolver) {
         }
 
         // Fall back to unique-required-field discrimination.
-        for ((name, props) in branches) {
+        // Compute each branch's discriminator and required-field count up front,
+        // then ORDER cases so that more-specific branches (those with a unique
+        // required field, or more required fields) come BEFORE less-specific ones.
+        // Without this, e.g. `DeclarationOptions | DeclarationRegistrationOptions`
+        // (where the latter extends the former) would always pick the parent.
+        data class Case(val name: String, val discriminator: String, val priority: Int)
+        val cases = branches.map { (name, props) ->
             val required = props.filter { !it.optional }.map { it.name }.toSet()
             val others = branches.filter { it.first != name }
                 .flatMap { it.second.filter { p -> !p.optional }.map { p -> p.name } }
                 .toSet()
             val unique = required - others
-            val discriminator = unique.firstOrNull()
-            if (discriminator != null) {
-                w.line("\"$discriminator\" in obj -> $name.serializer() $cast")
-            } else {
-                val first = required.firstOrNull()
-                if (first != null) {
-                    w.line("\"$first\" in obj -> $name.serializer() $cast")
-                } else {
-                    w.line("/* fallback */ obj.isNotEmpty() -> $name.serializer() $cast")
-                }
+            when {
+                // Best: unique required field — highest priority.
+                unique.isNotEmpty() ->
+                    Case(name, "\"${unique.first()}\" in obj", priority = 100 + required.size)
+
+                // Some required field but not unique — medium priority.
+                required.isNotEmpty() ->
+                    Case(name, "\"${required.first()}\" in obj", priority = required.size)
+
+                // Nothing required — fallback, lowest priority.
+                else -> Case(name, "/* fallback */ obj.isNotEmpty()", priority = 0)
             }
+        }.sortedByDescending { it.priority }
+
+        for (case in cases) {
+            w.line("${case.discriminator} -> ${case.name}.serializer() $cast")
         }
     }
 

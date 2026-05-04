@@ -34,8 +34,8 @@ object CompletionItemTextEditSerializer :
     ): DeserializationStrategy<CompletionItemTextEdit> {
         val obj = element.jsonObject
         return when {
-            "range" in obj -> TextEdit.serializer() as DeserializationStrategy<CompletionItemTextEdit>
             "insert" in obj -> InsertReplaceEdit.serializer() as DeserializationStrategy<CompletionItemTextEdit>
+            "range" in obj -> TextEdit.serializer() as DeserializationStrategy<CompletionItemTextEdit>
             else -> throw SerializationException("Unknown CompletionItemTextEdit variant: $obj")
         }
     }
@@ -253,10 +253,10 @@ object ServerCapabilitiesCallHierarchyProviderOptionsSerializer :
     ): DeserializationStrategy<ServerCapabilitiesCallHierarchyProviderOptions> {
         val obj = element.jsonObject
         return when {
+            "documentSelector" in obj -> CallHierarchyRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesCallHierarchyProviderOptions>
+
             /* fallback */
             obj.isNotEmpty() -> CallHierarchyOptions.serializer() as DeserializationStrategy<ServerCapabilitiesCallHierarchyProviderOptions>
-
-            "documentSelector" in obj -> CallHierarchyRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesCallHierarchyProviderOptions>
 
             else -> throw SerializationException(
                 "Unknown ServerCapabilitiesCallHierarchyProviderOptions variant: $obj"
@@ -280,10 +280,10 @@ object ServerCapabilitiesColorProviderOptionsSerializer :
     ): DeserializationStrategy<ServerCapabilitiesColorProviderOptions> {
         val obj = element.jsonObject
         return when {
+            "documentSelector" in obj -> DocumentColorRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesColorProviderOptions>
+
             /* fallback */
             obj.isNotEmpty() -> DocumentColorOptions.serializer() as DeserializationStrategy<ServerCapabilitiesColorProviderOptions>
-
-            "documentSelector" in obj -> DocumentColorRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesColorProviderOptions>
 
             else -> throw SerializationException(
                 "Unknown ServerCapabilitiesColorProviderOptions variant: $obj"
@@ -307,10 +307,10 @@ object ServerCapabilitiesDeclarationProviderOptionsSerializer :
     ): DeserializationStrategy<ServerCapabilitiesDeclarationProviderOptions> {
         val obj = element.jsonObject
         return when {
+            "documentSelector" in obj -> DeclarationRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesDeclarationProviderOptions>
+
             /* fallback */
             obj.isNotEmpty() -> DeclarationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesDeclarationProviderOptions>
-
-            "documentSelector" in obj -> DeclarationRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesDeclarationProviderOptions>
 
             else -> throw SerializationException(
                 "Unknown ServerCapabilitiesDeclarationProviderOptions variant: $obj"
@@ -334,9 +334,9 @@ object ServerCapabilitiesDiagnosticProviderSerializer :
     ): DeserializationStrategy<ServerCapabilitiesDiagnosticProvider> {
         val obj = element.jsonObject
         return when {
-            "interFileDependencies" in obj -> DiagnosticOptions.serializer() as DeserializationStrategy<ServerCapabilitiesDiagnosticProvider>
-
             "documentSelector" in obj -> DiagnosticRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesDiagnosticProvider>
+
+            "interFileDependencies" in obj -> DiagnosticOptions.serializer() as DeserializationStrategy<ServerCapabilitiesDiagnosticProvider>
 
             else -> throw SerializationException(
                 "Unknown ServerCapabilitiesDiagnosticProvider variant: $obj"
@@ -360,10 +360,10 @@ object ServerCapabilitiesFoldingRangeProviderOptionsSerializer :
     ): DeserializationStrategy<ServerCapabilitiesFoldingRangeProviderOptions> {
         val obj = element.jsonObject
         return when {
+            "documentSelector" in obj -> FoldingRangeRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesFoldingRangeProviderOptions>
+
             /* fallback */
             obj.isNotEmpty() -> FoldingRangeOptions.serializer() as DeserializationStrategy<ServerCapabilitiesFoldingRangeProviderOptions>
-
-            "documentSelector" in obj -> FoldingRangeRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesFoldingRangeProviderOptions>
 
             else -> throw SerializationException(
                 "Unknown ServerCapabilitiesFoldingRangeProviderOptions variant: $obj"
@@ -387,10 +387,10 @@ object ServerCapabilitiesImplementationProviderOptionsSerializer :
     ): DeserializationStrategy<ServerCapabilitiesImplementationProviderOptions> {
         val obj = element.jsonObject
         return when {
+            "documentSelector" in obj -> ImplementationRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesImplementationProviderOptions>
+
             /* fallback */
             obj.isNotEmpty() -> ImplementationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesImplementationProviderOptions>
-
-            "documentSelector" in obj -> ImplementationRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesImplementationProviderOptions>
 
             else -> throw SerializationException(
                 "Unknown ServerCapabilitiesImplementationProviderOptions variant: $obj"
@@ -414,10 +414,10 @@ object ServerCapabilitiesInlayHintProviderOptionsSerializer :
     ): DeserializationStrategy<ServerCapabilitiesInlayHintProviderOptions> {
         val obj = element.jsonObject
         return when {
+            "documentSelector" in obj -> InlayHintRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesInlayHintProviderOptions>
+
             /* fallback */
             obj.isNotEmpty() -> InlayHintOptions.serializer() as DeserializationStrategy<ServerCapabilitiesInlayHintProviderOptions>
-
-            "documentSelector" in obj -> InlayHintRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesInlayHintProviderOptions>
 
             else -> throw SerializationException(
                 "Unknown ServerCapabilitiesInlayHintProviderOptions variant: $obj"
@@ -441,10 +441,10 @@ object ServerCapabilitiesInlineValueProviderOptionsSerializer :
     ): DeserializationStrategy<ServerCapabilitiesInlineValueProviderOptions> {
         val obj = element.jsonObject
         return when {
+            "documentSelector" in obj -> InlineValueRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesInlineValueProviderOptions>
+
             /* fallback */
             obj.isNotEmpty() -> InlineValueOptions.serializer() as DeserializationStrategy<ServerCapabilitiesInlineValueProviderOptions>
-
-            "documentSelector" in obj -> InlineValueRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesInlineValueProviderOptions>
 
             else -> throw SerializationException(
                 "Unknown ServerCapabilitiesInlineValueProviderOptions variant: $obj"
@@ -468,10 +468,10 @@ object ServerCapabilitiesLinkedEditingRangeProviderOptionsSerializer :
     ): DeserializationStrategy<ServerCapabilitiesLinkedEditingRangeProviderOptions> {
         val obj = element.jsonObject
         return when {
+            "documentSelector" in obj -> LinkedEditingRangeRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesLinkedEditingRangeProviderOptions>
+
             /* fallback */
             obj.isNotEmpty() -> LinkedEditingRangeOptions.serializer() as DeserializationStrategy<ServerCapabilitiesLinkedEditingRangeProviderOptions>
-
-            "documentSelector" in obj -> LinkedEditingRangeRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesLinkedEditingRangeProviderOptions>
 
             else -> throw SerializationException(
                 "Unknown ServerCapabilitiesLinkedEditingRangeProviderOptions variant: $obj"
@@ -495,10 +495,10 @@ object ServerCapabilitiesMonikerProviderOptionsSerializer :
     ): DeserializationStrategy<ServerCapabilitiesMonikerProviderOptions> {
         val obj = element.jsonObject
         return when {
+            "documentSelector" in obj -> MonikerRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesMonikerProviderOptions>
+
             /* fallback */
             obj.isNotEmpty() -> MonikerOptions.serializer() as DeserializationStrategy<ServerCapabilitiesMonikerProviderOptions>
-
-            "documentSelector" in obj -> MonikerRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesMonikerProviderOptions>
 
             else -> throw SerializationException(
                 "Unknown ServerCapabilitiesMonikerProviderOptions variant: $obj"
@@ -548,10 +548,10 @@ object ServerCapabilitiesSelectionRangeProviderOptionsSerializer :
     ): DeserializationStrategy<ServerCapabilitiesSelectionRangeProviderOptions> {
         val obj = element.jsonObject
         return when {
+            "documentSelector" in obj -> SelectionRangeRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesSelectionRangeProviderOptions>
+
             /* fallback */
             obj.isNotEmpty() -> SelectionRangeOptions.serializer() as DeserializationStrategy<ServerCapabilitiesSelectionRangeProviderOptions>
-
-            "documentSelector" in obj -> SelectionRangeRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesSelectionRangeProviderOptions>
 
             else -> throw SerializationException(
                 "Unknown ServerCapabilitiesSelectionRangeProviderOptions variant: $obj"
@@ -575,9 +575,9 @@ object ServerCapabilitiesSemanticTokensProviderSerializer :
     ): DeserializationStrategy<ServerCapabilitiesSemanticTokensProvider> {
         val obj = element.jsonObject
         return when {
-            "legend" in obj -> SemanticTokensOptions.serializer() as DeserializationStrategy<ServerCapabilitiesSemanticTokensProvider>
-
             "documentSelector" in obj -> SemanticTokensRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesSemanticTokensProvider>
+
+            "legend" in obj -> SemanticTokensOptions.serializer() as DeserializationStrategy<ServerCapabilitiesSemanticTokensProvider>
 
             else -> throw SerializationException(
                 "Unknown ServerCapabilitiesSemanticTokensProvider variant: $obj"
@@ -601,10 +601,10 @@ object ServerCapabilitiesTypeDefinitionProviderOptionsSerializer :
     ): DeserializationStrategy<ServerCapabilitiesTypeDefinitionProviderOptions> {
         val obj = element.jsonObject
         return when {
+            "documentSelector" in obj -> TypeDefinitionRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesTypeDefinitionProviderOptions>
+
             /* fallback */
             obj.isNotEmpty() -> TypeDefinitionOptions.serializer() as DeserializationStrategy<ServerCapabilitiesTypeDefinitionProviderOptions>
-
-            "documentSelector" in obj -> TypeDefinitionRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesTypeDefinitionProviderOptions>
 
             else -> throw SerializationException(
                 "Unknown ServerCapabilitiesTypeDefinitionProviderOptions variant: $obj"
@@ -628,10 +628,10 @@ object ServerCapabilitiesTypeHierarchyProviderOptionsSerializer :
     ): DeserializationStrategy<ServerCapabilitiesTypeHierarchyProviderOptions> {
         val obj = element.jsonObject
         return when {
+            "documentSelector" in obj -> TypeHierarchyRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesTypeHierarchyProviderOptions>
+
             /* fallback */
             obj.isNotEmpty() -> TypeHierarchyOptions.serializer() as DeserializationStrategy<ServerCapabilitiesTypeHierarchyProviderOptions>
-
-            "documentSelector" in obj -> TypeHierarchyRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesTypeHierarchyProviderOptions>
 
             else -> throw SerializationException(
                 "Unknown ServerCapabilitiesTypeHierarchyProviderOptions variant: $obj"
@@ -706,8 +706,8 @@ object TextDocumentEditEditsSerializer :
     ): DeserializationStrategy<TextDocumentEditEdits> {
         val obj = element.jsonObject
         return when {
-            "range" in obj -> TextEdit.serializer() as DeserializationStrategy<TextDocumentEditEdits>
             "annotationId" in obj -> AnnotatedTextEdit.serializer() as DeserializationStrategy<TextDocumentEditEdits>
+            "range" in obj -> TextEdit.serializer() as DeserializationStrategy<TextDocumentEditEdits>
             else -> throw SerializationException("Unknown TextDocumentEditEdits variant: $obj")
         }
     }
@@ -802,11 +802,11 @@ object WorkspaceEditDocumentChangesSerializer :
     ): DeserializationStrategy<WorkspaceEditDocumentChanges> {
         val obj = element.jsonObject
         return when {
+            "oldUri" in obj -> RenameFile.serializer() as DeserializationStrategy<WorkspaceEditDocumentChanges>
+
             "textDocument" in obj -> TextDocumentEdit.serializer() as DeserializationStrategy<WorkspaceEditDocumentChanges>
 
             "kind" in obj -> CreateFile.serializer() as DeserializationStrategy<WorkspaceEditDocumentChanges>
-
-            "oldUri" in obj -> RenameFile.serializer() as DeserializationStrategy<WorkspaceEditDocumentChanges>
 
             "kind" in obj -> DeleteFile.serializer() as DeserializationStrategy<WorkspaceEditDocumentChanges>
 
