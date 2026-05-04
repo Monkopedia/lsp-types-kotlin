@@ -15,10 +15,10 @@ package com.monkopedia.lsp
 import kotlinx.serialization.json.JsonElement
 
 /**
- * Default LanguageClient where every method throws NotImplementedError.
+ * Default [KsrpcLanguageClient] where every method throws NotImplementedError.
  * Subclass and override only what you need.
  */
-open class DefaultLanguageClient : LanguageClient {
+open class DefaultLanguageClient : KsrpcLanguageClient {
 
     override suspend fun workspaceWorkspaceFolders(): List<WorkspaceFolder> =
         throw NotImplementedError("workspaceWorkspaceFolders not implemented")

@@ -6,8 +6,8 @@ Kotlin Multiplatform LSP 3.17 types and transport library.
 
 Two artifacts, deliberately split:
 
-- **`com.monkopedia.lsp:lsp`** — LSP 3.17 types (structures, enums, type aliases) generated from Microsoft's [`metaModel.json`](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/metaModel/metaModel.json). Pure `@Serializable` data classes — no transport, no service interfaces. Targets every KMP platform that `kotlinx-serialization` runs on.
-- **`com.monkopedia.lsp:lsp-ksrpc`** — `LanguageServer` and `LanguageClient` `@KsService` interfaces plus connection helpers for [ksrpc](https://github.com/Monkopedia/ksrpc). Constrained to `ksrpc-jsonrpc`'s target set: JVM, JS, wasmJs, macOS, iOS, Linux, mingwX64.
+- **`com.monkopedia.lsp:lsp`** — LSP 3.17 types (structures, enums, type aliases) generated from Microsoft's [`metaModel.json`](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/metaModel/metaModel.json), plus transport-agnostic `LanguageServer` / `LanguageClient` interfaces (no annotations, just `suspend fun` signatures) with method-name `const val` constants on their companion objects. Targets every KMP platform that `kotlinx-serialization` runs on.
+- **`com.monkopedia.lsp:lsp-ksrpc`** — `KsrpcLanguageServer` / `KsrpcLanguageClient` subinterfaces that extend the clean ones and add `@KsService` / `@KsMethod` / `@KsNotification` for use with [ksrpc](https://github.com/Monkopedia/ksrpc), plus `Default*` base classes and connection helpers. Constrained to `ksrpc-jsonrpc`'s target set: JVM, JS, wasmJs, macOS, iOS, Linux, mingwX64.
 
 ## Why?
 
@@ -74,6 +74,12 @@ when (val provider = capabilities.hoverProvider) {
 implementation("com.monkopedia.lsp:lsp-ksrpc:0.1.0-SNAPSHOT")
 ```
 
+The `:lsp-ksrpc` artifact provides `KsrpcLanguageServer` / `KsrpcLanguageClient`
+— subinterfaces of the clean `LanguageServer` / `LanguageClient` from `:lsp` that
+add `@KsService` / `@KsMethod` / `@KsNotification` for use with the JSON-RPC
+transport. Implement them directly, or subclass `DefaultLanguageServer` /
+`DefaultLanguageClient` and override only the methods you care about.
+
 ### As a client (talking to `ruff server` or similar)
 
 ```kotlin
@@ -96,6 +102,18 @@ suspend fun main() {
     val connection = stdInLspConnection()
     connection.connectAsLspServer(MyServerImpl)
 }
+```
+
+### Building on a different transport
+
+If you don't want to use ksrpc, depend on `:lsp` only and implement the clean
+`LanguageServer` / `LanguageClient` interfaces against your own transport. The
+companion objects expose every method's wire path as a `const val`:
+
+```kotlin
+LanguageServer.TEXT_DOCUMENT_HOVER  // "textDocument/hover"
+LanguageServer.INITIALIZE           // "initialize"
+LanguageClient.WINDOW_SHOW_MESSAGE  // "window/showMessage"
 ```
 
 ### Lifecycle and progress

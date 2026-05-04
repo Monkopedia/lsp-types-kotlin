@@ -12,24 +12,18 @@
 
 package com.monkopedia.lsp
 
-import com.monkopedia.ksrpc.RpcService
-import com.monkopedia.ksrpc.annotation.KsMethod
-import com.monkopedia.ksrpc.annotation.KsNotification
-import com.monkopedia.ksrpc.annotation.KsService
 import kotlinx.serialization.json.JsonElement
 
 /**
  * LSP Language Server interface — methods the client calls on the server.
  */
-@KsService
-interface LanguageServer : RpcService {
+interface LanguageServer {
 
     /**
      * A request to resolve the implementation locations of a symbol at a given text
      * document position. The request's parameter is of type {@link TextDocumentPositionParams}
      * the response is of type {@link Definition} or a Thenable that resolves to such.
      */
-    @KsMethod("textDocument/implementation")
     suspend fun textDocumentImplementation(params: ImplementationParams): JsonElement
 
     /**
@@ -37,7 +31,6 @@ interface LanguageServer : RpcService {
      * document position. The request's parameter is of type {@link TextDocumentPositionParams}
      * the response is of type {@link Definition} or a Thenable that resolves to such.
      */
-    @KsMethod("textDocument/typeDefinition")
     suspend fun textDocumentTypeDefinition(params: TypeDefinitionParams): JsonElement
 
     /**
@@ -46,7 +39,6 @@ interface LanguageServer : RpcService {
      * response is of type {@link ColorInformation ColorInformation[]} or a Thenable
      * that resolves to such.
      */
-    @KsMethod("textDocument/documentColor")
     suspend fun textDocumentDocumentColor(params: DocumentColorParams): List<ColorInformation>
 
     /**
@@ -55,7 +47,6 @@ interface LanguageServer : RpcService {
      * response is of type {@link ColorInformation ColorInformation[]} or a Thenable
      * that resolves to such.
      */
-    @KsMethod("textDocument/colorPresentation")
     suspend fun textDocumentColorPresentation(
         params: ColorPresentationParams
     ): List<ColorPresentation>
@@ -66,7 +57,6 @@ interface LanguageServer : RpcService {
      * response is of type {@link FoldingRangeList} or a Thenable
      * that resolves to such.
      */
-    @KsMethod("textDocument/foldingRange")
     suspend fun textDocumentFoldingRange(params: FoldingRangeParams): List<FoldingRange>
 
     /**
@@ -75,7 +65,6 @@ interface LanguageServer : RpcService {
      * the response is of type {@link Declaration} or a typed array of {@link DeclarationLink}
      * or a Thenable that resolves to such.
      */
-    @KsMethod("textDocument/declaration")
     suspend fun textDocumentDeclaration(params: DeclarationParams): JsonElement
 
     /**
@@ -84,7 +73,6 @@ interface LanguageServer : RpcService {
      * response is of type {@link SelectionRange SelectionRange[]} or a Thenable
      * that resolves to such.
      */
-    @KsMethod("textDocument/selectionRange")
     suspend fun textDocumentSelectionRange(params: SelectionRangeParams): List<SelectionRange>
 
     /**
@@ -93,7 +81,6 @@ interface LanguageServer : RpcService {
      *
      * @since 3.16.0
      */
-    @KsMethod("textDocument/prepareCallHierarchy")
     suspend fun textDocumentPrepareCallHierarchy(
         params: CallHierarchyPrepareParams
     ): List<CallHierarchyItem>
@@ -103,7 +90,6 @@ interface LanguageServer : RpcService {
      *
      * @since 3.16.0
      */
-    @KsMethod("callHierarchy/incomingCalls")
     suspend fun callHierarchyIncomingCalls(
         params: CallHierarchyIncomingCallsParams
     ): List<CallHierarchyIncomingCall>
@@ -113,7 +99,6 @@ interface LanguageServer : RpcService {
      *
      * @since 3.16.0
      */
-    @KsMethod("callHierarchy/outgoingCalls")
     suspend fun callHierarchyOutgoingCalls(
         params: CallHierarchyOutgoingCallsParams
     ): List<CallHierarchyOutgoingCall>
@@ -121,13 +106,11 @@ interface LanguageServer : RpcService {
     /**
      * @since 3.16.0
      */
-    @KsMethod("textDocument/semanticTokens/full")
     suspend fun textDocumentSemanticTokensFull(params: SemanticTokensParams): SemanticTokens
 
     /**
      * @since 3.16.0
      */
-    @KsMethod("textDocument/semanticTokens/full/delta")
     suspend fun textDocumentSemanticTokensFullDelta(
         params: SemanticTokensDeltaParams
     ): TextDocumentSemanticTokensFullDeltaResult
@@ -135,7 +118,6 @@ interface LanguageServer : RpcService {
     /**
      * @since 3.16.0
      */
-    @KsMethod("textDocument/semanticTokens/range")
     suspend fun textDocumentSemanticTokensRange(params: SemanticTokensRangeParams): SemanticTokens
 
     /**
@@ -143,7 +125,6 @@ interface LanguageServer : RpcService {
      *
      * @since 3.16.0
      */
-    @KsMethod("textDocument/linkedEditingRange")
     suspend fun textDocumentLinkedEditingRange(
         params: LinkedEditingRangeParams
     ): LinkedEditingRanges
@@ -158,7 +139,6 @@ interface LanguageServer : RpcService {
      *
      * @since 3.16.0
      */
-    @KsMethod("workspace/willCreateFiles")
     suspend fun workspaceWillCreateFiles(params: CreateFilesParams): WorkspaceEdit
 
     /**
@@ -167,7 +147,6 @@ interface LanguageServer : RpcService {
      *
      * @since 3.16.0
      */
-    @KsMethod("workspace/willRenameFiles")
     suspend fun workspaceWillRenameFiles(params: RenameFilesParams): WorkspaceEdit
 
     /**
@@ -176,7 +155,6 @@ interface LanguageServer : RpcService {
      *
      * @since 3.16.0
      */
-    @KsMethod("workspace/willDeleteFiles")
     suspend fun workspaceWillDeleteFiles(params: DeleteFilesParams): WorkspaceEdit
 
     /**
@@ -184,7 +162,6 @@ interface LanguageServer : RpcService {
      * The request parameter is of type {@link TextDocumentPositionParams}.
      * The response is of type {@link Moniker Moniker[]} or `null`.
      */
-    @KsMethod("textDocument/moniker")
     suspend fun textDocumentMoniker(params: MonikerParams): List<Moniker>
 
     /**
@@ -193,7 +170,6 @@ interface LanguageServer : RpcService {
      *
      * @since 3.17.0
      */
-    @KsMethod("textDocument/prepareTypeHierarchy")
     suspend fun textDocumentPrepareTypeHierarchy(
         params: TypeHierarchyPrepareParams
     ): List<TypeHierarchyItem>
@@ -203,7 +179,6 @@ interface LanguageServer : RpcService {
      *
      * @since 3.17.0
      */
-    @KsMethod("typeHierarchy/supertypes")
     suspend fun typeHierarchySupertypes(
         params: TypeHierarchySupertypesParams
     ): List<TypeHierarchyItem>
@@ -213,7 +188,6 @@ interface LanguageServer : RpcService {
      *
      * @since 3.17.0
      */
-    @KsMethod("typeHierarchy/subtypes")
     suspend fun typeHierarchySubtypes(params: TypeHierarchySubtypesParams): List<TypeHierarchyItem>
 
     /**
@@ -223,7 +197,6 @@ interface LanguageServer : RpcService {
      *
      * @since 3.17.0
      */
-    @KsMethod("textDocument/inlineValue")
     suspend fun textDocumentInlineValue(params: InlineValueParams): List<InlineValue>
 
     /**
@@ -233,7 +206,6 @@ interface LanguageServer : RpcService {
      *
      * @since 3.17.0
      */
-    @KsMethod("textDocument/inlayHint")
     suspend fun textDocumentInlayHint(params: InlayHintParams): List<InlayHint>
 
     /**
@@ -243,7 +215,6 @@ interface LanguageServer : RpcService {
      *
      * @since 3.17.0
      */
-    @KsMethod("inlayHint/resolve")
     suspend fun inlayHintResolve(params: InlayHint): InlayHint
 
     /**
@@ -251,7 +222,6 @@ interface LanguageServer : RpcService {
      *
      * @since 3.17.0
      */
-    @KsMethod("textDocument/diagnostic")
     // errorData: DiagnosticServerCancellationData
     suspend fun textDocumentDiagnostic(params: DocumentDiagnosticParams): DocumentDiagnosticReport
 
@@ -260,7 +230,6 @@ interface LanguageServer : RpcService {
      *
      * @since 3.17.0
      */
-    @KsMethod("workspace/diagnostic")
     // errorData: DiagnosticServerCancellationData
     suspend fun workspaceDiagnostic(params: WorkspaceDiagnosticParams): WorkspaceDiagnosticReport
 
@@ -272,7 +241,6 @@ interface LanguageServer : RpcService {
      * @since 3.18.0
      * @proposed
      */
-    @KsMethod("textDocument/inlineCompletion")
     suspend fun textDocumentInlineCompletion(params: InlineCompletionParams): JsonElement
 
     /**
@@ -282,7 +250,6 @@ interface LanguageServer : RpcService {
      * the response if of type {@link InitializeResult} of a Thenable that
      * resolves to such.
      */
-    @KsMethod("initialize")
     // errorData: InitializeError
     suspend fun initialize(params: InitializeParams): InitializeResult
 
@@ -292,7 +259,6 @@ interface LanguageServer : RpcService {
      * server. The only notification that is sent after a shutdown request
      * is the exit event.
      */
-    @KsMethod("shutdown")
     suspend fun shutdown(): Nothing?
 
     /**
@@ -303,7 +269,6 @@ interface LanguageServer : RpcService {
      * server constantly fails on this request. This is done to keep the save fast and
      * reliable.
      */
-    @KsMethod("textDocument/willSaveWaitUntil")
     suspend fun textDocumentWillSaveWaitUntil(params: WillSaveTextDocumentParams): List<TextEdit>
 
     /**
@@ -317,7 +282,6 @@ interface LanguageServer : RpcService {
      * request. However, properties that are needed for the initial sorting and filtering, like `sortText`,
      * `filterText`, `insertText`, and `textEdit`, must not be changed during resolve.
      */
-    @KsMethod("textDocument/completion")
     suspend fun textDocumentCompletion(params: CompletionParams): JsonElement
 
     /**
@@ -325,7 +289,6 @@ interface LanguageServer : RpcService {
      * parameter is of type {@link CompletionItem} the response
      * is of type {@link CompletionItem} or a Thenable that resolves to such.
      */
-    @KsMethod("completionItem/resolve")
     suspend fun completionItemResolve(params: CompletionItem): CompletionItem
 
     /**
@@ -333,10 +296,8 @@ interface LanguageServer : RpcService {
      * parameter is of type {@link TextDocumentPosition} the response is of
      * type {@link Hover} or a Thenable that resolves to such.
      */
-    @KsMethod("textDocument/hover")
     suspend fun textDocumentHover(params: HoverParams): Hover
 
-    @KsMethod("textDocument/signatureHelp")
     suspend fun textDocumentSignatureHelp(params: SignatureHelpParams): SignatureHelp
 
     /**
@@ -345,7 +306,6 @@ interface LanguageServer : RpcService {
      * the response is of either type {@link Definition} or a typed array of
      * {@link DefinitionLink} or a Thenable that resolves to such.
      */
-    @KsMethod("textDocument/definition")
     suspend fun textDocumentDefinition(params: DefinitionParams): JsonElement
 
     /**
@@ -354,7 +314,6 @@ interface LanguageServer : RpcService {
      * type {@link ReferenceParams} the response is of type
      * {@link Location Location[]} or a Thenable that resolves to such.
      */
-    @KsMethod("textDocument/references")
     suspend fun textDocumentReferences(params: ReferenceParams): List<Location>
 
     /**
@@ -363,7 +322,6 @@ interface LanguageServer : RpcService {
      * the request response is an array of type {@link DocumentHighlight}
      * or a Thenable that resolves to such.
      */
-    @KsMethod("textDocument/documentHighlight")
     suspend fun textDocumentDocumentHighlight(
         params: DocumentHighlightParams
     ): List<DocumentHighlight>
@@ -374,13 +332,11 @@ interface LanguageServer : RpcService {
      * response is of type {@link SymbolInformation SymbolInformation[]} or a Thenable
      * that resolves to such.
      */
-    @KsMethod("textDocument/documentSymbol")
     suspend fun textDocumentDocumentSymbol(params: DocumentSymbolParams): JsonElement
 
     /**
      * A request to provide commands for the given text document and range.
      */
-    @KsMethod("textDocument/codeAction")
     suspend fun textDocumentCodeAction(params: CodeActionParams): List<TextDocumentCodeActionResult>
 
     /**
@@ -388,7 +344,6 @@ interface LanguageServer : RpcService {
      * parameter is of type {@link CodeAction} the response
      * is of type {@link CodeAction} or a Thenable that resolves to such.
      */
-    @KsMethod("codeAction/resolve")
     suspend fun codeActionResolve(params: CodeAction): CodeAction
 
     /**
@@ -406,7 +361,6 @@ interface LanguageServer : RpcService {
 need to advertise support for WorkspaceSymbols via the client capability
 `workspace.symbol.resolveSupport`.
      */
-    @KsMethod("workspace/symbol")
     suspend fun workspaceSymbol(params: WorkspaceSymbolParams): JsonElement
 
     /**
@@ -415,25 +369,21 @@ need to advertise support for WorkspaceSymbols via the client capability
      *
      * @since 3.17.0
      */
-    @KsMethod("workspaceSymbol/resolve")
     suspend fun workspaceSymbolResolve(params: WorkspaceSymbol): WorkspaceSymbol
 
     /**
      * A request to provide code lens for the given text document.
      */
-    @KsMethod("textDocument/codeLens")
     suspend fun textDocumentCodeLens(params: CodeLensParams): List<CodeLens>
 
     /**
      * A request to resolve a command for a given code lens.
      */
-    @KsMethod("codeLens/resolve")
     suspend fun codeLensResolve(params: CodeLens): CodeLens
 
     /**
      * A request to provide document links
      */
-    @KsMethod("textDocument/documentLink")
     suspend fun textDocumentDocumentLink(params: DocumentLinkParams): List<DocumentLink>
 
     /**
@@ -441,19 +391,16 @@ need to advertise support for WorkspaceSymbols via the client capability
      * parameter is of type {@link DocumentLink} the response
      * is of type {@link DocumentLink} or a Thenable that resolves to such.
      */
-    @KsMethod("documentLink/resolve")
     suspend fun documentLinkResolve(params: DocumentLink): DocumentLink
 
     /**
      * A request to format a whole document.
      */
-    @KsMethod("textDocument/formatting")
     suspend fun textDocumentFormatting(params: DocumentFormattingParams): List<TextEdit>
 
     /**
      * A request to format a range in a document.
      */
-    @KsMethod("textDocument/rangeFormatting")
     suspend fun textDocumentRangeFormatting(params: DocumentRangeFormattingParams): List<TextEdit>
 
     /**
@@ -462,19 +409,16 @@ need to advertise support for WorkspaceSymbols via the client capability
      * @since 3.18.0
      * @proposed
      */
-    @KsMethod("textDocument/rangesFormatting")
     suspend fun textDocumentRangesFormatting(params: DocumentRangesFormattingParams): List<TextEdit>
 
     /**
      * A request to format a document on type.
      */
-    @KsMethod("textDocument/onTypeFormatting")
     suspend fun textDocumentOnTypeFormatting(params: DocumentOnTypeFormattingParams): List<TextEdit>
 
     /**
      * A request to rename a symbol.
      */
-    @KsMethod("textDocument/rename")
     suspend fun textDocumentRename(params: RenameParams): WorkspaceEdit
 
     /**
@@ -482,30 +426,24 @@ need to advertise support for WorkspaceSymbols via the client capability
      *
      * @since 3.16 - support for default behavior
      */
-    @KsMethod("textDocument/prepareRename")
     suspend fun textDocumentPrepareRename(params: PrepareRenameParams): PrepareRenameResult
 
     /**
      * A request send from the client to the server to execute a command. The request might return
      * a workspace edit which the client will apply to the workspace.
      */
-    @KsMethod("workspace/executeCommand")
     suspend fun workspaceExecuteCommand(params: ExecuteCommandParams): LSPAny
 
     /**
      * The `workspace/didChangeWorkspaceFolders` notification is sent from the client to the server when the workspace
      * folder configuration changes.
      */
-    @KsMethod("workspace/didChangeWorkspaceFolders")
-    @KsNotification
     suspend fun workspaceDidChangeWorkspaceFolders(params: DidChangeWorkspaceFoldersParams)
 
     /**
      * The `window/workDoneProgress/cancel` notification is sent from  the client to the server to cancel a progress
      * initiated on the server side.
      */
-    @KsMethod("window/workDoneProgress/cancel")
-    @KsNotification
     suspend fun windowWorkDoneProgressCancel(params: WorkDoneProgressCancelParams)
 
     /**
@@ -514,8 +452,6 @@ need to advertise support for WorkspaceSymbols via the client capability
      *
      * @since 3.16.0
      */
-    @KsMethod("workspace/didCreateFiles")
-    @KsNotification
     suspend fun workspaceDidCreateFiles(params: CreateFilesParams)
 
     /**
@@ -524,8 +460,6 @@ need to advertise support for WorkspaceSymbols via the client capability
      *
      * @since 3.16.0
      */
-    @KsMethod("workspace/didRenameFiles")
-    @KsNotification
     suspend fun workspaceDidRenameFiles(params: RenameFilesParams)
 
     /**
@@ -534,8 +468,6 @@ need to advertise support for WorkspaceSymbols via the client capability
      *
      * @since 3.16.0
      */
-    @KsMethod("workspace/didDeleteFiles")
-    @KsNotification
     suspend fun workspaceDidDeleteFiles(params: DeleteFilesParams)
 
     /**
@@ -543,12 +475,8 @@ need to advertise support for WorkspaceSymbols via the client capability
      *
      * @since 3.17.0
      */
-    @KsMethod("notebookDocument/didOpen")
-    @KsNotification
     suspend fun notebookDocumentDidOpen(params: DidOpenNotebookDocumentParams)
 
-    @KsMethod("notebookDocument/didChange")
-    @KsNotification
     suspend fun notebookDocumentDidChange(params: DidChangeNotebookDocumentParams)
 
     /**
@@ -556,8 +484,6 @@ need to advertise support for WorkspaceSymbols via the client capability
      *
      * @since 3.17.0
      */
-    @KsMethod("notebookDocument/didSave")
-    @KsNotification
     suspend fun notebookDocumentDidSave(params: DidSaveNotebookDocumentParams)
 
     /**
@@ -565,8 +491,6 @@ need to advertise support for WorkspaceSymbols via the client capability
      *
      * @since 3.17.0
      */
-    @KsMethod("notebookDocument/didClose")
-    @KsNotification
     suspend fun notebookDocumentDidClose(params: DidCloseNotebookDocumentParams)
 
     /**
@@ -574,16 +498,12 @@ need to advertise support for WorkspaceSymbols via the client capability
      * server after the client is fully initialized and the server
      * is allowed to send requests from the server to the client.
      */
-    @KsMethod("initialized")
-    @KsNotification
     suspend fun initialized(params: InitializedParams)
 
     /**
      * The exit event is sent from the client to the server to
      * ask the server to exit its process.
      */
-    @KsMethod("exit")
-    @KsNotification
     suspend fun exit()
 
     /**
@@ -591,8 +511,6 @@ need to advertise support for WorkspaceSymbols via the client capability
      * when the client's configuration has changed. The notification contains
      * the changed configuration as defined by the language client.
      */
-    @KsMethod("workspace/didChangeConfiguration")
-    @KsNotification
     suspend fun workspaceDidChangeConfiguration(params: DidChangeConfigurationParams)
 
     /**
@@ -605,16 +523,12 @@ need to advertise support for WorkspaceSymbols via the client capability
      * This means open and close notification must be balanced and the max open count
      * is one.
      */
-    @KsMethod("textDocument/didOpen")
-    @KsNotification
     suspend fun textDocumentDidOpen(params: DidOpenTextDocumentParams)
 
     /**
      * The document change notification is sent from the client to the server to signal
      * changes to a text document.
      */
-    @KsMethod("textDocument/didChange")
-    @KsNotification
     suspend fun textDocumentDidChange(params: DidChangeTextDocumentParams)
 
     /**
@@ -626,39 +540,103 @@ need to advertise support for WorkspaceSymbols via the client capability
      * doesn't mean that the document was open in an editor before. A close
      * notification requires a previous open notification to be sent.
      */
-    @KsMethod("textDocument/didClose")
-    @KsNotification
     suspend fun textDocumentDidClose(params: DidCloseTextDocumentParams)
 
     /**
      * The document save notification is sent from the client to the server when
      * the document got saved in the client.
      */
-    @KsMethod("textDocument/didSave")
-    @KsNotification
     suspend fun textDocumentDidSave(params: DidSaveTextDocumentParams)
 
     /**
      * A document will save notification is sent from the client to the server before
      * the document is actually saved.
      */
-    @KsMethod("textDocument/willSave")
-    @KsNotification
     suspend fun textDocumentWillSave(params: WillSaveTextDocumentParams)
 
     /**
      * The watched files notification is sent from the client to the server when
      * the client detects changes to file watched by the language client.
      */
-    @KsMethod("workspace/didChangeWatchedFiles")
-    @KsNotification
     suspend fun workspaceDidChangeWatchedFiles(params: DidChangeWatchedFilesParams)
 
-    @KsMethod("$/setTrace")
-    @KsNotification
     suspend fun setTrace(params: SetTraceParams)
 
-    @KsMethod("$/progress")
-    @KsNotification
     suspend fun progress(params: ProgressParams)
+
+    companion object {
+        const val TEXT_DOCUMENT_IMPLEMENTATION: String = "textDocument/implementation"
+        const val TEXT_DOCUMENT_TYPE_DEFINITION: String = "textDocument/typeDefinition"
+        const val TEXT_DOCUMENT_DOCUMENT_COLOR: String = "textDocument/documentColor"
+        const val TEXT_DOCUMENT_COLOR_PRESENTATION: String = "textDocument/colorPresentation"
+        const val TEXT_DOCUMENT_FOLDING_RANGE: String = "textDocument/foldingRange"
+        const val TEXT_DOCUMENT_DECLARATION: String = "textDocument/declaration"
+        const val TEXT_DOCUMENT_SELECTION_RANGE: String = "textDocument/selectionRange"
+        const val TEXT_DOCUMENT_PREPARE_CALL_HIERARCHY: String = "textDocument/prepareCallHierarchy"
+        const val CALL_HIERARCHY_INCOMING_CALLS: String = "callHierarchy/incomingCalls"
+        const val CALL_HIERARCHY_OUTGOING_CALLS: String = "callHierarchy/outgoingCalls"
+        const val TEXT_DOCUMENT_SEMANTIC_TOKENS_FULL: String = "textDocument/semanticTokens/full"
+        const val TEXT_DOCUMENT_SEMANTIC_TOKENS_FULL_DELTA: String = "textDocument/semanticTokens/full/delta"
+        const val TEXT_DOCUMENT_SEMANTIC_TOKENS_RANGE: String = "textDocument/semanticTokens/range"
+        const val TEXT_DOCUMENT_LINKED_EDITING_RANGE: String = "textDocument/linkedEditingRange"
+        const val WORKSPACE_WILL_CREATE_FILES: String = "workspace/willCreateFiles"
+        const val WORKSPACE_WILL_RENAME_FILES: String = "workspace/willRenameFiles"
+        const val WORKSPACE_WILL_DELETE_FILES: String = "workspace/willDeleteFiles"
+        const val TEXT_DOCUMENT_MONIKER: String = "textDocument/moniker"
+        const val TEXT_DOCUMENT_PREPARE_TYPE_HIERARCHY: String = "textDocument/prepareTypeHierarchy"
+        const val TYPE_HIERARCHY_SUPERTYPES: String = "typeHierarchy/supertypes"
+        const val TYPE_HIERARCHY_SUBTYPES: String = "typeHierarchy/subtypes"
+        const val TEXT_DOCUMENT_INLINE_VALUE: String = "textDocument/inlineValue"
+        const val TEXT_DOCUMENT_INLAY_HINT: String = "textDocument/inlayHint"
+        const val INLAY_HINT_RESOLVE: String = "inlayHint/resolve"
+        const val TEXT_DOCUMENT_DIAGNOSTIC: String = "textDocument/diagnostic"
+        const val WORKSPACE_DIAGNOSTIC: String = "workspace/diagnostic"
+        const val TEXT_DOCUMENT_INLINE_COMPLETION: String = "textDocument/inlineCompletion"
+        const val INITIALIZE: String = "initialize"
+        const val SHUTDOWN: String = "shutdown"
+        const val TEXT_DOCUMENT_WILL_SAVE_WAIT_UNTIL: String = "textDocument/willSaveWaitUntil"
+        const val TEXT_DOCUMENT_COMPLETION: String = "textDocument/completion"
+        const val COMPLETION_ITEM_RESOLVE: String = "completionItem/resolve"
+        const val TEXT_DOCUMENT_HOVER: String = "textDocument/hover"
+        const val TEXT_DOCUMENT_SIGNATURE_HELP: String = "textDocument/signatureHelp"
+        const val TEXT_DOCUMENT_DEFINITION: String = "textDocument/definition"
+        const val TEXT_DOCUMENT_REFERENCES: String = "textDocument/references"
+        const val TEXT_DOCUMENT_DOCUMENT_HIGHLIGHT: String = "textDocument/documentHighlight"
+        const val TEXT_DOCUMENT_DOCUMENT_SYMBOL: String = "textDocument/documentSymbol"
+        const val TEXT_DOCUMENT_CODE_ACTION: String = "textDocument/codeAction"
+        const val CODE_ACTION_RESOLVE: String = "codeAction/resolve"
+        const val WORKSPACE_SYMBOL: String = "workspace/symbol"
+        const val WORKSPACE_SYMBOL_RESOLVE: String = "workspaceSymbol/resolve"
+        const val TEXT_DOCUMENT_CODE_LENS: String = "textDocument/codeLens"
+        const val CODE_LENS_RESOLVE: String = "codeLens/resolve"
+        const val TEXT_DOCUMENT_DOCUMENT_LINK: String = "textDocument/documentLink"
+        const val DOCUMENT_LINK_RESOLVE: String = "documentLink/resolve"
+        const val TEXT_DOCUMENT_FORMATTING: String = "textDocument/formatting"
+        const val TEXT_DOCUMENT_RANGE_FORMATTING: String = "textDocument/rangeFormatting"
+        const val TEXT_DOCUMENT_RANGES_FORMATTING: String = "textDocument/rangesFormatting"
+        const val TEXT_DOCUMENT_ON_TYPE_FORMATTING: String = "textDocument/onTypeFormatting"
+        const val TEXT_DOCUMENT_RENAME: String = "textDocument/rename"
+        const val TEXT_DOCUMENT_PREPARE_RENAME: String = "textDocument/prepareRename"
+        const val WORKSPACE_EXECUTE_COMMAND: String = "workspace/executeCommand"
+        const val WORKSPACE_DID_CHANGE_WORKSPACE_FOLDERS: String = "workspace/didChangeWorkspaceFolders"
+        const val WINDOW_WORK_DONE_PROGRESS_CANCEL: String = "window/workDoneProgress/cancel"
+        const val WORKSPACE_DID_CREATE_FILES: String = "workspace/didCreateFiles"
+        const val WORKSPACE_DID_RENAME_FILES: String = "workspace/didRenameFiles"
+        const val WORKSPACE_DID_DELETE_FILES: String = "workspace/didDeleteFiles"
+        const val NOTEBOOK_DOCUMENT_DID_OPEN: String = "notebookDocument/didOpen"
+        const val NOTEBOOK_DOCUMENT_DID_CHANGE: String = "notebookDocument/didChange"
+        const val NOTEBOOK_DOCUMENT_DID_SAVE: String = "notebookDocument/didSave"
+        const val NOTEBOOK_DOCUMENT_DID_CLOSE: String = "notebookDocument/didClose"
+        const val INITIALIZED: String = "initialized"
+        const val EXIT: String = "exit"
+        const val WORKSPACE_DID_CHANGE_CONFIGURATION: String = "workspace/didChangeConfiguration"
+        const val TEXT_DOCUMENT_DID_OPEN: String = "textDocument/didOpen"
+        const val TEXT_DOCUMENT_DID_CHANGE: String = "textDocument/didChange"
+        const val TEXT_DOCUMENT_DID_CLOSE: String = "textDocument/didClose"
+        const val TEXT_DOCUMENT_DID_SAVE: String = "textDocument/didSave"
+        const val TEXT_DOCUMENT_WILL_SAVE: String = "textDocument/willSave"
+        const val WORKSPACE_DID_CHANGE_WATCHED_FILES: String = "workspace/didChangeWatchedFiles"
+        const val SET_TRACE: String = "$/setTrace"
+        const val PROGRESS: String = "$/progress"
+    }
 }

@@ -169,33 +169,47 @@ private fun runGeneration(args: Array<String>) {
         }
     }
 
-    // --- Service interfaces (LanguageServer / LanguageClient) ---
-    // Run BEFORE emitting InlineLiterals / UnionBranches / Unions so any
+    // --- Service interfaces ---
+    // Clean interfaces (no transport annotations) live in :lsp alongside the types.
+    // Ksrpc-annotated subinterfaces and Default* base classes live in :lsp-ksrpc.
+    //
+    // Both are emitted BEFORE InlineLiterals / UnionBranches / Unions so any
     // sealed interfaces or inline literals discovered while resolving
     // request/notification result/param types get included.
+    val serviceGen = ServiceGenerator(resolver, model)
+
+    // Clean interfaces — always emitted into :lsp (the types module).
+    val cleanImports = listOf("kotlinx.serialization.json.JsonElement")
+    writeFile(packageDir, "LanguageServer.kt") {
+        appendLine(fileHeader(LSP_PACKAGE, imports = cleanImports))
+        appendLine(serviceGen.generateCleanServer())
+    }
+    writeFile(packageDir, "LanguageClient.kt") {
+        appendLine(fileHeader(LSP_PACKAGE, imports = cleanImports))
+        appendLine(serviceGen.generateCleanClient())
+    }
+
+    // Ksrpc subinterfaces and defaults — emitted into :lsp-ksrpc when configured.
     if (servicesOutputDir != null) {
         val servicesPackageDir = File(servicesOutputDir, "com/monkopedia/lsp")
         servicesPackageDir.mkdirs()
-        val serviceGen = ServiceGenerator(resolver, model)
 
-        val serviceImports = listOf(
+        val ksrpcImports = listOf(
             "com.monkopedia.ksrpc.RpcService",
             "com.monkopedia.ksrpc.annotation.KsMethod",
             "com.monkopedia.ksrpc.annotation.KsNotification",
             "com.monkopedia.ksrpc.annotation.KsService",
             "kotlinx.serialization.json.JsonElement"
         )
-        // Default classes need JsonElement too because some method signatures
-        // include it; everything else comes via the implemented interface.
         val defaultImports = listOf("kotlinx.serialization.json.JsonElement")
 
-        writeFile(servicesPackageDir, "LanguageServer.kt") {
-            appendLine(fileHeader(LSP_PACKAGE, imports = serviceImports))
-            appendLine(serviceGen.generateServer())
+        writeFile(servicesPackageDir, "KsrpcLanguageServer.kt") {
+            appendLine(fileHeader(LSP_PACKAGE, imports = ksrpcImports))
+            appendLine(serviceGen.generateKsrpcServer())
         }
-        writeFile(servicesPackageDir, "LanguageClient.kt") {
-            appendLine(fileHeader(LSP_PACKAGE, imports = serviceImports))
-            appendLine(serviceGen.generateClient())
+        writeFile(servicesPackageDir, "KsrpcLanguageClient.kt") {
+            appendLine(fileHeader(LSP_PACKAGE, imports = ksrpcImports))
+            appendLine(serviceGen.generateKsrpcClient())
         }
         writeFile(servicesPackageDir, "DefaultLanguageServer.kt") {
             appendLine(fileHeader(LSP_PACKAGE, imports = defaultImports))

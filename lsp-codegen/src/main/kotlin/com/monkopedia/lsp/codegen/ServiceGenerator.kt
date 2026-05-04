@@ -16,12 +16,25 @@
 package com.monkopedia.lsp.codegen
 
 /**
- * Generates ksrpc @KsService interfaces for LanguageServer and LanguageClient.
+ * Generates LSP service interfaces.
  *
- * Requests/notifications are split by messageDirection:
- * - clientToServer → LanguageServer interface
- * - serverToClient → LanguageClient interface
- * - both → both interfaces
+ * Two flavors per direction:
+ *
+ * - **Clean interfaces** (`LanguageServer`, `LanguageClient`) live in `:lsp`. No
+ *   transport-specific annotations — just `suspend fun` signatures. The companion
+ *   object exposes wire-method names as `const val` constants so other transport
+ *   adaptors can reference them.
+ *
+ * - **Ksrpc subinterfaces** (`KsrpcLanguageServer`, `KsrpcLanguageClient`) live in
+ *   `:lsp-ksrpc`. They extend the clean interface and `RpcService`, adding
+ *   `@KsService` / `@KsMethod(LanguageServer.METHOD_NAME)` / `@KsNotification` on
+ *   `override` methods. This is what users implement when using ksrpc as the
+ *   transport.
+ *
+ * Requests/notifications are split by `messageDirection`:
+ * - `clientToServer` → server interface
+ * - `serverToClient` → client interface
+ * - `both` → both interfaces
  */
 class ServiceGenerator(private val resolver: TypeResolver, private val model: MetaModel) {
 
@@ -31,76 +44,84 @@ class ServiceGenerator(private val resolver: TypeResolver, private val model: Me
      */
     private val transportHandled = setOf("$/cancelRequest")
 
-    /**
-     * Generate an abstract `Default${name}` class with every method throwing
-     * `NotImplementedError` by default. Useful for test stubs and partial
-     * implementations.
-     */
+    private val serverRequests = model.requests.filter {
+        it.method !in transportHandled &&
+            it.messageDirection in setOf(MessageDirection.CLIENT_TO_SERVER, MessageDirection.BOTH)
+    }
+    private val serverNotifications = model.notifications.filter {
+        it.method !in transportHandled &&
+            it.messageDirection in setOf(MessageDirection.CLIENT_TO_SERVER, MessageDirection.BOTH)
+    }
+    private val clientRequests = model.requests.filter {
+        it.method !in transportHandled &&
+            it.messageDirection in setOf(MessageDirection.SERVER_TO_CLIENT, MessageDirection.BOTH)
+    }
+    private val clientNotifications = model.notifications.filter {
+        it.method !in transportHandled &&
+            it.messageDirection in setOf(MessageDirection.SERVER_TO_CLIENT, MessageDirection.BOTH)
+    }
+
+    // ---- Clean interfaces (in :lsp) ----
+
+    fun generateCleanServer(): String = generateCleanInterface(
+        name = "LanguageServer",
+        doc = "LSP Language Server interface — methods the client calls on the server.",
+        requests = serverRequests,
+        notifications = serverNotifications
+    )
+
+    fun generateCleanClient(): String = generateCleanInterface(
+        name = "LanguageClient",
+        doc = "LSP Language Client interface — methods the server calls on the client.",
+        requests = clientRequests,
+        notifications = clientNotifications
+    )
+
+    // ---- Ksrpc subinterfaces (in :lsp-ksrpc) ----
+
+    fun generateKsrpcServer(): String = generateKsrpcInterface(
+        name = "KsrpcLanguageServer",
+        baseName = "LanguageServer",
+        doc = "ksrpc-annotated [LanguageServer] for use with the JSON-RPC transport.\n" +
+            "Implement this (or extend [DefaultLanguageServer]) to host an LSP server\n" +
+            "via [com.monkopedia.lsp.ksrpc.connectAsLspServer].",
+        requests = serverRequests,
+        notifications = serverNotifications
+    )
+
+    fun generateKsrpcClient(): String = generateKsrpcInterface(
+        name = "KsrpcLanguageClient",
+        baseName = "LanguageClient",
+        doc = "ksrpc-annotated [LanguageClient] for use with the JSON-RPC transport.\n" +
+            "Implement this (or extend [DefaultLanguageClient]) to host an LSP client\n" +
+            "via [com.monkopedia.lsp.ksrpc.connectAsLspClient].",
+        requests = clientRequests,
+        notifications = clientNotifications
+    )
+
+    // ---- Default base classes (in :lsp-ksrpc, extend the ksrpc subinterface) ----
+
     fun generateDefaultServer(): String = generateDefaultClass(
-        "DefaultLanguageServer",
-        "LanguageServer",
-        "Default LanguageServer where every method throws NotImplementedError.\n" +
+        name = "DefaultLanguageServer",
+        interfaceName = "KsrpcLanguageServer",
+        doc = "Default [KsrpcLanguageServer] where every method throws NotImplementedError.\n" +
             "Subclass and override only what you need.",
-        requests = model.requests.filter {
-            it.method !in transportHandled &&
-                it.messageDirection in
-                setOf(MessageDirection.CLIENT_TO_SERVER, MessageDirection.BOTH)
-        },
-        notifications = model.notifications.filter {
-            it.method !in transportHandled &&
-                it.messageDirection in
-                setOf(MessageDirection.CLIENT_TO_SERVER, MessageDirection.BOTH)
-        }
+        requests = serverRequests,
+        notifications = serverNotifications
     )
 
     fun generateDefaultClient(): String = generateDefaultClass(
-        "DefaultLanguageClient",
-        "LanguageClient",
-        "Default LanguageClient where every method throws NotImplementedError.\n" +
+        name = "DefaultLanguageClient",
+        interfaceName = "KsrpcLanguageClient",
+        doc = "Default [KsrpcLanguageClient] where every method throws NotImplementedError.\n" +
             "Subclass and override only what you need.",
-        requests = model.requests.filter {
-            it.method !in transportHandled &&
-                it.messageDirection in
-                setOf(MessageDirection.SERVER_TO_CLIENT, MessageDirection.BOTH)
-        },
-        notifications = model.notifications.filter {
-            it.method !in transportHandled &&
-                it.messageDirection in
-                setOf(MessageDirection.SERVER_TO_CLIENT, MessageDirection.BOTH)
-        }
+        requests = clientRequests,
+        notifications = clientNotifications
     )
 
-    fun generateServer(): String = generateInterface(
-        name = "LanguageServer",
-        doc = "LSP Language Server interface — methods the client calls on the server.",
-        requests = model.requests.filter {
-            it.method !in transportHandled &&
-                it.messageDirection in
-                setOf(MessageDirection.CLIENT_TO_SERVER, MessageDirection.BOTH)
-        },
-        notifications = model.notifications.filter {
-            it.method !in transportHandled &&
-                it.messageDirection in
-                setOf(MessageDirection.CLIENT_TO_SERVER, MessageDirection.BOTH)
-        }
-    )
+    // ---- Implementation ----
 
-    fun generateClient(): String = generateInterface(
-        name = "LanguageClient",
-        doc = "LSP Language Client interface — methods the server calls on the client.",
-        requests = model.requests.filter {
-            it.method !in transportHandled &&
-                it.messageDirection in
-                setOf(MessageDirection.SERVER_TO_CLIENT, MessageDirection.BOTH)
-        },
-        notifications = model.notifications.filter {
-            it.method !in transportHandled &&
-                it.messageDirection in
-                setOf(MessageDirection.SERVER_TO_CLIENT, MessageDirection.BOTH)
-        }
-    )
-
-    private fun generateInterface(
+    private fun generateCleanInterface(
         name: String,
         doc: String,
         requests: List<Request>,
@@ -108,73 +129,89 @@ class ServiceGenerator(private val resolver: TypeResolver, private val model: Me
     ): String {
         val w = CodeWriter()
         w.kdoc(doc)
-        w.line("@KsService")
-        w.block("interface $name : RpcService") {
+        w.block("interface $name") {
             for (req in requests) {
                 line()
-                generateRequestMethod(this, req)
+                generateCleanRequest(this, req)
             }
             for (notif in notifications) {
                 line()
-                generateNotificationMethod(this, notif)
+                generateCleanNotification(this, notif)
+            }
+
+            // Companion object with method-name constants.
+            line()
+            block("companion object") {
+                for (req in requests) {
+                    line(
+                        "const val ${req.method.toMethodConstName()}: String = " +
+                            "\"${req.method}\""
+                    )
+                }
+                for (notif in notifications) {
+                    line(
+                        "const val ${notif.method.toMethodConstName()}: String = " +
+                            "\"${notif.method}\""
+                    )
+                }
             }
         }
         return w.toString()
     }
 
-    private fun generateRequestMethod(w: CodeWriter, req: Request) {
+    private fun generateCleanRequest(w: CodeWriter, req: Request) {
         w.kdoc(req.documentation, req.since)
-        val methodName = req.method.toMethodName()
-        val wireName = req.method
-
-        w.line("@KsMethod(\"$wireName\")")
-
-        // Add @KsError for methods with typed error data
         if (req.errorData != null) {
             val errorType = resolver.resolve(req.errorData)
             w.line("// errorData: $errorType")
         }
-
-        val returnType = resolver.resolve(
-            req.result,
-            "${methodName.replaceFirstChar {
-                it.uppercase()
-            }}Result"
-        )
-        val params = req.params
-        if (params != null) {
-            val paramType = resolver.resolve(
-                params,
-                "${methodName.replaceFirstChar {
-                    it.uppercase()
-                }}Params"
-            )
-            w.line("suspend fun $methodName(params: $paramType): $returnType")
-        } else {
-            w.line("suspend fun $methodName(): $returnType")
-        }
+        emitMethodSignature(w, req.method, req.result, req.params, prefix = "suspend fun ")
     }
 
-    private fun generateNotificationMethod(w: CodeWriter, notif: Notification) {
+    private fun generateCleanNotification(w: CodeWriter, notif: Notification) {
         w.kdoc(notif.documentation, notif.since)
-        val methodName = notif.method.toMethodName()
-        val wireName = notif.method
+        emitMethodSignature(w, notif.method, null, notif.params, prefix = "suspend fun ")
+    }
 
-        w.line("@KsMethod(\"$wireName\")")
-        w.line("@KsNotification")
-
-        val params = notif.params
-        if (params != null) {
-            val paramType = resolver.resolve(
-                params,
-                "${methodName.replaceFirstChar {
-                    it.uppercase()
-                }}Params"
-            )
-            w.line("suspend fun $methodName(params: $paramType)")
-        } else {
-            w.line("suspend fun $methodName()")
+    private fun generateKsrpcInterface(
+        name: String,
+        baseName: String,
+        doc: String,
+        requests: List<Request>,
+        notifications: List<Notification>
+    ): String {
+        val w = CodeWriter()
+        w.kdoc(doc)
+        w.line("@KsService")
+        w.block("interface $name : $baseName, RpcService") {
+            for (req in requests) {
+                line()
+                generateKsrpcRequestOverride(this, req, baseName)
+            }
+            for (notif in notifications) {
+                line()
+                generateKsrpcNotificationOverride(this, notif, baseName)
+            }
         }
+        return w.toString()
+    }
+
+    private fun generateKsrpcRequestOverride(w: CodeWriter, req: Request, baseName: String) {
+        // ksrpc compiler plugin doesn't resolve const val references — use string
+        // literal here. The matching const val on the [baseName] companion still
+        // documents the wire name for users who want to reference it.
+        w.line("@KsMethod(\"${req.method}\")")
+        emitMethodSignature(w, req.method, req.result, req.params, prefix = "override suspend fun ")
+    }
+
+    private fun generateKsrpcNotificationOverride(
+        w: CodeWriter,
+        notif: Notification,
+        baseName: String
+    ) {
+        w.line("@KsMethod(\"${notif.method}\")")
+        w.line("@KsNotification")
+        emitMethodSignature(w, notif.method, null, notif.params, prefix = "override suspend fun ")
     }
 
     private fun generateDefaultClass(
@@ -200,47 +237,64 @@ class ServiceGenerator(private val resolver: TypeResolver, private val model: Me
     }
 
     private fun generateDefaultRequestImpl(w: CodeWriter, req: Request) {
-        val methodName = req.method.toMethodName()
-        val returnType = resolver.resolve(
+        emitMethodSignature(
+            w,
+            req.method,
             req.result,
-            "${methodName.replaceFirstChar { it.uppercase() }}Result"
-        )
-        val params = req.params
-        val signature = if (params != null) {
-            val paramType = resolver.resolve(
-                params,
-                "${methodName.replaceFirstChar { it.uppercase() }}Params"
-            )
-            "override suspend fun $methodName(params: $paramType): $returnType"
-        } else {
-            "override suspend fun $methodName(): $returnType"
+            req.params,
+            prefix = "override suspend fun "
+        ) { _, methodName ->
+            // Body: throw NotImplementedError. Use explicit block so the inferred
+            // return type is the declared one, not Nothing.
+            w.line("    throw NotImplementedError(\"$methodName not implemented\")")
         }
-        // Explicit block (not `=`) so the return type comes from the signature, not Nothing.
-        w.line("$signature {")
-        w.indent {
-            line("throw NotImplementedError(\"$methodName not implemented\")")
-        }
-        w.line("}")
     }
 
     private fun generateDefaultNotificationImpl(w: CodeWriter, notif: Notification) {
-        val methodName = notif.method.toMethodName()
-        val params = notif.params
-        val signature = if (params != null) {
-            val paramType = resolver.resolve(
-                params,
-                "${methodName.replaceFirstChar { it.uppercase() }}Params"
-            )
-            "override suspend fun $methodName(params: $paramType)"
+        emitMethodSignature(
+            w,
+            notif.method,
+            null,
+            notif.params,
+            prefix = "override suspend fun "
+        ) { _, methodName ->
+            w.line("    throw NotImplementedError(\"$methodName not implemented\")")
+        }
+    }
+
+    /**
+     * Emit a method signature shared between clean / ksrpc-override / default-impl
+     * generators. If [body] is non-null, emits `signature {` + body + `}`. Otherwise
+     * emits a bare abstract `signature`.
+     */
+    private fun emitMethodSignature(
+        w: CodeWriter,
+        wireMethod: String,
+        result: LspType?,
+        params: LspType?,
+        prefix: String,
+        body: ((CodeWriter, String) -> Unit)? = null
+    ) {
+        val methodName = wireMethod.toMethodName()
+        val capitalized = methodName.replaceFirstChar { it.uppercase() }
+        val returnType = if (result != null) {
+            ": " + resolver.resolve(result, "${capitalized}Result")
         } else {
-            "override suspend fun $methodName()"
+            ""
         }
-        // Explicit block so return type is Unit, not Nothing.
-        w.line("$signature {")
-        w.indent {
-            line("throw NotImplementedError(\"$methodName not implemented\")")
+        val paramSignature = if (params != null) {
+            "params: " + resolver.resolve(params, "${capitalized}Params")
+        } else {
+            ""
         }
-        w.line("}")
+        val signature = "$prefix$methodName($paramSignature)$returnType"
+        if (body != null) {
+            w.line("$signature {")
+            body(w, methodName)
+            w.line("}")
+        } else {
+            w.line(signature)
+        }
     }
 }
 
@@ -253,4 +307,16 @@ private fun String.toMethodName(): String {
     return cleaned.split("/").mapIndexed { i, part ->
         if (i == 0) part else part.replaceFirstChar { it.uppercase() }
     }.joinToString("")
+}
+
+/**
+ * Convert an LSP method name like "textDocument/hover" or "$/progress" to an
+ * UPPER_SNAKE_CASE constant name like `TEXT_DOCUMENT_HOVER` or `PROGRESS`.
+ */
+private fun String.toMethodConstName(): String {
+    val cleaned = removePrefix("$/")
+    return cleaned.split("/").joinToString("_") { part ->
+        // camelCase → CAMEL_CASE
+        part.replace(Regex("([a-z])([A-Z])"), "$1_$2").uppercase()
+    }
 }

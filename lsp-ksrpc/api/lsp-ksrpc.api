@@ -1,4 +1,4 @@
-public class com/monkopedia/lsp/DefaultLanguageClient : com/monkopedia/lsp/LanguageClient {
+public class com/monkopedia/lsp/DefaultLanguageClient : com/monkopedia/lsp/KsrpcLanguageClient {
 	public fun <init> ()V
 	public fun clientRegisterCapability (Lcom/monkopedia/lsp/RegistrationParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public fun clientUnregisterCapability (Lcom/monkopedia/lsp/UnregistrationParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -23,7 +23,7 @@ public class com/monkopedia/lsp/DefaultLanguageClient : com/monkopedia/lsp/Langu
 	public fun workspaceWorkspaceFolders (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public class com/monkopedia/lsp/DefaultLanguageServer : com/monkopedia/lsp/LanguageServer {
+public class com/monkopedia/lsp/DefaultLanguageServer : com/monkopedia/lsp/KsrpcLanguageServer {
 	public fun <init> ()V
 	public fun callHierarchyIncomingCalls (Lcom/monkopedia/lsp/CallHierarchyIncomingCallsParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public fun callHierarchyOutgoingCalls (Lcom/monkopedia/lsp/CallHierarchyOutgoingCallsParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -101,8 +101,8 @@ public class com/monkopedia/lsp/DefaultLanguageServer : com/monkopedia/lsp/Langu
 	public fun workspaceWillRenameFiles (Lcom/monkopedia/lsp/RenameFilesParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public abstract interface class com/monkopedia/lsp/LanguageClient : com/monkopedia/ksrpc/RpcService {
-	public static final field Companion Lcom/monkopedia/lsp/LanguageClient$Companion;
+public abstract interface class com/monkopedia/lsp/KsrpcLanguageClient : com/monkopedia/ksrpc/RpcService, com/monkopedia/lsp/LanguageClient {
+	public static final field Companion Lcom/monkopedia/lsp/KsrpcLanguageClient$Companion;
 	public abstract fun clientRegisterCapability (Lcom/monkopedia/lsp/RegistrationParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun clientUnregisterCapability (Lcom/monkopedia/lsp/UnregistrationParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun logTrace (Lcom/monkopedia/lsp/LogTraceParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -125,21 +125,21 @@ public abstract interface class com/monkopedia/lsp/LanguageClient : com/monkoped
 	public abstract fun workspaceWorkspaceFolders (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageClient$Companion : com/monkopedia/ksrpc/RpcObject {
+public final class com/monkopedia/lsp/KsrpcLanguageClient$Companion : com/monkopedia/ksrpc/RpcObject {
 	public synthetic fun createStub (Lcom/monkopedia/ksrpc/channels/SerializedService;)Lcom/monkopedia/ksrpc/RpcService;
-	public final fun createStub (Lcom/monkopedia/ksrpc/channels/SerializedService;)Lcom/monkopedia/lsp/LanguageClient;
+	public final fun createStub (Lcom/monkopedia/ksrpc/channels/SerializedService;)Lcom/monkopedia/lsp/KsrpcLanguageClient;
 	public final fun findEndpoint (Ljava/lang/String;)Lcom/monkopedia/ksrpc/RpcMethod;
 	public final fun getEndpoints ()Ljava/util/List;
 	public final fun getServiceName ()Ljava/lang/String;
 	public final fun getServiceTier ()Lcom/monkopedia/ksrpc/ServiceTier;
 }
 
-public final class com/monkopedia/lsp/LanguageClient$DefaultImpls {
-	public static fun close (Lcom/monkopedia/lsp/LanguageClient;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+public final class com/monkopedia/lsp/KsrpcLanguageClient$DefaultImpls {
+	public static fun close (Lcom/monkopedia/lsp/KsrpcLanguageClient;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageClient$Stub : com/monkopedia/ksrpc/RpcService, com/monkopedia/lsp/LanguageClient {
-	public static final field Companion Lcom/monkopedia/lsp/LanguageClient$Stub$Companion;
+public final class com/monkopedia/lsp/KsrpcLanguageClient$Stub : com/monkopedia/ksrpc/RpcService, com/monkopedia/lsp/KsrpcLanguageClient {
+	public static final field Companion Lcom/monkopedia/lsp/KsrpcLanguageClient$Stub$Companion;
 	public fun <init> (Lcom/monkopedia/ksrpc/channels/SerializedService;)V
 	public final synthetic fun clientRegisterCapability (Lcom/monkopedia/lsp/RegistrationParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final synthetic fun clientUnregisterCapability (Lcom/monkopedia/lsp/UnregistrationParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -164,107 +164,107 @@ public final class com/monkopedia/lsp/LanguageClient$Stub : com/monkopedia/ksrpc
 	public final synthetic fun workspaceWorkspaceFolders (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageClient$Stub$AnonymousClientRegisterCapability : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageClient$Stub$AnonymousClientRegisterCapability : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageClient$Stub$AnonymousClientUnregisterCapability : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageClient$Stub$AnonymousClientUnregisterCapability : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageClient$Stub$AnonymousLogTrace : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageClient$Stub$AnonymousLogTrace : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageClient$Stub$AnonymousProgress : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageClient$Stub$AnonymousProgress : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageClient$Stub$AnonymousTelemetryEvent : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageClient$Stub$AnonymousTelemetryEvent : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageClient$Stub$AnonymousTextDocumentPublishDiagnostics : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageClient$Stub$AnonymousTextDocumentPublishDiagnostics : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageClient$Stub$AnonymousWindowLogMessage : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageClient$Stub$AnonymousWindowLogMessage : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageClient$Stub$AnonymousWindowShowDocument : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageClient$Stub$AnonymousWindowShowDocument : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageClient$Stub$AnonymousWindowShowMessage : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageClient$Stub$AnonymousWindowShowMessage : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageClient$Stub$AnonymousWindowShowMessageRequest : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageClient$Stub$AnonymousWindowShowMessageRequest : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageClient$Stub$AnonymousWindowWorkDoneProgressCreate : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageClient$Stub$AnonymousWindowWorkDoneProgressCreate : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageClient$Stub$AnonymousWorkspaceApplyEdit : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageClient$Stub$AnonymousWorkspaceApplyEdit : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageClient$Stub$AnonymousWorkspaceCodeLensRefresh : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageClient$Stub$AnonymousWorkspaceCodeLensRefresh : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageClient$Stub$AnonymousWorkspaceConfiguration : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageClient$Stub$AnonymousWorkspaceConfiguration : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageClient$Stub$AnonymousWorkspaceDiagnosticRefresh : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageClient$Stub$AnonymousWorkspaceDiagnosticRefresh : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageClient$Stub$AnonymousWorkspaceFoldingRangeRefresh : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageClient$Stub$AnonymousWorkspaceFoldingRangeRefresh : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageClient$Stub$AnonymousWorkspaceInlayHintRefresh : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageClient$Stub$AnonymousWorkspaceInlayHintRefresh : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageClient$Stub$AnonymousWorkspaceInlineValueRefresh : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageClient$Stub$AnonymousWorkspaceInlineValueRefresh : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageClient$Stub$AnonymousWorkspaceSemanticTokensRefresh : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageClient$Stub$AnonymousWorkspaceSemanticTokensRefresh : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageClient$Stub$AnonymousWorkspaceWorkspaceFolders : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageClient$Stub$AnonymousWorkspaceWorkspaceFolders : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final synthetic class com/monkopedia/lsp/LanguageClient$Stub$Companion {
+public final synthetic class com/monkopedia/lsp/KsrpcLanguageClient$Stub$Companion {
 	public fun <init> ()V
 	public final synthetic fun ClientRegisterCapability$lsp_ksrpc ()Lcom/monkopedia/ksrpc/RpcMethod;
 	public final synthetic fun ClientUnregisterCapability$lsp_ksrpc ()Lcom/monkopedia/ksrpc/RpcMethod;
@@ -288,8 +288,8 @@ public final synthetic class com/monkopedia/lsp/LanguageClient$Stub$Companion {
 	public final synthetic fun WorkspaceWorkspaceFolders$lsp_ksrpc ()Lcom/monkopedia/ksrpc/RpcMethod;
 }
 
-public abstract interface class com/monkopedia/lsp/LanguageServer : com/monkopedia/ksrpc/RpcService {
-	public static final field Companion Lcom/monkopedia/lsp/LanguageServer$Companion;
+public abstract interface class com/monkopedia/lsp/KsrpcLanguageServer : com/monkopedia/ksrpc/RpcService, com/monkopedia/lsp/LanguageServer {
+	public static final field Companion Lcom/monkopedia/lsp/KsrpcLanguageServer$Companion;
 	public abstract fun callHierarchyIncomingCalls (Lcom/monkopedia/lsp/CallHierarchyIncomingCallsParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun callHierarchyOutgoingCalls (Lcom/monkopedia/lsp/CallHierarchyOutgoingCallsParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun codeActionResolve (Lcom/monkopedia/lsp/CodeAction;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -365,21 +365,21 @@ public abstract interface class com/monkopedia/lsp/LanguageServer : com/monkoped
 	public abstract fun workspaceWillRenameFiles (Lcom/monkopedia/lsp/RenameFilesParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Companion : com/monkopedia/ksrpc/RpcObject {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Companion : com/monkopedia/ksrpc/RpcObject {
 	public synthetic fun createStub (Lcom/monkopedia/ksrpc/channels/SerializedService;)Lcom/monkopedia/ksrpc/RpcService;
-	public final fun createStub (Lcom/monkopedia/ksrpc/channels/SerializedService;)Lcom/monkopedia/lsp/LanguageServer;
+	public final fun createStub (Lcom/monkopedia/ksrpc/channels/SerializedService;)Lcom/monkopedia/lsp/KsrpcLanguageServer;
 	public final fun findEndpoint (Ljava/lang/String;)Lcom/monkopedia/ksrpc/RpcMethod;
 	public final fun getEndpoints ()Ljava/util/List;
 	public final fun getServiceName ()Ljava/lang/String;
 	public final fun getServiceTier ()Lcom/monkopedia/ksrpc/ServiceTier;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$DefaultImpls {
-	public static fun close (Lcom/monkopedia/lsp/LanguageServer;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+public final class com/monkopedia/lsp/KsrpcLanguageServer$DefaultImpls {
+	public static fun close (Lcom/monkopedia/lsp/KsrpcLanguageServer;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub : com/monkopedia/ksrpc/RpcService, com/monkopedia/lsp/LanguageServer {
-	public static final field Companion Lcom/monkopedia/lsp/LanguageServer$Stub$Companion;
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub : com/monkopedia/ksrpc/RpcService, com/monkopedia/lsp/KsrpcLanguageServer {
+	public static final field Companion Lcom/monkopedia/lsp/KsrpcLanguageServer$Stub$Companion;
 	public fun <init> (Lcom/monkopedia/ksrpc/channels/SerializedService;)V
 	public final synthetic fun callHierarchyIncomingCalls (Lcom/monkopedia/lsp/CallHierarchyIncomingCallsParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final synthetic fun callHierarchyOutgoingCalls (Lcom/monkopedia/lsp/CallHierarchyOutgoingCallsParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -457,372 +457,372 @@ public final class com/monkopedia/lsp/LanguageServer$Stub : com/monkopedia/ksrpc
 	public final synthetic fun workspaceWillRenameFiles (Lcom/monkopedia/lsp/RenameFilesParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousCallHierarchyIncomingCalls : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousCallHierarchyIncomingCalls : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousCallHierarchyOutgoingCalls : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousCallHierarchyOutgoingCalls : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousCodeActionResolve : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousCodeActionResolve : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousCodeLensResolve : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousCodeLensResolve : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousCompletionItemResolve : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousCompletionItemResolve : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousDocumentLinkResolve : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousDocumentLinkResolve : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousExit : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousExit : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousInitialize : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousInitialize : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousInitialized : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousInitialized : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousInlayHintResolve : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousInlayHintResolve : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousNotebookDocumentDidChange : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousNotebookDocumentDidChange : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousNotebookDocumentDidClose : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousNotebookDocumentDidClose : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousNotebookDocumentDidOpen : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousNotebookDocumentDidOpen : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousNotebookDocumentDidSave : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousNotebookDocumentDidSave : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousProgress : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousProgress : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousSetTrace : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousSetTrace : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousShutdown : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousShutdown : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentCodeAction : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentCodeAction : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentCodeLens : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentCodeLens : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentColorPresentation : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentColorPresentation : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentCompletion : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentCompletion : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentDeclaration : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentDeclaration : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentDefinition : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentDefinition : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentDiagnostic : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentDiagnostic : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentDidChange : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentDidChange : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentDidClose : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentDidClose : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentDidOpen : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentDidOpen : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentDidSave : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentDidSave : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentDocumentColor : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentDocumentColor : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentDocumentHighlight : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentDocumentHighlight : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentDocumentLink : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentDocumentLink : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentDocumentSymbol : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentDocumentSymbol : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentFoldingRange : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentFoldingRange : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentFormatting : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentFormatting : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentHover : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentHover : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentImplementation : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentImplementation : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentInlayHint : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentInlayHint : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentInlineCompletion : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentInlineCompletion : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentInlineValue : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentInlineValue : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentLinkedEditingRange : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentLinkedEditingRange : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentMoniker : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentMoniker : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentOnTypeFormatting : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentOnTypeFormatting : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentPrepareCallHierarchy : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentPrepareCallHierarchy : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentPrepareRename : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentPrepareRename : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentPrepareTypeHierarchy : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentPrepareTypeHierarchy : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentRangeFormatting : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentRangeFormatting : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentRangesFormatting : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentRangesFormatting : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentReferences : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentReferences : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentRename : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentRename : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentSelectionRange : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentSelectionRange : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentSemanticTokensFull : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentSemanticTokensFull : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentSemanticTokensFullDelta : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentSemanticTokensFullDelta : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentSemanticTokensRange : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentSemanticTokensRange : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentSignatureHelp : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentSignatureHelp : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentTypeDefinition : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentTypeDefinition : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentWillSave : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentWillSave : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTextDocumentWillSaveWaitUntil : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTextDocumentWillSaveWaitUntil : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTypeHierarchySubtypes : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTypeHierarchySubtypes : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousTypeHierarchySupertypes : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousTypeHierarchySupertypes : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousWindowWorkDoneProgressCancel : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousWindowWorkDoneProgressCancel : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousWorkspaceDiagnostic : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousWorkspaceDiagnostic : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousWorkspaceDidChangeConfiguration : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousWorkspaceDidChangeConfiguration : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousWorkspaceDidChangeWatchedFiles : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousWorkspaceDidChangeWatchedFiles : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousWorkspaceDidChangeWorkspaceFolders : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousWorkspaceDidChangeWorkspaceFolders : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousWorkspaceDidCreateFiles : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousWorkspaceDidCreateFiles : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousWorkspaceDidDeleteFiles : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousWorkspaceDidDeleteFiles : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousWorkspaceDidRenameFiles : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousWorkspaceDidRenameFiles : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousWorkspaceExecuteCommand : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousWorkspaceExecuteCommand : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousWorkspaceSymbol : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousWorkspaceSymbol : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousWorkspaceSymbolResolve : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousWorkspaceSymbolResolve : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousWorkspaceWillCreateFiles : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousWorkspaceWillCreateFiles : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousWorkspaceWillDeleteFiles : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousWorkspaceWillDeleteFiles : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/monkopedia/lsp/LanguageServer$Stub$AnonymousWorkspaceWillRenameFiles : com/monkopedia/ksrpc/internal/ServiceExecutor {
+public final class com/monkopedia/lsp/KsrpcLanguageServer$Stub$AnonymousWorkspaceWillRenameFiles : com/monkopedia/ksrpc/internal/ServiceExecutor {
 	public fun <init> ()V
 	public final synthetic fun invoke (Lcom/monkopedia/ksrpc/RpcService;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final synthetic class com/monkopedia/lsp/LanguageServer$Stub$Companion {
+public final synthetic class com/monkopedia/lsp/KsrpcLanguageServer$Stub$Companion {
 	public fun <init> ()V
 	public final synthetic fun CallHierarchyIncomingCalls$lsp_ksrpc ()Lcom/monkopedia/ksrpc/RpcMethod;
 	public final synthetic fun CallHierarchyOutgoingCalls$lsp_ksrpc ()Lcom/monkopedia/ksrpc/RpcMethod;
@@ -923,8 +923,8 @@ public final class com/monkopedia/lsp/ksrpc/LifecycleState$Phase : java/lang/Enu
 public final class com/monkopedia/lsp/ksrpc/LspConnectionKt {
 	public static final fun asLspConnection (Lkotlin/Pair;Lcom/monkopedia/ksrpc/KsrpcEnvironment;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun asLspConnection$default (Lkotlin/Pair;Lcom/monkopedia/ksrpc/KsrpcEnvironment;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
-	public static final fun connectAsLspClient (Lcom/monkopedia/ksrpc/channels/SingleChannelConnection;Lcom/monkopedia/lsp/LanguageClient;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public static final fun connectAsLspServer (Lcom/monkopedia/ksrpc/channels/SingleChannelConnection;Lcom/monkopedia/lsp/LanguageServer;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun connectAsLspClient (Lcom/monkopedia/ksrpc/channels/SingleChannelConnection;Lcom/monkopedia/lsp/KsrpcLanguageClient;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun connectAsLspServer (Lcom/monkopedia/ksrpc/channels/SingleChannelConnection;Lcom/monkopedia/lsp/KsrpcLanguageServer;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public final class com/monkopedia/lsp/ksrpc/LspProcessConnectionKt {

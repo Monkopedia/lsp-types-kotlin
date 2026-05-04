@@ -21,8 +21,8 @@ import com.monkopedia.ksrpc.channels.connect
 import com.monkopedia.ksrpc.jsonrpc.JsonRpcCancellationConvention
 import com.monkopedia.ksrpc.jsonrpc.asJsonRpcConnection
 import com.monkopedia.ksrpc.ksrpcEnvironment
-import com.monkopedia.lsp.LanguageClient
-import com.monkopedia.lsp.LanguageServer
+import com.monkopedia.lsp.KsrpcLanguageClient
+import com.monkopedia.lsp.KsrpcLanguageServer
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.ByteWriteChannel
 
@@ -37,7 +37,8 @@ import io.ktor.utils.io.ByteWriteChannel
  * a server child process).
  *
  * Use [connectAsLspClient] / [connectAsLspServer] on the returned connection to
- * host a [LanguageClient] / [LanguageServer] and obtain a stub for the remote.
+ * host a [KsrpcLanguageClient] / [KsrpcLanguageServer] and obtain a stub for the
+ * remote side.
  */
 suspend fun Pair<ByteReadChannel, ByteWriteChannel>.asLspConnection(
     env: KsrpcEnvironment<String> = ksrpcEnvironment { }
@@ -48,9 +49,9 @@ suspend fun Pair<ByteReadChannel, ByteWriteChannel>.asLspConnection(
 )
 
 /**
- * Wire this connection from the client side: register a [LanguageClient]
- * implementation so the server can call back, and get a [LanguageServer] stub
- * for sending requests/notifications.
+ * Wire this connection from the client side: register a [KsrpcLanguageClient]
+ * implementation so the server can call back, and get a [KsrpcLanguageServer]
+ * stub for sending requests/notifications.
  *
  * Typical usage:
  *
@@ -62,10 +63,10 @@ suspend fun Pair<ByteReadChannel, ByteWriteChannel>.asLspConnection(
  * ```
  */
 suspend fun SingleChannelConnection<String>.connectAsLspClient(
-    client: LanguageClient
-): LanguageServer {
-    lateinit var server: LanguageServer
-    connect<LanguageClient, LanguageServer, String> { remoteServer ->
+    client: KsrpcLanguageClient
+): KsrpcLanguageServer {
+    lateinit var server: KsrpcLanguageServer
+    connect<KsrpcLanguageClient, KsrpcLanguageServer, String> { remoteServer ->
         server = remoteServer
         client
     }
@@ -73,9 +74,9 @@ suspend fun SingleChannelConnection<String>.connectAsLspClient(
 }
 
 /**
- * Wire this connection from the server side: register a [LanguageServer]
+ * Wire this connection from the server side: register a [KsrpcLanguageServer]
  * implementation so the client can call into the server, and get a
- * [LanguageClient] stub for sending notifications and requests back.
+ * [KsrpcLanguageClient] stub for sending notifications and requests back.
  *
  * Typical usage from inside a server `main`:
  *
@@ -86,10 +87,10 @@ suspend fun SingleChannelConnection<String>.connectAsLspClient(
  * ```
  */
 suspend fun SingleChannelConnection<String>.connectAsLspServer(
-    server: LanguageServer
-): LanguageClient {
-    lateinit var client: LanguageClient
-    connect<LanguageServer, LanguageClient, String> { remoteClient ->
+    server: KsrpcLanguageServer
+): KsrpcLanguageClient {
+    lateinit var client: KsrpcLanguageClient
+    connect<KsrpcLanguageServer, KsrpcLanguageClient, String> { remoteClient ->
         client = remoteClient
         server
     }

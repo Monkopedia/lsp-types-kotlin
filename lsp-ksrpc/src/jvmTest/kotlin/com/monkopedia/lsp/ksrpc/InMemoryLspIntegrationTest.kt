@@ -24,8 +24,8 @@ import com.monkopedia.lsp.DefaultLanguageServer
 import com.monkopedia.lsp.DidOpenTextDocumentParams
 import com.monkopedia.lsp.InitializeParams
 import com.monkopedia.lsp.InitializeResult
-import com.monkopedia.lsp.LanguageClient
-import com.monkopedia.lsp.LanguageServer
+import com.monkopedia.lsp.KsrpcLanguageClient
+import com.monkopedia.lsp.KsrpcLanguageServer
 import com.monkopedia.lsp.MessageType
 import com.monkopedia.lsp.ServerCapabilities
 import com.monkopedia.lsp.ShowMessageParams
@@ -47,8 +47,8 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 
 /**
- * End-to-end test: a [LanguageServer] impl on one side of a pair of in-memory
- * byte channels, a [LanguageClient] impl on the other. Exercises the JSON-RPC
+ * End-to-end test: a [KsrpcLanguageServer] impl on one side of a pair of in-memory
+ * byte channels, a [KsrpcLanguageClient] impl on the other. Exercises the JSON-RPC
  * wire (Content-Length framing, generated `@KsService` interfaces,
  * `@KsNotification` dispatch).
  *
@@ -95,7 +95,7 @@ class InMemoryLspIntegrationTest {
             val token = registry.allocateToken()
 
             val serverSideClient =
-                CompletableDeferred<com.monkopedia.lsp.LanguageClient>()
+                CompletableDeferred<com.monkopedia.lsp.KsrpcLanguageClient>()
 
             val server = object : DefaultLanguageServer() {
                 override suspend fun initialize(params: InitializeParams): InitializeResult {
@@ -189,7 +189,7 @@ class InMemoryLspIntegrationTest {
                 CompletableDeferred<com.monkopedia.lsp.PublishDiagnosticsParams>()
 
             // Capture the client stub from the server side so the server can call back.
-            val serverSideClient = CompletableDeferred<com.monkopedia.lsp.LanguageClient>()
+            val serverSideClient = CompletableDeferred<com.monkopedia.lsp.KsrpcLanguageClient>()
 
             val server = object : DefaultLanguageServer() {
                 override suspend fun initialize(params: InitializeParams): InitializeResult {
@@ -269,10 +269,10 @@ class InMemoryLspIntegrationTest {
  * stub of the client, so the server can call back to the client during the test.
  */
 private suspend fun runWithLspConnectionCapturingClient(
-    server: LanguageServer,
-    client: LanguageClient,
-    serverSideClient: CompletableDeferred<LanguageClient>,
-    block: suspend (LanguageServer) -> Unit
+    server: KsrpcLanguageServer,
+    client: KsrpcLanguageClient,
+    serverSideClient: CompletableDeferred<KsrpcLanguageClient>,
+    block: suspend (KsrpcLanguageServer) -> Unit
 ) {
     val clientToServer = ByteChannel(autoFlush = true)
     val serverToClient = ByteChannel(autoFlush = true)
@@ -294,15 +294,15 @@ private suspend fun runWithLspConnectionCapturingClient(
 }
 
 /**
- * Wire a [LanguageServer] and [LanguageClient] together over a pair of in-memory
+ * Wire a [KsrpcLanguageServer] and [KsrpcLanguageClient] together over a pair of in-memory
  * byte channels. The server runs on `GlobalScope` so its receiver coroutine
  * doesn't block scope completion. [block] runs against the server stub from
  * the client side. Channels are closed when [block] returns.
  */
 private suspend fun runWithLspConnection(
-    server: LanguageServer,
-    client: LanguageClient,
-    block: suspend (LanguageServer) -> Unit
+    server: KsrpcLanguageServer,
+    client: KsrpcLanguageClient,
+    block: suspend (KsrpcLanguageServer) -> Unit
 ) {
     val clientToServer = ByteChannel(autoFlush = true)
     val serverToClient = ByteChannel(autoFlush = true)

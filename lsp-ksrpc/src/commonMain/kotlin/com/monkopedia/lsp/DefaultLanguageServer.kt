@@ -15,10 +15,10 @@ package com.monkopedia.lsp
 import kotlinx.serialization.json.JsonElement
 
 /**
- * Default LanguageServer where every method throws NotImplementedError.
+ * Default [KsrpcLanguageServer] where every method throws NotImplementedError.
  * Subclass and override only what you need.
  */
-open class DefaultLanguageServer : LanguageServer {
+open class DefaultLanguageServer : KsrpcLanguageServer {
 
     override suspend fun textDocumentImplementation(params: ImplementationParams): JsonElement =
         throw NotImplementedError("textDocumentImplementation not implemented")
