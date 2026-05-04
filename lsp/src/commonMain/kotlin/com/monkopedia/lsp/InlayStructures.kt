@@ -6,7 +6,8 @@
     "PropertyName",
     "ktlint:standard:class-naming",
     "ktlint:standard:filename",
-    "ktlint:standard:max-line-length"
+    "ktlint:standard:max-line-length",
+    "ktlint:standard:parameter-wrapping"
 )
 
 package com.monkopedia.lsp
@@ -69,7 +70,7 @@ data class InlayHint(
     /**
      * The tooltip text when you hover over this item.
      */
-    val tooltip: kotlinx.serialization.json.JsonElement? = null,
+    val tooltip: StringOr<MarkupContent>? = null,
     /**
      * Render padding before the hint.
      *
@@ -110,13 +111,13 @@ data class InlayHintRegistrationOptions(
      * A document selector to identify the scope of the registration. If set to null
      * the document selector provided on the client side will be used.
      */
-    val documentSelector: DocumentSelector??,
+    val documentSelector: DocumentSelector?,
     /**
      * The id used to register the request. The id can be used to deregister
      * the request again. See also Registration#id.
      */
     val id: String? = null
-)
+) : ServerCapabilitiesInlayHintProviderOptions
 
 /**
  * An inlay hint label part allows for interactive and composite labels
@@ -135,7 +136,7 @@ data class InlayHintLabelPart(
      * the client capability `inlayHint.resolveSupport` clients might resolve
      * this property late using the resolve request.
      */
-    val tooltip: kotlinx.serialization.json.JsonElement? = null,
+    val tooltip: StringOr<MarkupContent>? = null,
     /**
      * An optional source code location that represents this
      * label part.
@@ -172,7 +173,7 @@ data class InlayHintOptions(
      * information for an inlay hint item.
      */
     val resolveProvider: Boolean? = null
-)
+) : ServerCapabilitiesInlayHintProviderOptions
 
 /**
  * Client workspace capabilities specific to inlay hints.

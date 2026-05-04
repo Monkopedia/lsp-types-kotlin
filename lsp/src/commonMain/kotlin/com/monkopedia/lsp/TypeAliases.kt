@@ -6,7 +6,8 @@
     "PropertyName",
     "ktlint:standard:class-naming",
     "ktlint:standard:filename",
-    "ktlint:standard:max-line-length"
+    "ktlint:standard:max-line-length",
+    "ktlint:standard:parameter-wrapping"
 )
 
 package com.monkopedia.lsp
@@ -19,7 +20,7 @@ package com.monkopedia.lsp
  * Servers should prefer returning `DefinitionLink` over `Definition` if supported
  * by the client.
  */
-typealias Definition = kotlinx.serialization.json.JsonElement
+typealias Definition = SingleOrArray<Location>
 
 /**
  * Information about where a symbol is defined.
@@ -48,7 +49,7 @@ typealias LSPAny = kotlinx.serialization.json.JsonElement
 /**
  * The declaration of a symbol representation as one or many {@link Location locations}.
  */
-typealias Declaration = kotlinx.serialization.json.JsonElement
+typealias Declaration = SingleOrArray<Location>
 
 /**
  * Information about where a symbol is declared.
@@ -61,28 +62,6 @@ typealias Declaration = kotlinx.serialization.json.JsonElement
  */
 typealias DeclarationLink = LocationLink
 
-/**
- * Inline value information can be provided by different means:
- * - directly as a text value (class InlineValueText).
- * - as a name to use for a variable lookup (class InlineValueVariableLookup)
- * - as an evaluatable expression (class InlineValueEvaluatableExpression)
- * The InlineValue types combines all inline value types into one type.
- *
- * @since 3.17.0
- */
-typealias InlineValue = kotlinx.serialization.json.JsonElement
-
-/**
- * The result of a document diagnostic pull request. A report can
- * either be a full report containing all diagnostics for the
- * requested document or an unchanged report indicating that nothing
- * has changed in terms of diagnostics in comparison to the last
- * pull request.
- *
- * @since 3.17.0
- */
-typealias DocumentDiagnosticReport = kotlinx.serialization.json.JsonElement
-
 typealias PrepareRenameResult = kotlinx.serialization.json.JsonElement
 
 /**
@@ -94,25 +73,12 @@ typealias PrepareRenameResult = kotlinx.serialization.json.JsonElement
  */
 typealias DocumentSelector = List<DocumentFilter>
 
-typealias ProgressToken = kotlinx.serialization.json.JsonElement
+typealias ProgressToken = IntOrString
 
 /**
  * An identifier to refer to a change annotation stored with a workspace edit.
  */
 typealias ChangeAnnotationIdentifier = String
-
-/**
- * A workspace diagnostic document report.
- *
- * @since 3.17.0
- */
-typealias WorkspaceDocumentDiagnosticReport = kotlinx.serialization.json.JsonElement
-
-/**
- * An event describing a change to a text document. If only a text is provided
- * it is considered to be the full content of the document.
- */
-typealias TextDocumentContentChangeEvent = kotlinx.serialization.json.JsonElement
 
 /**
  * MarkedString can be used to render human readable text. It is either a markdown string
@@ -128,7 +94,7 @@ typealias TextDocumentContentChangeEvent = kotlinx.serialization.json.JsonElemen
  * Note that markdown strings will be sanitized - that means html will be escaped.
  * @deprecated use MarkupContent instead.
  */
-typealias MarkedString = kotlinx.serialization.json.JsonElement
+typealias MarkedString = StringOr<MarkedStringObject>
 
 /**
  * A document filter describes a top level text document or
@@ -150,35 +116,6 @@ typealias LSPObject = Map<String, LSPAny>
  * @since 3.17.0
  */
 typealias GlobPattern = kotlinx.serialization.json.JsonElement
-
-/**
- * A document filter denotes a document by different properties like
- * the {@link TextDocument.languageId language}, the {@link Uri.scheme scheme} of
- * its resource, or a glob-pattern that is applied to the {@link TextDocument.fileName path}.
- *
- * Glob patterns can have the following syntax:
- * - `*` to match zero or more characters in a path segment
- * - `?` to match on one character in a path segment
- * - `**` to match any number of path segments, including none
- * - `{}` to group sub patterns into an OR expression. (e.g. `**​/&#42;.{ts,js}` matches all TypeScript and JavaScript files)
- * - `[]` to declare a range of characters to match in a path segment (e.g., `example.[0-9]` to match on `example.0`, `example.1`, …)
- * - `[!...]` to negate a range of characters to match in a path segment (e.g., `example.[!0-9]` to match on `example.a`, `example.b`, but not `example.0`)
- *
- * @sample A language filter that applies to typescript files on disk: `{ language: 'typescript', scheme: 'file' }`
- * @sample A language filter that applies to all package.json paths: `{ language: 'json', pattern: '**package.json' }`
- *
- * @since 3.17.0
- */
-typealias TextDocumentFilter = kotlinx.serialization.json.JsonElement
-
-/**
- * A notebook document filter denotes a notebook document by
- * different properties. The properties will be match
- * against the notebook's URI (same as with documents)
- *
- * @since 3.17.0
- */
-typealias NotebookDocumentFilter = kotlinx.serialization.json.JsonElement
 
 /**
  * The glob pattern to watch relative to the base path. Glob patterns can have the following syntax:

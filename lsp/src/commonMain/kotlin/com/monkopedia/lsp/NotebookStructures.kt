@@ -6,7 +6,8 @@
     "PropertyName",
     "ktlint:standard:class-naming",
     "ktlint:standard:filename",
-    "ktlint:standard:max-line-length"
+    "ktlint:standard:max-line-length",
+    "ktlint:standard:parameter-wrapping"
 )
 
 package com.monkopedia.lsp
@@ -191,13 +192,13 @@ data class NotebookDocumentSyncOptions(
     /**
      * The notebooks to be synced
      */
-    val notebookSelector: List<kotlinx.serialization.json.JsonElement>,
+    val notebookSelector: List<NotebookDocumentSyncOptionsNotebookSelector>,
     /**
      * Whether save notification should be forwarded to
      * the server. Will only be honored if mode === `notebook`.
      */
     val save: Boolean? = null
-)
+) : ServerCapabilitiesNotebookDocumentSync
 
 /**
  * Registration options specific to a notebook.
@@ -209,7 +210,7 @@ data class NotebookDocumentSyncRegistrationOptions(
     /**
      * The notebooks to be synced
      */
-    val notebookSelector: List<kotlinx.serialization.json.JsonElement>,
+    val notebookSelector: List<NotebookDocumentSyncRegistrationOptionsNotebookSelector>,
     /**
      * Whether save notification should be forwarded to
      * the server. Will only be honored if mode === `notebook`.
@@ -220,7 +221,7 @@ data class NotebookDocumentSyncRegistrationOptions(
      * the request again. See also Registration#id.
      */
     val id: String? = null
-)
+) : ServerCapabilitiesNotebookDocumentSync
 
 /**
  * A notebook cell text document filter denotes a cell text

@@ -6,7 +6,8 @@
     "PropertyName",
     "ktlint:standard:class-naming",
     "ktlint:standard:filename",
-    "ktlint:standard:max-line-length"
+    "ktlint:standard:max-line-length",
+    "ktlint:standard:parameter-wrapping"
 )
 
 package com.monkopedia.lsp
@@ -38,17 +39,18 @@ data class TypeDefinitionRegistrationOptions(
      * A document selector to identify the scope of the registration. If set to null
      * the document selector provided on the client side will be used.
      */
-    val documentSelector: DocumentSelector??,
+    val documentSelector: DocumentSelector?,
     val workDoneProgress: Boolean? = null,
     /**
      * The id used to register the request. The id can be used to deregister
      * the request again. See also Registration#id.
      */
     val id: String? = null
-)
+) : ServerCapabilitiesTypeDefinitionProviderOptions
 
 @kotlinx.serialization.Serializable
-data class TypeDefinitionOptions(val workDoneProgress: Boolean? = null)
+data class TypeDefinitionOptions(val workDoneProgress: Boolean? = null) :
+    ServerCapabilitiesTypeDefinitionProviderOptions
 
 /**
  * Since 3.6.0

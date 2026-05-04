@@ -6,7 +6,8 @@
     "PropertyName",
     "ktlint:standard:class-naming",
     "ktlint:standard:filename",
-    "ktlint:standard:max-line-length"
+    "ktlint:standard:max-line-length",
+    "ktlint:standard:parameter-wrapping"
 )
 
 package com.monkopedia.lsp
@@ -66,7 +67,7 @@ data class SemanticTokensRegistrationOptions(
      * A document selector to identify the scope of the registration. If set to null
      * the document selector provided on the client side will be used.
      */
-    val documentSelector: DocumentSelector??,
+    val documentSelector: DocumentSelector?,
     val workDoneProgress: Boolean? = null,
     /**
      * The legend used by the server
@@ -76,17 +77,17 @@ data class SemanticTokensRegistrationOptions(
      * Server supports providing semantic tokens for a specific range
      * of a document.
      */
-    val range: kotlinx.serialization.json.JsonElement? = null,
+    val range: BooleanOr<kotlinx.serialization.json.JsonElement>? = null,
     /**
      * Server supports providing semantic tokens for a full document.
      */
-    val full: kotlinx.serialization.json.JsonElement? = null,
+    val full: BooleanOr<kotlinx.serialization.json.JsonElement>? = null,
     /**
      * The id used to register the request. The id can be used to deregister
      * the request again. See also Registration#id.
      */
     val id: String? = null
-)
+) : ServerCapabilitiesSemanticTokensProvider
 
 /**
  * @since 3.16.0
@@ -169,12 +170,12 @@ data class SemanticTokensOptions(
      * Server supports providing semantic tokens for a specific range
      * of a document.
      */
-    val range: kotlinx.serialization.json.JsonElement? = null,
+    val range: BooleanOr<kotlinx.serialization.json.JsonElement>? = null,
     /**
      * Server supports providing semantic tokens for a full document.
      */
-    val full: kotlinx.serialization.json.JsonElement? = null
-)
+    val full: BooleanOr<kotlinx.serialization.json.JsonElement>? = null
+) : ServerCapabilitiesSemanticTokensProvider
 
 /**
  * @since 3.16.0
@@ -299,10 +300,10 @@ data class SemanticTokensClientCapabilitiesRequests(
      * The client will send the `textDocument/semanticTokens/range` request if
      * the server provides a corresponding handler.
      */
-    val range: kotlinx.serialization.json.JsonElement? = null,
+    val range: BooleanOr<kotlinx.serialization.json.JsonElement>? = null,
     /**
      * The client will send the `textDocument/semanticTokens/full` request if
      * the server provides a corresponding handler.
      */
-    val full: kotlinx.serialization.json.JsonElement? = null
+    val full: BooleanOr<kotlinx.serialization.json.JsonElement>? = null
 )

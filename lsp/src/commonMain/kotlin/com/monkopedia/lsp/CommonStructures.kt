@@ -6,7 +6,8 @@
     "PropertyName",
     "ktlint:standard:class-naming",
     "ktlint:standard:filename",
-    "ktlint:standard:max-line-length"
+    "ktlint:standard:max-line-length",
+    "ktlint:standard:parameter-wrapping"
 )
 
 package com.monkopedia.lsp
@@ -157,14 +158,14 @@ data class CallHierarchyRegistrationOptions(
      * A document selector to identify the scope of the registration. If set to null
      * the document selector provided on the client side will be used.
      */
-    val documentSelector: DocumentSelector??,
+    val documentSelector: DocumentSelector?,
     val workDoneProgress: Boolean? = null,
     /**
      * The id used to register the request. The id can be used to deregister
      * the request again. See also Registration#id.
      */
     val id: String? = null
-)
+) : ServerCapabilitiesCallHierarchyProviderOptions
 
 /**
  * The parameter of a `callHierarchy/incomingCalls` request.
@@ -329,14 +330,14 @@ data class LinkedEditingRangeRegistrationOptions(
      * A document selector to identify the scope of the registration. If set to null
      * the document selector provided on the client side will be used.
      */
-    val documentSelector: DocumentSelector??,
+    val documentSelector: DocumentSelector?,
     val workDoneProgress: Boolean? = null,
     /**
      * The id used to register the request. The id can be used to deregister
      * the request again. See also Registration#id.
      */
     val id: String? = null
-)
+) : ServerCapabilitiesLinkedEditingRangeProviderOptions
 
 /**
  * The parameters sent in notifications/requests for user-initiated creation of
@@ -458,14 +459,14 @@ data class TypeHierarchyRegistrationOptions(
      * A document selector to identify the scope of the registration. If set to null
      * the document selector provided on the client side will be used.
      */
-    val documentSelector: DocumentSelector??,
+    val documentSelector: DocumentSelector?,
     val workDoneProgress: Boolean? = null,
     /**
      * The id used to register the request. The id can be used to deregister
      * the request again. See also Registration#id.
      */
     val id: String? = null
-)
+) : ServerCapabilitiesTypeHierarchyProviderOptions
 
 /**
  * The parameter of a `typeHierarchy/supertypes` request.
@@ -542,7 +543,7 @@ data class DocumentDiagnosticParams(
  */
 @kotlinx.serialization.Serializable
 data class DocumentDiagnosticReportPartialResult(
-    val relatedDocuments: Map<DocumentUri, kotlinx.serialization.json.JsonElement>
+    val relatedDocuments: Map<DocumentUri, DocumentDiagnosticReportPartialResultRelatedDocuments>
 )
 
 @kotlinx.serialization.Serializable
@@ -564,7 +565,7 @@ data class InitializeParams(
      * Is `null` if the process has not been started by another process.
      * If the parent process is not alive then the server should exit.
      */
-    val processId: Int??,
+    val processId: Int?,
     /**
      * Information about the client
      *
@@ -588,7 +589,7 @@ data class InitializeParams(
      *
      * @deprecated in favour of rootUri.
      */
-    val rootPath: String?? = null,
+    val rootPath: String? = null,
     /**
      * The rootUri of the workspace. Is null if no
      * folder is open. If both `rootPath` and `rootUri` are set
@@ -596,7 +597,7 @@ data class InitializeParams(
      *
      * @deprecated in favour of workspaceFolders.
      */
-    val rootUri: DocumentUri??,
+    val rootUri: DocumentUri?,
     /**
      * The capabilities provided by the client (editor or tool)
      */
@@ -618,7 +619,7 @@ data class InitializeParams(
      *
      * @since 3.6.0
      */
-    val workspaceFolders: List<WorkspaceFolder>?? = null
+    val workspaceFolders: List<WorkspaceFolder>? = null
 )
 
 @kotlinx.serialization.Serializable
@@ -749,7 +750,8 @@ data class TextEdit(
      * empty string.
      */
     val newText: String
-)
+) : CompletionItemTextEdit,
+    TextDocumentEditEdits
 
 /**
  * Parameters for a {@link ReferencesRequest}.
@@ -785,7 +787,7 @@ data class ReferenceRegistrationOptions(
      * A document selector to identify the scope of the registration. If set to null
      * the document selector provided on the client side will be used.
      */
-    val documentSelector: DocumentSelector??,
+    val documentSelector: DocumentSelector?,
     val workDoneProgress: Boolean? = null
 )
 
@@ -887,7 +889,7 @@ data class DocumentFormattingRegistrationOptions(
      * A document selector to identify the scope of the registration. If set to null
      * the document selector provided on the client side will be used.
      */
-    val documentSelector: DocumentSelector??,
+    val documentSelector: DocumentSelector?,
     val workDoneProgress: Boolean? = null
 )
 
@@ -923,7 +925,7 @@ data class DocumentRangeFormattingRegistrationOptions(
      * A document selector to identify the scope of the registration. If set to null
      * the document selector provided on the client side will be used.
      */
-    val documentSelector: DocumentSelector??,
+    val documentSelector: DocumentSelector?,
     val workDoneProgress: Boolean? = null,
     /**
      * Whether the server supports formatting multiple ranges at once.
@@ -997,7 +999,7 @@ data class DocumentOnTypeFormattingRegistrationOptions(
      * A document selector to identify the scope of the registration. If set to null
      * the document selector provided on the client side will be used.
      */
-    val documentSelector: DocumentSelector??,
+    val documentSelector: DocumentSelector?,
     /**
      * A character on which formatting should be triggered, like `{`.
      */
@@ -1042,7 +1044,7 @@ data class RenameRegistrationOptions(
      * A document selector to identify the scope of the registration. If set to null
      * the document selector provided on the client side will be used.
      */
-    val documentSelector: DocumentSelector??,
+    val documentSelector: DocumentSelector?,
     val workDoneProgress: Boolean? = null,
     /**
      * Renames should be checked and tested before being executed.
@@ -1152,7 +1154,7 @@ data class CancelParams(
     /**
      * The request id to cancel.
      */
-    val id: kotlinx.serialization.json.JsonElement
+    val id: IntOrString
 )
 
 @kotlinx.serialization.Serializable
@@ -1305,10 +1307,12 @@ data class Position(
  * @since 3.16.0
  */
 @kotlinx.serialization.Serializable
-data class CallHierarchyOptions(val workDoneProgress: Boolean? = null)
+data class CallHierarchyOptions(val workDoneProgress: Boolean? = null) :
+    ServerCapabilitiesCallHierarchyProviderOptions
 
 @kotlinx.serialization.Serializable
-data class LinkedEditingRangeOptions(val workDoneProgress: Boolean? = null)
+data class LinkedEditingRangeOptions(val workDoneProgress: Boolean? = null) :
+    ServerCapabilitiesLinkedEditingRangeProviderOptions
 
 /**
  * Represents information on a file/folder create.
@@ -1346,7 +1350,7 @@ data class CreateFile(
      * Additional options
      */
     val options: CreateFileOptions? = null
-)
+) : WorkspaceEditDocumentChanges
 
 /**
  * Rename file operation
@@ -1375,7 +1379,7 @@ data class RenameFile(
      * Rename options.
      */
     val options: RenameFileOptions? = null
-)
+) : WorkspaceEditDocumentChanges
 
 /**
  * Delete file operation
@@ -1400,7 +1404,7 @@ data class DeleteFile(
      * Delete options.
      */
     val options: DeleteFileOptions? = null
-)
+) : WorkspaceEditDocumentChanges
 
 /**
  * Additional information that describes document changes.
@@ -1462,7 +1466,8 @@ data class FileDelete(
  * @since 3.17.0
  */
 @kotlinx.serialization.Serializable
-data class TypeHierarchyOptions(val workDoneProgress: Boolean? = null)
+data class TypeHierarchyOptions(val workDoneProgress: Boolean? = null) :
+    ServerCapabilitiesTypeHierarchyProviderOptions
 
 /**
  * A `MarkupContent` literal represents a string value which content is interpreted base on its
@@ -1530,8 +1535,8 @@ data class RelatedFullDocumentDiagnosticReport(
      *
      * @since 3.17.0
      */
-    val relatedDocuments: Map<DocumentUri, kotlinx.serialization.json.JsonElement>? = null
-)
+    val relatedDocuments: Map<DocumentUri, RelatedFullDocumentDiagnosticReportRelatedDocuments>? = null
+) : DocumentDiagnosticReport
 
 /**
  * An unchanged diagnostic report with a set of related documents.
@@ -1561,8 +1566,8 @@ data class RelatedUnchangedDocumentDiagnosticReport(
      *
      * @since 3.17.0
      */
-    val relatedDocuments: Map<DocumentUri, kotlinx.serialization.json.JsonElement>? = null
-)
+    val relatedDocuments: Map<DocumentUri, RelatedUnchangedDocumentDiagnosticReportRelatedDocuments>? = null
+) : DocumentDiagnosticReport
 
 /**
  * A diagnostic report with a full set of problems.
@@ -1585,7 +1590,9 @@ data class FullDocumentDiagnosticReport(
      * The actual items.
      */
     val items: List<Diagnostic>
-)
+) : DocumentDiagnosticReportPartialResultRelatedDocuments,
+    RelatedFullDocumentDiagnosticReportRelatedDocuments,
+    RelatedUnchangedDocumentDiagnosticReportRelatedDocuments
 
 /**
  * A diagnostic report indicating that the last returned
@@ -1607,7 +1614,9 @@ data class UnchangedDocumentDiagnosticReport(
      * diagnostic request for the same document.
      */
     val resultId: String
-)
+) : DocumentDiagnosticReportPartialResultRelatedDocuments,
+    RelatedFullDocumentDiagnosticReportRelatedDocuments,
+    RelatedUnchangedDocumentDiagnosticReportRelatedDocuments
 
 /**
  * A previous result id in a workspace pull request.
@@ -1720,7 +1729,7 @@ data class _InitializeParams(
      * Is `null` if the process has not been started by another process.
      * If the parent process is not alive then the server should exit.
      */
-    val processId: Int??,
+    val processId: Int?,
     /**
      * Information about the client
      *
@@ -1744,7 +1753,7 @@ data class _InitializeParams(
      *
      * @deprecated in favour of rootUri.
      */
-    val rootPath: String?? = null,
+    val rootPath: String? = null,
     /**
      * The rootUri of the workspace. Is null if no
      * folder is open. If both `rootPath` and `rootUri` are set
@@ -1752,7 +1761,7 @@ data class _InitializeParams(
      *
      * @deprecated in favour of workspaceFolders.
      */
-    val rootUri: DocumentUri??,
+    val rootUri: DocumentUri?,
     /**
      * The capabilities provided by the client (editor or tool)
      */
@@ -1808,7 +1817,7 @@ data class ServerCapabilities(
      *
      * @since 3.17.0
      */
-    val notebookDocumentSync: kotlinx.serialization.json.JsonElement? = null,
+    val notebookDocumentSync: ServerCapabilitiesNotebookDocumentSync? = null,
     /**
      * The server provides completion support.
      */
@@ -1816,7 +1825,7 @@ data class ServerCapabilities(
     /**
      * The server provides hover support.
      */
-    val hoverProvider: kotlinx.serialization.json.JsonElement? = null,
+    val hoverProvider: BooleanOr<HoverOptions>? = null,
     /**
      * The server provides signature help support.
      */
@@ -1824,37 +1833,37 @@ data class ServerCapabilities(
     /**
      * The server provides Goto Declaration support.
      */
-    val declarationProvider: kotlinx.serialization.json.JsonElement? = null,
+    val declarationProvider: BooleanOr<ServerCapabilitiesDeclarationProviderOptions>? = null,
     /**
      * The server provides goto definition support.
      */
-    val definitionProvider: kotlinx.serialization.json.JsonElement? = null,
+    val definitionProvider: BooleanOr<DefinitionOptions>? = null,
     /**
      * The server provides Goto Type Definition support.
      */
-    val typeDefinitionProvider: kotlinx.serialization.json.JsonElement? = null,
+    val typeDefinitionProvider: BooleanOr<ServerCapabilitiesTypeDefinitionProviderOptions>? = null,
     /**
      * The server provides Goto Implementation support.
      */
-    val implementationProvider: kotlinx.serialization.json.JsonElement? = null,
+    val implementationProvider: BooleanOr<ServerCapabilitiesImplementationProviderOptions>? = null,
     /**
      * The server provides find references support.
      */
-    val referencesProvider: kotlinx.serialization.json.JsonElement? = null,
+    val referencesProvider: BooleanOr<ReferenceOptions>? = null,
     /**
      * The server provides document highlight support.
      */
-    val documentHighlightProvider: kotlinx.serialization.json.JsonElement? = null,
+    val documentHighlightProvider: BooleanOr<DocumentHighlightOptions>? = null,
     /**
      * The server provides document symbol support.
      */
-    val documentSymbolProvider: kotlinx.serialization.json.JsonElement? = null,
+    val documentSymbolProvider: BooleanOr<DocumentSymbolOptions>? = null,
     /**
      * The server provides code actions. CodeActionOptions may only be
      * specified if the client states that it supports
      * `codeActionLiteralSupport` in its initial `initialize` request.
      */
-    val codeActionProvider: kotlinx.serialization.json.JsonElement? = null,
+    val codeActionProvider: BooleanOr<CodeActionOptions>? = null,
     /**
      * The server provides code lens.
      */
@@ -1866,19 +1875,19 @@ data class ServerCapabilities(
     /**
      * The server provides color provider support.
      */
-    val colorProvider: kotlinx.serialization.json.JsonElement? = null,
+    val colorProvider: BooleanOr<ServerCapabilitiesColorProviderOptions>? = null,
     /**
      * The server provides workspace symbol support.
      */
-    val workspaceSymbolProvider: kotlinx.serialization.json.JsonElement? = null,
+    val workspaceSymbolProvider: BooleanOr<WorkspaceSymbolOptions>? = null,
     /**
      * The server provides document formatting.
      */
-    val documentFormattingProvider: kotlinx.serialization.json.JsonElement? = null,
+    val documentFormattingProvider: BooleanOr<DocumentFormattingOptions>? = null,
     /**
      * The server provides document range formatting.
      */
-    val documentRangeFormattingProvider: kotlinx.serialization.json.JsonElement? = null,
+    val documentRangeFormattingProvider: BooleanOr<DocumentRangeFormattingOptions>? = null,
     /**
      * The server provides document formatting on typing.
      */
@@ -1888,15 +1897,15 @@ data class ServerCapabilities(
      * specified if the client states that it supports
      * `prepareSupport` in its initial `initialize` request.
      */
-    val renameProvider: kotlinx.serialization.json.JsonElement? = null,
+    val renameProvider: BooleanOr<RenameOptions>? = null,
     /**
      * The server provides folding provider support.
      */
-    val foldingRangeProvider: kotlinx.serialization.json.JsonElement? = null,
+    val foldingRangeProvider: BooleanOr<ServerCapabilitiesFoldingRangeProviderOptions>? = null,
     /**
      * The server provides selection range support.
      */
-    val selectionRangeProvider: kotlinx.serialization.json.JsonElement? = null,
+    val selectionRangeProvider: BooleanOr<ServerCapabilitiesSelectionRangeProviderOptions>? = null,
     /**
      * The server provides execute command support.
      */
@@ -1906,56 +1915,56 @@ data class ServerCapabilities(
      *
      * @since 3.16.0
      */
-    val callHierarchyProvider: kotlinx.serialization.json.JsonElement? = null,
+    val callHierarchyProvider: BooleanOr<ServerCapabilitiesCallHierarchyProviderOptions>? = null,
     /**
      * The server provides linked editing range support.
      *
      * @since 3.16.0
      */
-    val linkedEditingRangeProvider: kotlinx.serialization.json.JsonElement? = null,
+    val linkedEditingRangeProvider: BooleanOr<ServerCapabilitiesLinkedEditingRangeProviderOptions>? = null,
     /**
      * The server provides semantic tokens support.
      *
      * @since 3.16.0
      */
-    val semanticTokensProvider: kotlinx.serialization.json.JsonElement? = null,
+    val semanticTokensProvider: ServerCapabilitiesSemanticTokensProvider? = null,
     /**
      * The server provides moniker support.
      *
      * @since 3.16.0
      */
-    val monikerProvider: kotlinx.serialization.json.JsonElement? = null,
+    val monikerProvider: BooleanOr<ServerCapabilitiesMonikerProviderOptions>? = null,
     /**
      * The server provides type hierarchy support.
      *
      * @since 3.17.0
      */
-    val typeHierarchyProvider: kotlinx.serialization.json.JsonElement? = null,
+    val typeHierarchyProvider: BooleanOr<ServerCapabilitiesTypeHierarchyProviderOptions>? = null,
     /**
      * The server provides inline values.
      *
      * @since 3.17.0
      */
-    val inlineValueProvider: kotlinx.serialization.json.JsonElement? = null,
+    val inlineValueProvider: BooleanOr<ServerCapabilitiesInlineValueProviderOptions>? = null,
     /**
      * The server provides inlay hints.
      *
      * @since 3.17.0
      */
-    val inlayHintProvider: kotlinx.serialization.json.JsonElement? = null,
+    val inlayHintProvider: BooleanOr<ServerCapabilitiesInlayHintProviderOptions>? = null,
     /**
      * The server has support for pull model diagnostics.
      *
      * @since 3.17.0
      */
-    val diagnosticProvider: kotlinx.serialization.json.JsonElement? = null,
+    val diagnosticProvider: ServerCapabilitiesDiagnosticProvider? = null,
     /**
      * Inline completion options used during static registration.
      *
      * @since 3.18.0
      * @proposed
      */
-    val inlineCompletionProvider: kotlinx.serialization.json.JsonElement? = null,
+    val inlineCompletionProvider: BooleanOr<InlineCompletionOptions>? = null,
     /**
      * Workspace specific server capabilities.
      */
@@ -2058,7 +2067,7 @@ data class InsertReplaceEdit(
      * The range if the replace is requested.
      */
     val replace: Range
-)
+) : CompletionItemTextEdit
 
 /**
  * Represents the signature of something callable. A signature
@@ -2076,7 +2085,7 @@ data class SignatureInformation(
      * The human-readable doc-comment of this signature. Will be shown
      * in the UI but can be omitted.
      */
-    val documentation: kotlinx.serialization.json.JsonElement? = null,
+    val documentation: StringOr<MarkupContent>? = null,
     /**
      * The parameters of this signature.
      */
@@ -2248,7 +2257,7 @@ data class OptionalVersionedTextDocumentIdentifier(
      * `null` to indicate that the version is unknown and the content on disk is the
      * truth (as specified with document content ownership).
      */
-    val version: Int??
+    val version: Int?
 )
 
 /**
@@ -2272,7 +2281,7 @@ data class AnnotatedTextEdit(
      * The actual identifier of the change annotation
      */
     val annotationId: ChangeAnnotationIdentifier
-)
+) : TextDocumentEditEdits
 
 /**
  * A generic resource operation.
@@ -2423,7 +2432,7 @@ data class ParameterInformation(
      * The human-readable doc-comment of this parameter. Will be shown
      * in the UI but can be omitted.
      */
-    val documentation: kotlinx.serialization.json.JsonElement? = null
+    val documentation: StringOr<MarkupContent>? = null
 )
 
 @kotlinx.serialization.Serializable

@@ -6,7 +6,8 @@
     "PropertyName",
     "ktlint:standard:class-naming",
     "ktlint:standard:filename",
-    "ktlint:standard:max-line-length"
+    "ktlint:standard:max-line-length",
+    "ktlint:standard:parameter-wrapping"
 )
 
 package com.monkopedia.lsp
@@ -30,7 +31,7 @@ data class DiagnosticRegistrationOptions(
      * A document selector to identify the scope of the registration. If set to null
      * the document selector provided on the client side will be used.
      */
-    val documentSelector: DocumentSelector??,
+    val documentSelector: DocumentSelector?,
     val workDoneProgress: Boolean? = null,
     /**
      * An optional identifier under which the diagnostics are
@@ -53,7 +54,7 @@ data class DiagnosticRegistrationOptions(
      * the request again. See also Registration#id.
      */
     val id: String? = null
-)
+) : ServerCapabilitiesDiagnosticProvider
 
 /**
  * Diagnostic options.
@@ -79,7 +80,7 @@ data class DiagnosticOptions(
      * The server provides support for workspace diagnostics as well.
      */
     val workspaceDiagnostics: Boolean
-)
+) : ServerCapabilitiesDiagnosticProvider
 
 /**
  * Represents a diagnostic, such as a compiler error or warning. Diagnostic objects
@@ -99,7 +100,7 @@ data class Diagnostic(
     /**
      * The diagnostic's code, which usually appear in the user interface.
      */
-    val code: kotlinx.serialization.json.JsonElement? = null,
+    val code: IntOrString? = null,
     /**
      * An optional property to describe the error code.
      * Requires the code field (above) to be present/not null.

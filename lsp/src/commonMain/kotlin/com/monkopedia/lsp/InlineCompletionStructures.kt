@@ -6,7 +6,8 @@
     "PropertyName",
     "ktlint:standard:class-naming",
     "ktlint:standard:filename",
-    "ktlint:standard:max-line-length"
+    "ktlint:standard:max-line-length",
+    "ktlint:standard:parameter-wrapping"
 )
 
 package com.monkopedia.lsp
@@ -63,7 +64,7 @@ data class InlineCompletionItem(
     /**
      * The text to replace the range with. Must be set.
      */
-    val insertText: kotlinx.serialization.json.JsonElement,
+    val insertText: StringOr<StringValue>,
     /**
      * A text that is used to decide if this inline completion should be shown. When `falsy` the {@link InlineCompletionItem.insertText} is used.
      */
@@ -91,7 +92,7 @@ data class InlineCompletionRegistrationOptions(
      * A document selector to identify the scope of the registration. If set to null
      * the document selector provided on the client side will be used.
      */
-    val documentSelector: DocumentSelector??,
+    val documentSelector: DocumentSelector?,
     /**
      * The id used to register the request. The id can be used to deregister
      * the request again. See also Registration#id.

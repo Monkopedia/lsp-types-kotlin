@@ -6,7 +6,8 @@
     "PropertyName",
     "ktlint:standard:class-naming",
     "ktlint:standard:filename",
-    "ktlint:standard:max-line-length"
+    "ktlint:standard:max-line-length",
+    "ktlint:standard:parameter-wrapping"
 )
 
 package com.monkopedia.lsp
@@ -59,7 +60,7 @@ data class WorkspaceEdit(
      * If a client neither supports `documentChanges` nor `workspace.workspaceEdit.resourceOperations` then
      * only plain `TextEdit`s using the `changes` property are supported.
      */
-    val documentChanges: List<kotlinx.serialization.json.JsonElement>? = null,
+    val documentChanges: List<WorkspaceEditDocumentChanges>? = null,
     /**
      * A map of change annotations that can be referenced in `AnnotatedTextEdit`s or create, rename and
      * delete file / folder operations.
@@ -223,7 +224,7 @@ data class WorkspaceFoldersInitializeParams(
      *
      * @since 3.6.0
      */
-    val workspaceFolders: List<WorkspaceFolder>?? = null
+    val workspaceFolders: List<WorkspaceFolder>? = null
 )
 
 /**
@@ -270,8 +271,8 @@ data class WorkspaceFullDocumentDiagnosticReport(
      * The version number for which the diagnostics are reported.
      * If the document is not marked as open `null` can be provided.
      */
-    val version: Int??
-)
+    val version: Int?
+) : WorkspaceDocumentDiagnosticReport
 
 /**
  * An unchanged document diagnostic report for a workspace diagnostic result.
@@ -300,8 +301,8 @@ data class WorkspaceUnchangedDocumentDiagnosticReport(
      * The version number for which the diagnostics are reported.
      * If the document is not marked as open `null` can be provided.
      */
-    val version: Int??
-)
+    val version: Int?
+) : WorkspaceDocumentDiagnosticReport
 
 @kotlinx.serialization.Serializable
 data class WorkspaceFoldersServerCapabilities(

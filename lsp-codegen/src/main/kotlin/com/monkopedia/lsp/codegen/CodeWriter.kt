@@ -80,6 +80,7 @@ fun fileHeader(packageName: String): String = buildString {
     appendLine("    \"ktlint:standard:class-naming\",")
     appendLine("    \"ktlint:standard:filename\",")
     appendLine("    \"ktlint:standard:max-line-length\",")
+    appendLine("    \"ktlint:standard:parameter-wrapping\",")
     appendLine(")")
     appendLine()
     appendLine("package $packageName")

@@ -6,7 +6,8 @@
     "PropertyName",
     "ktlint:standard:class-naming",
     "ktlint:standard:filename",
-    "ktlint:standard:max-line-length"
+    "ktlint:standard:max-line-length",
+    "ktlint:standard:parameter-wrapping"
 )
 
 package com.monkopedia.lsp
@@ -81,7 +82,7 @@ data class SignatureHelpRegistrationOptions(
      * A document selector to identify the scope of the registration. If set to null
      * the document selector provided on the client side will be used.
      */
-    val documentSelector: DocumentSelector??,
+    val documentSelector: DocumentSelector?,
     val workDoneProgress: Boolean? = null,
     /**
      * List of characters that trigger signature help automatically.
@@ -187,8 +188,7 @@ data class SignatureHelpClientCapabilitiesSignatureInformation(
     /**
      * Client capabilities specific to parameter information.
      */
-    val parameterInformation:
-    SignatureHelpClientCapabilitiesSignatureInformationParameterInformation? = null,
+    val parameterInformation: SignatureHelpClientCapabilitiesSignatureInformationParameterInformation? = null,
     /**
      * The client supports the `activeParameter` property on `SignatureInformation`
      * literal.

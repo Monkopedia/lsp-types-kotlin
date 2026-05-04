@@ -33,6 +33,19 @@ class TypeResolver(private val model: MetaModel) {
     private var literalCounter = 0
 
     /**
+     * Optional union generator. When set, `resolveOr` delegates non-trivial unions
+     * to the generator for proper sealed interface output. When null, falls back
+     * to `JsonElement` for multi-type unions.
+     */
+    var unionGenerator: UnionGenerator? = null
+
+    /**
+     * If set, the next resolveOr call treats the union as a top-level typeAlias
+     * with this name, so the sealed interface uses the alias name directly.
+     */
+    var topLevelAliasName: String? = null
+
+    /**
      * Resolve an [LspType] to a Kotlin type string.
      * [context] is used to generate meaningful names for inline literals.
      */
@@ -86,13 +99,21 @@ class TypeResolver(private val model: MetaModel) {
         val items = type.items
         val nonNull = items.filter { it !is LspType.Base || it.name != "null" }
 
-        // T | null → T?
+        // T | null → return T (not T?). The caller adds ? based on isNullableType().
         if (nonNull.size == 1 && nonNull.size < items.size) {
-            return "${resolveInner(nonNull[0], context)}?"
+            return resolveInner(nonNull[0], context)
         }
 
-        // For inline or types in properties, use JsonElement as the safe fallback.
-        // Top-level typeAliases with `or` get proper sealed classes generated separately.
+        // Delegate to the union generator if available. Consume the topLevelAliasName
+        // (one-shot) so subsequent calls don't accidentally reuse it.
+        val gen = unionGenerator
+        if (gen != null) {
+            val aliasName = topLevelAliasName
+            topLevelAliasName = null
+            return gen.resolveUnion(type, context, aliasName)
+        }
+
+        // Fallback for tests / generators not wired up yet.
         return "kotlinx.serialization.json.JsonElement"
     }
 
@@ -133,18 +154,32 @@ class TypeResolver(private val model: MetaModel) {
     /**
      * Collect all properties for a structure, including inherited and mixin properties.
      */
-    fun collectAllProperties(structure: Structure): List<Property> {
+    fun collectAllProperties(structure: Structure): List<Property> =
+        collectAllProperties(structure, mutableSetOf())
+
+    private fun collectAllProperties(
+        structure: Structure,
+        visited: MutableSet<String>
+    ): List<Property> {
+        if (!visited.add(structure.name)) {
+            // Cycle detected — bail out to avoid infinite recursion.
+            return emptyList()
+        }
         val props = mutableListOf<Property>()
         // Add extends properties first
         for (ext in structure.extends) {
             if (ext is LspType.Reference) {
-                structuresByName[ext.name]?.let { props.addAll(collectAllProperties(it)) }
+                structuresByName[ext.name]?.let {
+                    props.addAll(collectAllProperties(it, visited))
+                }
             }
         }
         // Then mixin properties
         for (mixin in structure.mixins) {
             if (mixin is LspType.Reference) {
-                structuresByName[mixin.name]?.let { props.addAll(collectAllProperties(it)) }
+                structuresByName[mixin.name]?.let {
+                    props.addAll(collectAllProperties(it, visited))
+                }
             }
         }
         // Then own properties (may override)

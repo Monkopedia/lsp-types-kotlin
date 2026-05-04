@@ -6,7 +6,8 @@
     "PropertyName",
     "ktlint:standard:class-naming",
     "ktlint:standard:filename",
-    "ktlint:standard:max-line-length"
+    "ktlint:standard:max-line-length",
+    "ktlint:standard:parameter-wrapping"
 )
 
 package com.monkopedia.lsp
@@ -81,7 +82,7 @@ data class CompletionItem(
     /**
      * A human-readable string that represents a doc-comment.
      */
-    val documentation: kotlinx.serialization.json.JsonElement? = null,
+    val documentation: StringOr<MarkupContent>? = null,
     /**
      * Indicates if this item is deprecated.
      * @deprecated Use `tags` instead.
@@ -160,7 +161,7 @@ data class CompletionItem(
      *
      * @since 3.16.0 additional type `InsertReplaceEdit`
      */
-    val textEdit: kotlinx.serialization.json.JsonElement? = null,
+    val textEdit: CompletionItemTextEdit? = null,
     /**
      * The edit text used if the completion item is part of a CompletionList and
      * CompletionList defines an item default for the text edit range.
@@ -281,7 +282,7 @@ data class CompletionRegistrationOptions(
      * A document selector to identify the scope of the registration. If set to null
      * the document selector provided on the client side will be used.
      */
-    val documentSelector: DocumentSelector??,
+    val documentSelector: DocumentSelector?,
     val workDoneProgress: Boolean? = null,
     /**
      * Most tools trigger completion request automatically without explicitly requesting

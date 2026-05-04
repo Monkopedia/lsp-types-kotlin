@@ -45,8 +45,9 @@ tasks.register<Exec>("downloadMetaModel") {
     }
 }
 
-// Generate LSP types into :lsp module, then auto-format with ktlint.
+// Generate LSP types into :lsp module.
 // Usage: ./gradlew :lsp-codegen:generate
+// Then run: ./gradlew :lsp:ktlintFormat to auto-format the output.
 tasks.register<JavaExec>("generate") {
     dependsOn("classes")
     mainClass.set("com.monkopedia.lsp.codegen.MainKt")
@@ -55,5 +56,4 @@ tasks.register<JavaExec>("generate") {
         file("src/main/resources/metaModel.json").absolutePath,
         project(":lsp").file("src/commonMain/kotlin").absolutePath
     )
-    finalizedBy(":lsp:ktlintFormat")
 }

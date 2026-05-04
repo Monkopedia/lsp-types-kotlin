@@ -6,7 +6,8 @@
     "PropertyName",
     "ktlint:standard:class-naming",
     "ktlint:standard:filename",
-    "ktlint:standard:max-line-length"
+    "ktlint:standard:max-line-length",
+    "ktlint:standard:parameter-wrapping"
 )
 
 package com.monkopedia.lsp
@@ -49,13 +50,13 @@ data class InlineValueRegistrationOptions(
      * A document selector to identify the scope of the registration. If set to null
      * the document selector provided on the client side will be used.
      */
-    val documentSelector: DocumentSelector??,
+    val documentSelector: DocumentSelector?,
     /**
      * The id used to register the request. The id can be used to deregister
      * the request again. See also Registration#id.
      */
     val id: String? = null
-)
+) : ServerCapabilitiesInlineValueProviderOptions
 
 /**
  * @since 3.17.0
@@ -88,7 +89,7 @@ data class InlineValueText(
      * The text of the inline value.
      */
     val text: String
-)
+) : InlineValue
 
 /**
  * Provide inline value through a variable lookup.
@@ -112,7 +113,7 @@ data class InlineValueVariableLookup(
      * How to perform the lookup.
      */
     val caseSensitiveLookup: Boolean
-)
+) : InlineValue
 
 /**
  * Provide an inline value through an expression evaluation.
@@ -132,7 +133,7 @@ data class InlineValueEvaluatableExpression(
      * If specified the expression overrides the extracted expression.
      */
     val expression: String? = null
-)
+) : InlineValue
 
 /**
  * Inline value options used during static registration.
@@ -140,7 +141,8 @@ data class InlineValueEvaluatableExpression(
  * @since 3.17.0
  */
 @kotlinx.serialization.Serializable
-data class InlineValueOptions(val workDoneProgress: Boolean? = null)
+data class InlineValueOptions(val workDoneProgress: Boolean? = null) :
+    ServerCapabilitiesInlineValueProviderOptions
 
 /**
  * Client workspace capabilities specific to inline values.

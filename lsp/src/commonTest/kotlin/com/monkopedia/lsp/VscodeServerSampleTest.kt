@@ -509,7 +509,10 @@ class VscodeServerSampleTest {
         assertEquals(DiagnosticTag.UNNECESSARY, result.tags?.get(0))
         assertEquals(1, result.relatedInformation?.size)
         assertEquals("related", result.relatedInformation?.get(0)?.message)
-        assertEquals("file://localhost/folder/file", result.relatedInformation?.get(0)?.location?.uri)
+        assertEquals(
+            "file://localhost/folder/file",
+            result.relatedInformation?.get(0)?.location?.uri
+        )
         assertEquals(0u, result.relatedInformation?.get(0)?.location?.range?.start?.line)
         assertEquals(1u, result.relatedInformation?.get(0)?.location?.range?.start?.character)
     }

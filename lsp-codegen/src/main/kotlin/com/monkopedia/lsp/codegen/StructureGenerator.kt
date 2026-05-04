@@ -17,8 +17,15 @@ package com.monkopedia.lsp.codegen
 
 /**
  * Generates @Serializable data classes for LSP structures.
+ *
+ * If the structure (by name) is registered in [structureInterfaces], the data
+ * class declaration includes those sealed interfaces. This is populated by the
+ * [UnionGenerator] during pre-classification.
  */
-class StructureGenerator(private val resolver: TypeResolver) {
+class StructureGenerator(
+    private val resolver: TypeResolver,
+    private val structureInterfaces: Map<String, List<String>> = emptyMap()
+) {
 
     /**
      * Generate code for a single structure. Returns Kotlin source for the class
@@ -36,12 +43,21 @@ class StructureGenerator(private val resolver: TypeResolver) {
         name: String,
         properties: List<Property>,
         documentation: String?,
-        since: String?
+        since: String?,
+        depth: Int = 0
     ) {
+        check(depth < MAX_NESTING_DEPTH) {
+            "Inline literal nesting exceeded $MAX_NESTING_DEPTH at $name — likely a cycle."
+        }
         w.kdoc(documentation, since)
+        val implementsClause = structureInterfaces[name].orEmpty()
+            .takeIf { it.isNotEmpty() }
+            ?.let { " : ${it.joinToString(", ")}" }
+            ?: ""
+
         if (properties.isEmpty()) {
             w.line("@kotlinx.serialization.Serializable")
-            w.line("class $name")
+            w.line("class $name$implementsClause")
             return
         }
 
@@ -68,15 +84,24 @@ class StructureGenerator(private val resolver: TypeResolver) {
                 )
             }
         }
-        w.line(")")
+        w.line(")$implementsClause")
 
         // Emit inline literal classes that were newly registered by this class's properties.
         val newLiterals = resolver.inlineLiterals.keys - literalsBefore
+        var iterations = 0
         for (litName in newLiterals.sorted()) {
+            check(++iterations < MAX_LITERAL_ITERATIONS) {
+                "Inline literal emission exceeded $MAX_LITERAL_ITERATIONS iterations at $name."
+            }
             val litProps = resolver.inlineLiterals.remove(litName) ?: continue
             w.line()
-            generateClass(w, litName, litProps, null, null)
+            generateClass(w, litName, litProps, null, null, depth + 1)
         }
+    }
+
+    companion object {
+        private const val MAX_NESTING_DEPTH = 20
+        private const val MAX_LITERAL_ITERATIONS = 1000
     }
 
     private fun isNullableType(type: LspType): Boolean {

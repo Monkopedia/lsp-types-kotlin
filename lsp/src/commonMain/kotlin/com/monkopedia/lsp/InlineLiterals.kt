@@ -12,17 +12,5 @@
 
 package com.monkopedia.lsp
 
-/**
- * The parameters sent in a will save text document notification.
- */
 @kotlinx.serialization.Serializable
-data class WillSaveTextDocumentParams(
-    /**
-     * The document that will be saved.
-     */
-    val textDocument: TextDocumentIdentifier,
-    /**
-     * The 'TextDocumentSaveReason'.
-     */
-    val reason: TextDocumentSaveReason
-)
+data class MarkedStringObject(val language: String, val value: String)

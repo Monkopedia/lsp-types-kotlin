@@ -16,7 +16,12 @@
 package com.monkopedia.lsp.codegen
 
 import java.io.File
+import kotlin.concurrent.thread
+import kotlin.system.exitProcess
 import kotlinx.serialization.json.Json
+
+/** Hard timeout — abort if generation takes longer than this. */
+private const val GENERATION_TIMEOUT_SECONDS = 60L
 
 /**
  * Main entry point for the LSP code generator.
@@ -27,6 +32,30 @@ import kotlinx.serialization.json.Json
  * under the com/monkopedia/lsp/ package structure.
  */
 fun main(args: Array<String>) {
+    // Watchdog: kill the process if generation hangs.
+    val mainThread = Thread.currentThread()
+    val watchdog = thread(isDaemon = true, name = "codegen-watchdog") {
+        try {
+            Thread.sleep(GENERATION_TIMEOUT_SECONDS * 1000)
+        } catch (_: InterruptedException) {
+            return@thread // Generation completed normally
+        }
+        System.err.println(
+            "ERROR: codegen exceeded ${GENERATION_TIMEOUT_SECONDS}s timeout — aborting."
+        )
+        System.err.println("Main thread stack trace:")
+        mainThread.stackTrace.forEach { System.err.println("  at $it") }
+        exitProcess(2)
+    }
+
+    try {
+        runGeneration(args)
+    } finally {
+        watchdog.interrupt()
+    }
+}
+
+private fun runGeneration(args: Array<String>) {
     require(args.size == 2) {
         "Usage: lsp-codegen <metaModel.json> <output-dir>"
     }
@@ -52,7 +81,15 @@ fun main(args: Array<String>) {
     packageDir.mkdirs()
 
     val resolver = TypeResolver(model)
-    val structGen = StructureGenerator(resolver)
+    val unionGen = UnionGenerator(resolver)
+    resolver.unionGenerator = unionGen
+
+    // Pre-classify all unions so we know which sealed interfaces each
+    // structure needs to implement before generating the data classes.
+    System.err.println("Pre-classifying unions...")
+    preClassifyUnions(model, resolver, unionGen)
+
+    val structGen = StructureGenerator(resolver, unionGen.structureInterfaces)
     val enumGen = EnumGenerator(resolver)
     val aliasGen = TypeAliasGenerator(resolver)
     // Group structures by namespace prefix for per-file organization.
@@ -89,8 +126,11 @@ fun main(args: Array<String>) {
     writeFile(packageDir, "TypeAliases.kt") {
         appendLine(fileHeader(LSP_PACKAGE))
         for (alias in model.typeAliases) {
-            appendLine(aliasGen.generate(alias))
-            appendLine()
+            val src = aliasGen.generate(alias)
+            if (src.isNotBlank()) {
+                appendLine(src)
+                appendLine()
+            }
         }
     }
 
@@ -102,6 +142,7 @@ fun main(args: Array<String>) {
         writeFile(packageDir, "${group}Structures.kt") {
             appendLine(fileHeader(LSP_PACKAGE))
             for (struct in structures) {
+                System.err.println("  generating ${struct.name}")
                 appendLine(structGen.generate(struct))
                 appendLine()
             }
@@ -122,6 +163,30 @@ fun main(args: Array<String>) {
         resolver.inlineLiterals.clear()
     }
 
+    // --- Generated literal-branch data classes (for LITERAL_UNION sealed interfaces) ---
+    if (unionGen.literalBranches.isNotEmpty()) {
+        writeFile(packageDir, "UnionBranches.kt") {
+            appendLine(fileHeader(LSP_PACKAGE))
+            for ((name, props) in unionGen.literalBranches.toMap()) {
+                val w = CodeWriter()
+                structGen.generateClass(w, name, props, null, null)
+                appendLine(w.toString())
+                appendLine()
+            }
+        }
+    }
+
+    // --- Sealed interfaces and serializers for unions ---
+    val unionsSrc = unionGen.generateUnionsFile()
+    if (unionsSrc.isNotBlank()) {
+        writeFile(packageDir, "Unions.kt") {
+            appendLine(fileHeader(LSP_PACKAGE))
+            appendLine("import kotlinx.serialization.json.jsonObject")
+            appendLine()
+            appendLine(unionsSrc)
+        }
+    }
+
     // Service interfaces (LanguageServer/LanguageClient) are deferred until
     // ksrpc 1.0.0 ships — they need @KsService/@KsMethod/@KsNotification annotations.
 
@@ -133,6 +198,55 @@ fun main(args: Array<String>) {
  * Names like "TextDocumentSyncOptions" → "TextDocument" group.
  * Names starting with "_" → grouped with their non-underscore parent.
  */
+/**
+ * Walk the model and ask the UnionGenerator to register sealed interfaces for every
+ * `NAMED_REFERENCES` and `LITERAL_UNION` it finds. This pre-pass populates the
+ * `structureInterfaces` map so structures know which interfaces to implement.
+ */
+private fun preClassifyUnions(
+    model: MetaModel,
+    resolver: TypeResolver,
+    unionGen: UnionGenerator
+) {
+    fun visit(contextName: String, type: LspType, topLevelAliasName: String? = null) {
+        when (type) {
+            is LspType.Or -> {
+                val cls = classifyUnion(type, resolver)
+                if (cls.category == UnionCategory.NAMED_REFERENCES ||
+                    cls.category == UnionCategory.LITERAL_UNION ||
+                    cls.category == UnionCategory.BOOLEAN_OR_OPTIONS
+                ) {
+                    unionGen.resolveUnion(type, contextName, topLevelAliasName)
+                }
+                // Recurse into the union's items in case nested unions exist.
+                cls.nonNullItems.forEach { visit(contextName, it) }
+            }
+            is LspType.Array -> visit(contextName, type.element)
+            is LspType.Map -> visit(contextName, type.value)
+            is LspType.Literal ->
+                type.value.properties.forEach {
+                    visit(
+                        "$contextName${it.name.replaceFirstChar { c -> c.uppercase() }}",
+                        it.type
+                    )
+                }
+            else -> {}
+        }
+    }
+
+    for (s in model.structures) {
+        for (p in s.properties) {
+            visit(
+                "${s.name}${p.name.replaceFirstChar { it.uppercase() }}",
+                p.type
+            )
+        }
+    }
+    for (a in model.typeAliases) {
+        visit(a.name, a.type, topLevelAliasName = a.name)
+    }
+}
+
 private fun groupByNamespace(names: List<String>): Map<String, List<String>> {
     // Well-known prefixes from the LSP spec
     val prefixes = listOf(

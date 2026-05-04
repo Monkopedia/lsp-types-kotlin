@@ -6,7 +6,8 @@
     "PropertyName",
     "ktlint:standard:class-naming",
     "ktlint:standard:filename",
-    "ktlint:standard:max-line-length"
+    "ktlint:standard:max-line-length",
+    "ktlint:standard:parameter-wrapping"
 )
 
 package com.monkopedia.lsp
@@ -20,7 +21,7 @@ data class TextDocumentRegistrationOptions(
      * A document selector to identify the scope of the registration. If set to null
      * the document selector provided on the client side will be used.
      */
-    val documentSelector: DocumentSelector??
+    val documentSelector: DocumentSelector?
 )
 
 /**
@@ -32,7 +33,7 @@ data class TextDocumentChangeRegistrationOptions(
      * A document selector to identify the scope of the registration. If set to null
      * the document selector provided on the client side will be used.
      */
-    val documentSelector: DocumentSelector??,
+    val documentSelector: DocumentSelector?,
     /**
      * How documents are synced to the server.
      */
@@ -48,7 +49,7 @@ data class TextDocumentSaveRegistrationOptions(
      * A document selector to identify the scope of the registration. If set to null
      * the document selector provided on the client side will be used.
      */
-    val documentSelector: DocumentSelector??,
+    val documentSelector: DocumentSelector?,
     /**
      * The client is supposed to include the content on save.
      */
@@ -100,8 +101,8 @@ data class TextDocumentEdit(
      * @since 3.16.0 - support for AnnotatedTextEdit. This is guarded using a
      * client capability.
      */
-    val edits: List<kotlinx.serialization.json.JsonElement>
-)
+    val edits: List<TextDocumentEditEdits>
+) : WorkspaceEditDocumentChanges
 
 /**
  * An item to transfer a text document from the client to the
@@ -154,7 +155,7 @@ data class TextDocumentSyncOptions(
      * If present save notifications are sent to the server. If omitted the notification should not be
      * sent.
      */
-    val save: kotlinx.serialization.json.JsonElement? = null
+    val save: BooleanOr<SaveOptions>? = null
 )
 
 /**
