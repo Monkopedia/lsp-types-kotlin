@@ -89,6 +89,65 @@ class InMemoryLspIntegrationTest {
     }
 
     @Test
+    fun `progress notification routes through ProgressTokenRegistry`() =
+        runBlocking(Dispatchers.IO) {
+            val registry = ProgressTokenRegistry()
+            val token = registry.allocateToken()
+
+            val serverSideClient =
+                CompletableDeferred<com.monkopedia.lsp.LanguageClient>()
+
+            val server = object : DefaultLanguageServer() {
+                override suspend fun initialize(params: InitializeParams): InitializeResult {
+                    // Simulate work-done progress: emit a $/progress notification
+                    // back to the client right after init.
+                    serverSideClient.await().progress(
+                        com.monkopedia.lsp.ProgressParams(
+                            token = token,
+                            value = kotlinx.serialization.json.JsonPrimitive("hello")
+                        )
+                    )
+                    return InitializeResult(capabilities = ServerCapabilities())
+                }
+            }
+
+            val client = object : DefaultLanguageClient() {
+                override suspend fun progress(
+                    params: com.monkopedia.lsp.ProgressParams
+                ) {
+                    registry.dispatch(params)
+                }
+            }
+
+            val received = CompletableDeferred<com.monkopedia.lsp.ProgressParams>()
+            val collectorJob = kotlinx.coroutines.GlobalScope.launch(Dispatchers.Default) {
+                registry.observe(token).collect { received.complete(it) }
+            }
+
+            try {
+                runWithLspConnectionCapturingClient(
+                    server,
+                    client,
+                    serverSideClient
+                ) { remoteServer ->
+                    withTimeout(5_000) {
+                        remoteServer.initialize(
+                            InitializeParams(
+                                capabilities = ClientCapabilities(),
+                                processId = null,
+                                rootUri = null
+                            )
+                        )
+                        val params = received.await()
+                        assertEquals(token, params.token)
+                    }
+                }
+            } finally {
+                collectorJob.cancel()
+            }
+        }
+
+    @Test
     fun `cancellation propagates from client to server handler`() =
         runBlocking(Dispatchers.IO) {
             val handlerStarted = CompletableDeferred<Unit>()
