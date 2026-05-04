@@ -17,7 +17,6 @@ package com.monkopedia.lsp.ksrpc
 
 import com.monkopedia.ksrpc.KsrpcEnvironment
 import com.monkopedia.ksrpc.channels.SingleChannelConnection
-import com.monkopedia.ksrpc.ksrpcEnvironment
 import io.ktor.utils.io.jvm.javaio.toByteReadChannel
 import io.ktor.utils.io.read
 import io.ktor.utils.io.reader
@@ -35,7 +34,7 @@ import kotlinx.coroutines.GlobalScope
  */
 @Suppress("OPT_IN_USAGE")
 suspend fun Pair<InputStream, OutputStream>.asLspConnection(
-    env: KsrpcEnvironment<String> = ksrpcEnvironment { }
+    env: KsrpcEnvironment<String> = lspKsrpcEnvironment()
 ): SingleChannelConnection<String> {
     val (input, output) = this
     val writeChannel = GlobalScope.reader(coroutineContext) {
@@ -64,7 +63,7 @@ suspend fun Pair<InputStream, OutputStream>.asLspConnection(
  * ```
  */
 suspend fun stdInLspConnection(
-    env: KsrpcEnvironment<String> = ksrpcEnvironment { }
+    env: KsrpcEnvironment<String> = lspKsrpcEnvironment()
 ): SingleChannelConnection<String> = (System.`in` to System.out).asLspConnection(env)
 
 /**
@@ -79,7 +78,7 @@ suspend fun stdInLspConnection(
  * ```
  */
 suspend fun ProcessBuilder.asLspConnection(
-    env: KsrpcEnvironment<String> = ksrpcEnvironment { }
+    env: KsrpcEnvironment<String> = lspKsrpcEnvironment()
 ): SingleChannelConnection<String> {
     val process = redirectInput(ProcessBuilder.Redirect.PIPE)
         .redirectOutput(ProcessBuilder.Redirect.PIPE)

@@ -25,6 +25,24 @@ import com.monkopedia.lsp.KsrpcLanguageClient
 import com.monkopedia.lsp.KsrpcLanguageServer
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.ByteWriteChannel
+import kotlinx.serialization.json.Json
+
+/**
+ * Permissive Json configuration that tolerates unknown fields. Real LSP servers
+ * routinely return capability objects with vendor extensions (e.g. clangd's
+ * `astProvider`) that aren't in the metaModel — strict parsing rejects them.
+ */
+public val LSP_JSON: Json = Json {
+    ignoreUnknownKeys = true
+    encodeDefaults = false
+}
+
+/**
+ * Default [KsrpcEnvironment] for LSP. Uses [LSP_JSON] (permissive parsing).
+ * Override by passing your own to [asLspConnection] if you need a different
+ * configuration (custom logger, error listener, scope).
+ */
+public fun lspKsrpcEnvironment(): KsrpcEnvironment<String> = ksrpcEnvironment(LSP_JSON) { }
 
 /**
  * Open a JSON-RPC connection over a pair of byte channels using the LSP wire format:
@@ -41,7 +59,7 @@ import io.ktor.utils.io.ByteWriteChannel
  * remote side.
  */
 suspend fun Pair<ByteReadChannel, ByteWriteChannel>.asLspConnection(
-    env: KsrpcEnvironment<String> = ksrpcEnvironment { }
+    env: KsrpcEnvironment<String> = lspKsrpcEnvironment()
 ): SingleChannelConnection<String> = asJsonRpcConnection(
     env = env,
     includeContentHeaders = true,

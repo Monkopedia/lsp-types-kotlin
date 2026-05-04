@@ -53,3 +53,10 @@ kotlin {
         nativeMain.get().dependsOn(jsonrpcMain)
     }
 }
+
+// RawClientServerTest spawns samples/echo-server as a child process and drives it
+// with raw JSON-RPC bytes to validate wire compatibility. Make sure the echo-server
+// install is built before JVM tests run.
+tasks.named("jvmTest") {
+    dependsOn(":samples:echo-server:installDist")
+}
