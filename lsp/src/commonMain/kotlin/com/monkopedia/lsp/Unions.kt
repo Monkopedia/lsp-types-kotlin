@@ -12,6 +12,7 @@
 
 package com.monkopedia.lsp
 
+import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
 
 /**
@@ -55,9 +56,10 @@ object DocumentDiagnosticReportSerializer :
     ): kotlinx.serialization.DeserializationStrategy<DocumentDiagnosticReport> {
         val obj = element.jsonObject
         return when {
-            obj["kind"]?.toString() == "\"full\"" -> RelatedFullDocumentDiagnosticReport.serializer() as kotlinx.serialization.DeserializationStrategy<DocumentDiagnosticReport>
+            (obj["kind"] as? kotlinx.serialization.json.JsonPrimitive)?.contentOrNull == "full" -> RelatedFullDocumentDiagnosticReport.serializer() as kotlinx.serialization.DeserializationStrategy<DocumentDiagnosticReport>
 
-            obj["kind"]?.toString() == "\"unchanged\"" -> RelatedUnchangedDocumentDiagnosticReport.serializer() as kotlinx.serialization.DeserializationStrategy<DocumentDiagnosticReport>
+            (obj["kind"] as? kotlinx.serialization.json.JsonPrimitive)?.contentOrNull ==
+                "unchanged" -> RelatedUnchangedDocumentDiagnosticReport.serializer() as kotlinx.serialization.DeserializationStrategy<DocumentDiagnosticReport>
 
             else -> throw kotlinx.serialization.SerializationException(
                 "Unknown DocumentDiagnosticReport variant: $obj"
@@ -83,9 +85,10 @@ object DocumentDiagnosticReportPartialResultRelatedDocumentsSerializer :
     ): kotlinx.serialization.DeserializationStrategy<DocumentDiagnosticReportPartialResultRelatedDocuments> {
         val obj = element.jsonObject
         return when {
-            obj["kind"]?.toString() == "\"full\"" -> FullDocumentDiagnosticReport.serializer() as kotlinx.serialization.DeserializationStrategy<DocumentDiagnosticReportPartialResultRelatedDocuments>
+            (obj["kind"] as? kotlinx.serialization.json.JsonPrimitive)?.contentOrNull == "full" -> FullDocumentDiagnosticReport.serializer() as kotlinx.serialization.DeserializationStrategy<DocumentDiagnosticReportPartialResultRelatedDocuments>
 
-            obj["kind"]?.toString() == "\"unchanged\"" -> UnchangedDocumentDiagnosticReport.serializer() as kotlinx.serialization.DeserializationStrategy<DocumentDiagnosticReportPartialResultRelatedDocuments>
+            (obj["kind"] as? kotlinx.serialization.json.JsonPrimitive)?.contentOrNull ==
+                "unchanged" -> UnchangedDocumentDiagnosticReport.serializer() as kotlinx.serialization.DeserializationStrategy<DocumentDiagnosticReportPartialResultRelatedDocuments>
 
             else -> throw kotlinx.serialization.SerializationException(
                 "Unknown DocumentDiagnosticReportPartialResultRelatedDocuments variant: $obj"
@@ -224,9 +227,10 @@ object RelatedFullDocumentDiagnosticReportRelatedDocumentsSerializer :
     ): kotlinx.serialization.DeserializationStrategy<RelatedFullDocumentDiagnosticReportRelatedDocuments> {
         val obj = element.jsonObject
         return when {
-            obj["kind"]?.toString() == "\"full\"" -> FullDocumentDiagnosticReport.serializer() as kotlinx.serialization.DeserializationStrategy<RelatedFullDocumentDiagnosticReportRelatedDocuments>
+            (obj["kind"] as? kotlinx.serialization.json.JsonPrimitive)?.contentOrNull == "full" -> FullDocumentDiagnosticReport.serializer() as kotlinx.serialization.DeserializationStrategy<RelatedFullDocumentDiagnosticReportRelatedDocuments>
 
-            obj["kind"]?.toString() == "\"unchanged\"" -> UnchangedDocumentDiagnosticReport.serializer() as kotlinx.serialization.DeserializationStrategy<RelatedFullDocumentDiagnosticReportRelatedDocuments>
+            (obj["kind"] as? kotlinx.serialization.json.JsonPrimitive)?.contentOrNull ==
+                "unchanged" -> UnchangedDocumentDiagnosticReport.serializer() as kotlinx.serialization.DeserializationStrategy<RelatedFullDocumentDiagnosticReportRelatedDocuments>
 
             else -> throw kotlinx.serialization.SerializationException(
                 "Unknown RelatedFullDocumentDiagnosticReportRelatedDocuments variant: $obj"
@@ -252,9 +256,10 @@ object RelatedUnchangedDocumentDiagnosticReportRelatedDocumentsSerializer :
     ): kotlinx.serialization.DeserializationStrategy<RelatedUnchangedDocumentDiagnosticReportRelatedDocuments> {
         val obj = element.jsonObject
         return when {
-            obj["kind"]?.toString() == "\"full\"" -> FullDocumentDiagnosticReport.serializer() as kotlinx.serialization.DeserializationStrategy<RelatedUnchangedDocumentDiagnosticReportRelatedDocuments>
+            (obj["kind"] as? kotlinx.serialization.json.JsonPrimitive)?.contentOrNull == "full" -> FullDocumentDiagnosticReport.serializer() as kotlinx.serialization.DeserializationStrategy<RelatedUnchangedDocumentDiagnosticReportRelatedDocuments>
 
-            obj["kind"]?.toString() == "\"unchanged\"" -> UnchangedDocumentDiagnosticReport.serializer() as kotlinx.serialization.DeserializationStrategy<RelatedUnchangedDocumentDiagnosticReportRelatedDocuments>
+            (obj["kind"] as? kotlinx.serialization.json.JsonPrimitive)?.contentOrNull ==
+                "unchanged" -> UnchangedDocumentDiagnosticReport.serializer() as kotlinx.serialization.DeserializationStrategy<RelatedUnchangedDocumentDiagnosticReportRelatedDocuments>
 
             else -> throw kotlinx.serialization.SerializationException(
                 "Unknown RelatedUnchangedDocumentDiagnosticReportRelatedDocuments variant: $obj"
@@ -840,9 +845,10 @@ object WorkspaceDocumentDiagnosticReportSerializer :
     ): kotlinx.serialization.DeserializationStrategy<WorkspaceDocumentDiagnosticReport> {
         val obj = element.jsonObject
         return when {
-            obj["kind"]?.toString() == "\"full\"" -> WorkspaceFullDocumentDiagnosticReport.serializer() as kotlinx.serialization.DeserializationStrategy<WorkspaceDocumentDiagnosticReport>
+            (obj["kind"] as? kotlinx.serialization.json.JsonPrimitive)?.contentOrNull == "full" -> WorkspaceFullDocumentDiagnosticReport.serializer() as kotlinx.serialization.DeserializationStrategy<WorkspaceDocumentDiagnosticReport>
 
-            obj["kind"]?.toString() == "\"unchanged\"" -> WorkspaceUnchangedDocumentDiagnosticReport.serializer() as kotlinx.serialization.DeserializationStrategy<WorkspaceDocumentDiagnosticReport>
+            (obj["kind"] as? kotlinx.serialization.json.JsonPrimitive)?.contentOrNull ==
+                "unchanged" -> WorkspaceUnchangedDocumentDiagnosticReport.serializer() as kotlinx.serialization.DeserializationStrategy<WorkspaceDocumentDiagnosticReport>
 
             else -> throw kotlinx.serialization.SerializationException(
                 "Unknown WorkspaceDocumentDiagnosticReport variant: $obj"

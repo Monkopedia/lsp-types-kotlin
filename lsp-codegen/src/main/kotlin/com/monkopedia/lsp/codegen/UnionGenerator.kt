@@ -228,8 +228,8 @@ class UnionGenerator(private val resolver: TypeResolver) {
         if (kindMap.size == branches.size && kindMap.isNotEmpty()) {
             for ((name, kindValue) in kindMap) {
                 w.line(
-                    "obj[\"kind\"]?.toString() == \"\\\"${kindValue}\\\"\" -> " +
-                        "$name.serializer() $cast"
+                    "(obj[\"kind\"] as? kotlinx.serialization.json.JsonPrimitive)" +
+                        "?.contentOrNull == \"$kindValue\" -> $name.serializer() $cast"
                 )
             }
             return

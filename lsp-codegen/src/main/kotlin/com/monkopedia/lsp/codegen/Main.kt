@@ -210,6 +210,7 @@ private fun runGeneration(args: Array<String>) {
     if (unionsSrc.isNotBlank()) {
         writeFile(packageDir, "Unions.kt") {
             appendLine(fileHeader(LSP_PACKAGE))
+            appendLine("import kotlinx.serialization.json.contentOrNull")
             appendLine("import kotlinx.serialization.json.jsonObject")
             appendLine()
             appendLine(unionsSrc)
