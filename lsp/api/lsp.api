@@ -5528,6 +5528,14 @@ public final class com/monkopedia/lsp/HoverClientCapabilities$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
+public final class com/monkopedia/lsp/HoverContents {
+	public static final field INSTANCE Lcom/monkopedia/lsp/HoverContents;
+	public final fun markdown (Ljava/lang/String;)Lkotlinx/serialization/json/JsonElement;
+	public final fun markup (Lcom/monkopedia/lsp/MarkupContent;)Lkotlinx/serialization/json/JsonElement;
+	public final fun plaintext (Ljava/lang/String;)Lkotlinx/serialization/json/JsonElement;
+	public final fun string (Ljava/lang/String;)Lkotlinx/serialization/json/JsonElement;
+}
+
 public final class com/monkopedia/lsp/HoverOptions {
 	public static final field Companion Lcom/monkopedia/lsp/HoverOptions$Companion;
 	public fun <init> ()V

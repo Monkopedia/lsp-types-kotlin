@@ -39,10 +39,10 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 
@@ -112,9 +112,7 @@ class InMemoryLspIntegrationTest {
             }
 
             val client = object : DefaultLanguageClient() {
-                override suspend fun progress(
-                    params: com.monkopedia.lsp.ProgressParams
-                ) {
+                override suspend fun progress(params: com.monkopedia.lsp.ProgressParams) {
                     registry.dispatch(params)
                 }
             }
@@ -148,42 +146,41 @@ class InMemoryLspIntegrationTest {
         }
 
     @Test
-    fun `cancellation propagates from client to server handler`() =
-        runBlocking(Dispatchers.IO) {
-            val handlerStarted = CompletableDeferred<Unit>()
-            val handlerCancelled = CompletableDeferred<Unit>()
+    fun `cancellation propagates from client to server handler`() = runBlocking(Dispatchers.IO) {
+        val handlerStarted = CompletableDeferred<Unit>()
+        val handlerCancelled = CompletableDeferred<Unit>()
 
-            val server = object : DefaultLanguageServer() {
-                override suspend fun initialize(params: InitializeParams): InitializeResult {
-                    handlerStarted.complete(Unit)
-                    try {
-                        awaitCancellation()
-                    } catch (e: kotlinx.coroutines.CancellationException) {
-                        handlerCancelled.complete(Unit)
-                        throw e
-                    }
-                }
-            }
-
-            runWithLspConnection(server, DefaultLanguageClient()) { remoteServer ->
-                coroutineScope {
-                    val initJob = async {
-                        remoteServer.initialize(
-                            InitializeParams(
-                                capabilities = ClientCapabilities(),
-                                processId = null,
-                                rootUri = null
-                            )
-                        )
-                    }
-                    withTimeout(5_000) { handlerStarted.await() }
-                    initJob.cancel()
-                    withTimeout(5_000) { handlerCancelled.await() }
-                    // Confirms the LSP `$/cancelRequest` convention worked end-to-end:
-                    // client coroutine cancellation → wire notification → server handler cancellation.
+        val server = object : DefaultLanguageServer() {
+            override suspend fun initialize(params: InitializeParams): InitializeResult {
+                handlerStarted.complete(Unit)
+                try {
+                    awaitCancellation()
+                } catch (e: kotlinx.coroutines.CancellationException) {
+                    handlerCancelled.complete(Unit)
+                    throw e
                 }
             }
         }
+
+        runWithLspConnection(server, DefaultLanguageClient()) { remoteServer ->
+            coroutineScope {
+                val initJob = async {
+                    remoteServer.initialize(
+                        InitializeParams(
+                            capabilities = ClientCapabilities(),
+                            processId = null,
+                            rootUri = null
+                        )
+                    )
+                }
+                withTimeout(5_000) { handlerStarted.await() }
+                initJob.cancel()
+                withTimeout(5_000) { handlerCancelled.await() }
+                // Confirms the LSP `$/cancelRequest` convention worked end-to-end:
+                // client coroutine cancellation → wire notification → server handler cancellation.
+            }
+        }
+    }
 
     @Test
     fun `bidirectional - server publishes diagnostics back to client`() =

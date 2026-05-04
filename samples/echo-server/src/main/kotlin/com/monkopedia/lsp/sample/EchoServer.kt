@@ -18,6 +18,7 @@ package com.monkopedia.lsp.sample
 import com.monkopedia.lsp.DefaultLanguageServer
 import com.monkopedia.lsp.DidOpenTextDocumentParams
 import com.monkopedia.lsp.Hover
+import com.monkopedia.lsp.HoverContents
 import com.monkopedia.lsp.HoverParams
 import com.monkopedia.lsp.InitializeParams
 import com.monkopedia.lsp.InitializeResult
@@ -87,14 +88,9 @@ fun main(): Unit = runBlocking(Dispatchers.IO) {
         override suspend fun textDocumentHover(params: HoverParams): Hover {
             val pos = params.position
             val uri = params.textDocument.uri
-            // Hover.contents is `MarkupContent | MarkedString | MarkedString[]`
-            // — a complex union we keep as JsonElement. Build a MarkupContent shape.
-            val markdown = "**$uri** at ${pos.line}:${pos.character}"
-            val contents = kotlinx.serialization.json.buildJsonObject {
-                put("kind", JsonPrimitive("markdown"))
-                put("value", JsonPrimitive(markdown))
-            }
-            return Hover(contents = contents)
+            return Hover(
+                contents = HoverContents.markdown("**$uri** at ${pos.line}:${pos.character}")
+            )
         }
 
         override suspend fun shutdown(): Nothing? {
