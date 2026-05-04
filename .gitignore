@@ -22,3 +22,6 @@ yarn.lock
 # OS
 .DS_Store
 **/*.swp
+
+# Claude Code state
+.claude/scheduled_tasks.lock
