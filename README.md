@@ -1,5 +1,7 @@
 # lsp-types-kotlin
 
+[![CI](https://github.com/Monkopedia/lsp-types-kotlin/actions/workflows/ci.yml/badge.svg)](https://github.com/Monkopedia/lsp-types-kotlin/actions/workflows/ci.yml)
+
 Kotlin Multiplatform LSP 3.17 types and transport library.
 
 Two artifacts, deliberately split:
@@ -100,6 +102,20 @@ suspend fun main() {
 
 - `LifecycleState` tracks the LSP phase machine (Initializing → Initialized → ShuttingDown → Exited) and gates dispatch.
 - `ProgressTokenRegistry` allocates `$/progress` tokens and routes incoming progress notifications to observers via `Flow`.
+
+## Sample
+
+`samples/echo-server` is a runnable LSP server that responds to `textDocument/hover`
+with the URI and cursor position. Build a distribution and point an LSP-capable
+editor at it:
+
+```bash
+./gradlew :samples:echo-server:installDist
+samples/echo-server/build/install/echo-server/bin/echo-server
+```
+
+The source is small enough to read end-to-end — see
+[`EchoServer.kt`](samples/echo-server/src/main/kotlin/com/monkopedia/lsp/sample/EchoServer.kt).
 
 ## Building
 

@@ -18,3 +18,4 @@ rootProject.name = "lsp-types-kotlin"
 include(":lsp")
 include(":lsp-ksrpc")
 include(":lsp-codegen")
+include(":samples:echo-server")

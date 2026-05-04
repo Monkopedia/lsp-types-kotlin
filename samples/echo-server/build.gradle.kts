@@ -15,34 +15,17 @@
  */
 
 plugins {
-    alias(libs.plugins.kotlinMultiplatform) apply false
-    alias(libs.plugins.serialization) apply false
-    alias(libs.plugins.dokka)
-    alias(libs.plugins.bcv)
-    alias(libs.plugins.ktlint)
+    kotlin("jvm")
+    application
+    alias(libs.plugins.ksrpc.plugin)
 }
 
-group = "com.monkopedia.lsp"
-
-apiValidation {
-    @OptIn(kotlinx.validation.ExperimentalBCVApi::class)
-    klib {
-        enabled = false
-    }
-    ignoredProjects += listOf("echo-server")
+application {
+    mainClass.set("com.monkopedia.lsp.sample.EchoServerKt")
 }
 
-allprojects {
-    repositories {
-        mavenCentral()
-        mavenLocal()
-    }
-}
-
-subprojects {
-    apply(plugin = "org.jlleitschuh.gradle.ktlint")
-
-    ktlint {
-        version.set("1.8.0")
-    }
+dependencies {
+    implementation(project(":lsp"))
+    implementation(project(":lsp-ksrpc"))
+    implementation(libs.kotlinx.coroutines.core)
 }
