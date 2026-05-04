@@ -32,3 +32,4 @@ bcv = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
 vanniktech-publish = { id = "com.vanniktech.maven.publish", version.ref = "vanniktech" }
 license = { id = "com.github.hierynomus.license", version.ref = "license" }
+ksrpc-plugin = { id = "com.monkopedia.ksrpc.plugin", version.ref = "ksrpc" }

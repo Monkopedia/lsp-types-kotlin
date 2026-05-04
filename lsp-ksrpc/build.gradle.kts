@@ -16,6 +16,7 @@
 
 plugins {
     id("lsp-types-kotlin.library")
+    alias(libs.plugins.ksrpc.plugin)
 }
 
 kotlin {

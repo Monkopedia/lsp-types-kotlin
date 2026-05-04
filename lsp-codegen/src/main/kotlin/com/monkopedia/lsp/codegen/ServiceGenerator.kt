@@ -31,6 +31,45 @@ class ServiceGenerator(private val resolver: TypeResolver, private val model: Me
      */
     private val transportHandled = setOf("$/cancelRequest")
 
+    /**
+     * Generate an abstract `Default${name}` class with every method throwing
+     * `NotImplementedError` by default. Useful for test stubs and partial
+     * implementations.
+     */
+    fun generateDefaultServer(): String = generateDefaultClass(
+        "DefaultLanguageServer",
+        "LanguageServer",
+        "Default LanguageServer where every method throws NotImplementedError.\n" +
+            "Subclass and override only what you need.",
+        requests = model.requests.filter {
+            it.method !in transportHandled &&
+                it.messageDirection in
+                setOf(MessageDirection.CLIENT_TO_SERVER, MessageDirection.BOTH)
+        },
+        notifications = model.notifications.filter {
+            it.method !in transportHandled &&
+                it.messageDirection in
+                setOf(MessageDirection.CLIENT_TO_SERVER, MessageDirection.BOTH)
+        }
+    )
+
+    fun generateDefaultClient(): String = generateDefaultClass(
+        "DefaultLanguageClient",
+        "LanguageClient",
+        "Default LanguageClient where every method throws NotImplementedError.\n" +
+            "Subclass and override only what you need.",
+        requests = model.requests.filter {
+            it.method !in transportHandled &&
+                it.messageDirection in
+                setOf(MessageDirection.SERVER_TO_CLIENT, MessageDirection.BOTH)
+        },
+        notifications = model.notifications.filter {
+            it.method !in transportHandled &&
+                it.messageDirection in
+                setOf(MessageDirection.SERVER_TO_CLIENT, MessageDirection.BOTH)
+        }
+    )
+
     fun generateServer(): String = generateInterface(
         name = "LanguageServer",
         doc = "LSP Language Server interface — methods the client calls on the server.",
@@ -136,6 +175,72 @@ class ServiceGenerator(private val resolver: TypeResolver, private val model: Me
         } else {
             w.line("suspend fun $methodName()")
         }
+    }
+
+    private fun generateDefaultClass(
+        name: String,
+        interfaceName: String,
+        doc: String,
+        requests: List<Request>,
+        notifications: List<Notification>
+    ): String {
+        val w = CodeWriter()
+        w.kdoc(doc)
+        w.block("open class $name : $interfaceName") {
+            for (req in requests) {
+                line()
+                generateDefaultRequestImpl(this, req)
+            }
+            for (notif in notifications) {
+                line()
+                generateDefaultNotificationImpl(this, notif)
+            }
+        }
+        return w.toString()
+    }
+
+    private fun generateDefaultRequestImpl(w: CodeWriter, req: Request) {
+        val methodName = req.method.toMethodName()
+        val returnType = resolver.resolve(
+            req.result,
+            "${methodName.replaceFirstChar { it.uppercase() }}Result"
+        )
+        val params = req.params
+        val signature = if (params != null) {
+            val paramType = resolver.resolve(
+                params,
+                "${methodName.replaceFirstChar { it.uppercase() }}Params"
+            )
+            "override suspend fun $methodName(params: $paramType): $returnType"
+        } else {
+            "override suspend fun $methodName(): $returnType"
+        }
+        // Explicit block (not `=`) so the return type comes from the signature, not Nothing.
+        w.line("$signature {")
+        w.indent {
+            line("throw NotImplementedError(\"$methodName not implemented\")")
+        }
+        w.line("}")
+    }
+
+    private fun generateDefaultNotificationImpl(w: CodeWriter, notif: Notification) {
+        val methodName = notif.method.toMethodName()
+        val params = notif.params
+        val signature = if (params != null) {
+            val paramType = resolver.resolve(
+                params,
+                "${methodName.replaceFirstChar { it.uppercase() }}Params"
+            )
+            "override suspend fun $methodName(params: $paramType)"
+        } else {
+            "override suspend fun $methodName()"
+        }
+        // Explicit block so return type is Unit, not Nothing.
+        w.line("$signature {")
+        w.indent {
+            line("throw NotImplementedError(\"$methodName not implemented\")")
+        }
+        w.line("}")
     }
 }
 

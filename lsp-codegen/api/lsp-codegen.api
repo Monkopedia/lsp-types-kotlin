@@ -589,6 +589,8 @@ public final class com/monkopedia/lsp/codegen/Request$Companion {
 public final class com/monkopedia/lsp/codegen/ServiceGenerator {
 	public fun <init> (Lcom/monkopedia/lsp/codegen/TypeResolver;Lcom/monkopedia/lsp/codegen/MetaModel;)V
 	public final fun generateClient ()Ljava/lang/String;
+	public final fun generateDefaultClient ()Ljava/lang/String;
+	public final fun generateDefaultServer ()Ljava/lang/String;
 	public final fun generateServer ()Ljava/lang/String;
 }
 

@@ -167,6 +167,14 @@ private fun runGeneration(args: Array<String>) {
             appendLine(fileHeader(LSP_PACKAGE))
             appendLine(serviceGen.generateClient())
         }
+        writeFile(servicesPackageDir, "DefaultLanguageServer.kt") {
+            appendLine(fileHeader(LSP_PACKAGE))
+            appendLine(serviceGen.generateDefaultServer())
+        }
+        writeFile(servicesPackageDir, "DefaultLanguageClient.kt") {
+            appendLine(fileHeader(LSP_PACKAGE))
+            appendLine(serviceGen.generateDefaultClient())
+        }
         println("Generated services in ${servicesPackageDir.absolutePath}")
     }
 
