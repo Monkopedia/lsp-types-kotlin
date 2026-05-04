@@ -110,9 +110,9 @@ class UnionDiscriminatorTest {
         val result = json.decodeFromString<ServerCapabilities>(
             """{"hoverProvider": true}"""
         )
-        assertNotNull(result.hoverProvider)
-        assertTrue(result.hoverProvider is BooleanOr.BooleanValue)
-        assertEquals(true, (result.hoverProvider as BooleanOr.BooleanValue).value)
+        val provider = result.hoverProvider
+        assertIs<BooleanOr.BooleanValue>(provider)
+        assertEquals(true, provider.value)
     }
 
     @Test
@@ -120,9 +120,9 @@ class UnionDiscriminatorTest {
         val result = json.decodeFromString<ServerCapabilities>(
             """{"hoverProvider": {"workDoneProgress": true}}"""
         )
-        assertNotNull(result.hoverProvider)
-        assertTrue(result.hoverProvider is BooleanOr.Value)
-        assertEquals(true, (result.hoverProvider as BooleanOr.Value).value.workDoneProgress)
+        val provider = result.hoverProvider
+        assertIs<BooleanOr.Value<HoverOptions>>(provider)
+        assertEquals(true, provider.value.workDoneProgress)
     }
 
     // ---- BooleanOr<sub-sealed> for multi-options like declarationProvider ----
@@ -152,9 +152,9 @@ class UnionDiscriminatorTest {
         val result = json.decodeFromString<CompletionItem>(
             """{"label": "x", "documentation": "Just text"}"""
         )
-        assertNotNull(result.documentation)
-        assertTrue(result.documentation is StringOr.StringValue)
-        assertEquals("Just text", (result.documentation as StringOr.StringValue).value)
+        val doc = result.documentation
+        assertIs<StringOr.StringValue>(doc)
+        assertEquals("Just text", doc.value)
     }
 
     @Test
@@ -162,12 +162,9 @@ class UnionDiscriminatorTest {
         val result = json.decodeFromString<CompletionItem>(
             """{"label": "x", "documentation": {"kind": "markdown", "value": "**bold**"}}"""
         )
-        assertNotNull(result.documentation)
-        assertTrue(result.documentation is StringOr.Value)
-        assertEquals(
-            "**bold**",
-            (result.documentation as StringOr.Value).value.value
-        )
+        val doc = result.documentation
+        assertIs<StringOr.Value<MarkupContent>>(doc)
+        assertEquals("**bold**", doc.value.value)
     }
 
     // ---- IntOrString for ProgressToken ----
