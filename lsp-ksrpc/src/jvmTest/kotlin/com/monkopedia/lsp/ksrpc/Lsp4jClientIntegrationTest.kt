@@ -110,10 +110,13 @@ class Lsp4jClientIntegrationTest {
                 "Expected position in hover text: ${markup.value}"
             }
 
-            // Skip shutdown/exit — ksrpc 1.0.0-RC2 chokes on 0-arg method dispatch
-            // when params is omitted (which lsp4j does), and that interaction is
-            // already characterized by RawClientServerTest. The hover round-trip
-            // above is what proves wire compatibility with a real LSP client.
+            // shutdown/exit — lsp4j omits the `params` field on these 0-arg calls;
+            // ksrpc 1.0.0-RC3+ (fix for ksrpc#170 via #173) tolerates that.
+            server.shutdown().get(5, TimeUnit.SECONDS)
+            server.exit()
+            assert(process.waitFor(5, TimeUnit.SECONDS)) {
+                "echo-server didn't exit after exit notification"
+            }
             listening.cancel(true)
         } finally {
             runCatching { process.outputStream.close() }
