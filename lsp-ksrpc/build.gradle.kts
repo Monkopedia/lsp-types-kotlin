@@ -60,6 +60,13 @@ kotlin {
 // RawClientServerTest spawns samples/echo-server as a child process and drives it
 // with raw JSON-RPC bytes to validate wire compatibility. Make sure the echo-server
 // install is built before JVM tests run.
-tasks.named("jvmTest") {
+tasks.named<org.gradle.api.tasks.testing.Test>("jvmTest") {
     dependsOn(":samples:echo-server:installDist")
+    // When set (CI does), the wire-compat integration tests hard-fail instead of
+    // skipping if their preconditions (clangd on PATH, echo-server built) are
+    // missing — a skip must not pass as green where the inputs are guaranteed.
+    systemProperty(
+        "lsp.requireIntegrationTests",
+        project.findProperty("lsp.requireIntegrationTests")?.toString() ?: "false"
+    )
 }

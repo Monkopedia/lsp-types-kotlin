@@ -30,7 +30,7 @@ jobs:
         run: ./gradlew build
 
       - name: Test
-        run: ./gradlew allTests
+        run: ./gradlew allTests -Plsp.requireIntegrationTests=true
 
       - name: Upload test reports
         if: failure()

@@ -34,7 +34,6 @@ import org.eclipse.lsp4j.TextDocumentIdentifier
 import org.eclipse.lsp4j.TextDocumentItem
 import org.eclipse.lsp4j.launch.LSPLauncher
 import org.eclipse.lsp4j.services.LanguageClient
-import org.junit.Assume.assumeTrue
 
 /**
  * The real test of wire compatibility: drive our echo-server with
@@ -55,7 +54,7 @@ class Lsp4jClientIntegrationTest {
             File("samples/echo-server/build/install/echo-server/bin/echo-server"),
             File("../samples/echo-server/build/install/echo-server/bin/echo-server")
         ).firstOrNull { it.exists() }
-        assumeTrue(
+        requireOrSkip(
             "echo-server not built; run :samples:echo-server:installDist",
             script != null
         )
