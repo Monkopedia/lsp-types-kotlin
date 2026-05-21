@@ -8,6 +8,7 @@ on:
 
 jobs:
   build:
+    name: JVM / JS / Wasm / Linux (ubuntu)
     runs-on: ubuntu-latest
 
     steps:
@@ -47,5 +48,33 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: test-reports
+          name: test-reports-ubuntu
+          path: "**/build/reports/tests/"
+
+  apple:
+    name: Apple targets (macOS)
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      # On a macOS host the Apple targets are buildable (the Linux/mingw/
+      # androidNative targets are ignored via kotlin.native.ignoreDisabledTargets),
+      # so `build` is what actually compiles and link-tests macos/ios/watchos/tvos —
+      # coverage the ubuntu leg physically cannot provide.
+      - name: Build (Apple + common targets)
+        run: ./gradlew build
+
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports-macos
           path: "**/build/reports/tests/"
