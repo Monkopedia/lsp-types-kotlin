@@ -17,6 +17,11 @@
 plugins {
     alias(libs.plugins.kotlinMultiplatform) apply false
     alias(libs.plugins.serialization) apply false
+    // Loaded (not applied) at the root so the per-module convention plugin shares
+    // a single MavenCentralBuildService classloader — without this, publishing
+    // both :lsp and :lsp-ksrpc in one invocation fails with a build-service scope
+    // clash. See convention-plugins/.../lsp-types-kotlin.library.gradle.kts.
+    alias(libs.plugins.vanniktech.publish) apply false
     alias(libs.plugins.dokka)
     alias(libs.plugins.bcv)
     alias(libs.plugins.ktlint)
