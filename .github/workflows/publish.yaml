@@ -25,8 +25,11 @@ jobs:
           cat <(echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}") | gpg --batch --import
           gpg --list-secret-keys --keyid-format LONG
 
+      # SONATYPE_CLOSE_TIMEOUT_SECONDS: wait out Central's async PUBLISHING phase
+      # (RC1 published fine but the publish task timed out at the old 900s default
+      # while Central was still propagating, red-failing a successful release).
       - name: Publish all packages to Maven Central
-        run: ./gradlew publishToMavenCentral -PmavenCentralUsername=${{ secrets.OSSRH_USERNAME }} -PmavenCentralPassword=${{ secrets.OSSRH_TOKEN }} -Psigning.gnupg.passphrase='${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}' -Psigning.gnupg.keyName=5B83421E2338B907 -PRELEASE_SIGNING_ENABLED=true
+        run: ./gradlew publishToMavenCentral -PmavenCentralUsername=${{ secrets.OSSRH_USERNAME }} -PmavenCentralPassword=${{ secrets.OSSRH_TOKEN }} -Psigning.gnupg.passphrase='${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}' -Psigning.gnupg.keyName=5B83421E2338B907 -PRELEASE_SIGNING_ENABLED=true -PSONATYPE_CLOSE_TIMEOUT_SECONDS=3600
         env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
