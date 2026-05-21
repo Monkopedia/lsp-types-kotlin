@@ -7,7 +7,7 @@ Kotlin Multiplatform LSP 3.17 types and transport library.
 Two artifacts, deliberately split:
 
 - **`com.monkopedia.lsp:lsp`** — LSP 3.17 types (structures, enums, type aliases) generated from Microsoft's [`metaModel.json`](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/metaModel/metaModel.json), plus transport-agnostic `LanguageServer` / `LanguageClient` interfaces (no annotations, just `suspend fun` signatures) with method-name `const val` constants on their companion objects. Targets every KMP platform that `kotlinx-serialization` runs on.
-- **`com.monkopedia.lsp:lsp-ksrpc`** — `KsrpcLanguageServer` / `KsrpcLanguageClient` subinterfaces that extend the clean ones and add `@KsService` / `@KsMethod` / `@KsNotification` for use with [ksrpc](https://github.com/Monkopedia/ksrpc), plus `Default*` base classes and connection helpers. Constrained to `ksrpc-jsonrpc`'s target set: JVM, JS, wasmJs, macOS, iOS, Linux, mingwX64.
+- **`com.monkopedia.lsp:lsp-ksrpc`** — `KsrpcLanguageServer` / `KsrpcLanguageClient` subinterfaces that extend the clean ones and add `@KsService` / `@KsMethod` / `@KsNotification` for use with [ksrpc](https://github.com/Monkopedia/ksrpc), plus `Default*` base classes and connection helpers. The `@KsService` **interfaces** target the full ksrpc-core set — JVM, JS, wasmJs, macOS (arm64/x64), iOS (arm64/x64/simulator), Linux (x64/arm64), mingwX64. The **JSON-RPC connection helpers** (`asLspConnection` / `connectAsLsp*`) cover the same set except mingwX64, which `ksrpc-jsonrpc` doesn't build. Targets without the helpers (and the web especially) connect by relaying the service over a ksrpc channel — see [On web](#on-web-wasmjs-relay-through-a-server).
 
 ## Why?
 
@@ -115,6 +115,33 @@ LanguageServer.TEXT_DOCUMENT_HOVER  // "textDocument/hover"
 LanguageServer.INITIALIZE           // "initialize"
 LanguageClient.WINDOW_SHOW_MESSAGE  // "window/showMessage"
 ```
+
+### On web (wasmJs): relay through a server
+
+A browser can't spawn a process or open the stdio/socket channel the JSON-RPC
+helpers expect, so a wasmJs client doesn't talk JSON-RPC directly. Because
+`KsrpcLanguageServer` is a `@KsService`, ksrpc can **relay** it over any ksrpc
+channel — no hand-written proxy. Run the JSON-RPC edge on a server, then serve
+the obtained service to the browser:
+
+```kotlin
+// Server (JVM/native): talk JSON-RPC to the real language server, then
+// re-serve that same LanguageServer instance over a ksrpc channel (e.g. a
+// WebSocket) to web clients. ksrpc forwards the calls.
+val realServer = ProcessBuilder("ruff", "server").asLspConnection()
+    .connectAsLspClient(MyClientImpl)
+yourKsrpcChannel.serve(realServer)
+```
+
+```kotlin
+// wasmJs client: consume the LanguageServer interface over the ksrpc channel.
+// No JSON-RPC, no transport code — just the @KsService interface from :lsp-ksrpc.
+val server: LanguageServer = yourKsrpcChannel.connect()
+server.initialize(InitializeParams(...))
+```
+
+This is why `:lsp-ksrpc`'s interfaces target every ksrpc-core platform even
+where the JSON-RPC helpers don't: the interface is all the web side needs.
 
 ### Lifecycle and progress
 
