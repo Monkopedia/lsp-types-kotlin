@@ -46,14 +46,18 @@ kotlin {
 
     // Native — Apple
     macosArm64()
+    macosX64()
     iosArm64()
     iosSimulatorArm64()
     iosX64()
     watchosArm32()
     watchosArm64()
+    watchosDeviceArm64()
     watchosSimulatorArm64()
+    watchosX64()
     tvosArm64()
     tvosSimulatorArm64()
+    tvosX64()
 
     // Native — Linux
     linuxX64()
