@@ -29,6 +29,11 @@ ktlint {
     version.set("1.8.0")
 }
 
+// Signing uses the maintainer's GPG key. It's off by default so local builds
+// and dry-runs (publishToMavenLocal) don't try to sign; release CI enables it
+// via -PRELEASE_SIGNING_ENABLED=true.
+val signingEnabled = (findProperty("RELEASE_SIGNING_ENABLED") as String?)?.toBoolean() == true
+
 mavenPublishing {
     pom {
         name.set(project.name)
@@ -53,20 +58,12 @@ mavenPublishing {
             url.set("https://github.com/Monkopedia/lsp-types-kotlin/")
         }
     }
-    publishToMavenCentral()
-    signAllPublications()
+    publishToMavenCentral(automaticRelease = true)
 }
 
-signing {
-    useGpgCmd()
-    sign(extensions.getByType<PublishingExtension>().publications)
-}
-
-afterEvaluate {
-    tasks.withType<Sign> {
-        val signingTask = this
-        tasks.withType<AbstractPublishToMaven> {
-            dependsOn(signingTask)
-        }
+if (signingEnabled) {
+    signing {
+        useGpgCmd()
+        sign(extensions.getByType<PublishingExtension>().publications)
     }
 }
