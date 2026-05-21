@@ -26,6 +26,17 @@ jobs:
       - name: Lint
         run: ./gradlew ktlintCheck
 
+      - name: Codegen reproducibility
+        run: |
+          ./gradlew :lsp-codegen:generate
+          ./gradlew :lsp:ktlintFormat :lsp-ksrpc:ktlintFormat
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "::error::Generated code is out of date. Regenerate with ':lsp-codegen:generate', then ':lsp:ktlintFormat :lsp-ksrpc:ktlintFormat', and commit the result."
+            git status --porcelain
+            git --no-pager diff
+            exit 1
+          fi
+
       - name: Build
         run: ./gradlew build
 
