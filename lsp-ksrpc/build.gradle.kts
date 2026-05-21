@@ -14,20 +14,44 @@
  * limitations under the License.
  */
 
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+
 plugins {
     id("lsp-types-kotlin.library")
     alias(libs.plugins.ksrpc.plugin)
 }
 
 kotlin {
-    // JVM + POSIX Native — matching ksrpc-jsonrpc's supported targets.
+    // Interface tier (commonMain → ksrpc-core/api) covers the full ksrpc-core
+    // target set. The jsonrpc connection helpers (jsonrpcMain → ksrpc-jsonrpc)
+    // are confined below to the subset ksrpc-jsonrpc supports — everything but
+    // mingwX64. mingwX64 still gets the @KsService interfaces (usable over a
+    // ksrpc relay channel), just not the jsonrpc transport helpers.
     jvm()
 
+    js(IR) {
+        browser {
+            testTask { enabled = false }
+        }
+        nodejs()
+    }
+
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser {
+            testTask { enabled = false }
+        }
+        nodejs()
+    }
+
     macosArm64()
-    linuxX64()
+    macosX64()
     iosArm64()
     iosSimulatorArm64()
     iosX64()
+    linuxX64()
+    linuxArm64()
+    mingwX64()
 
     applyDefaultHierarchyTemplate()
 
@@ -45,7 +69,10 @@ kotlin {
         jvmTest.dependencies {
             implementation(libs.lsp4j)
         }
-        // jsonrpc wiring — only available on targets ksrpc-jsonrpc supports.
+        // jsonrpc wiring — only on targets ksrpc-jsonrpc supports, i.e. every
+        // target except mingwX64. mingwX64Main is intentionally left attached to
+        // commonMain only (via the default nativeMain hierarchy), so it gets the
+        // interfaces but not the jsonrpc helpers.
         val jsonrpcMain by creating {
             dependsOn(commonMain.get())
             dependencies {
@@ -53,7 +80,10 @@ kotlin {
             }
         }
         jvmMain.get().dependsOn(jsonrpcMain)
-        nativeMain.get().dependsOn(jsonrpcMain)
+        val jsMain by getting { dependsOn(jsonrpcMain) }
+        val wasmJsMain by getting { dependsOn(jsonrpcMain) }
+        val appleMain by getting { dependsOn(jsonrpcMain) }
+        val linuxMain by getting { dependsOn(jsonrpcMain) }
     }
 }
 
