@@ -30,7 +30,6 @@ import kotlin.test.assertNotNull
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
-import org.junit.Assume.assumeTrue
 
 /**
  * Integration tests against real LSP servers found on PATH. Each test is
@@ -43,7 +42,7 @@ class RealServerIntegrationTest {
 
     @Test
     fun `clangd handles initialize and shutdown`() {
-        assumeTrue("clangd not on PATH", isOnPath("clangd"))
+        requireOrSkip("clangd not on PATH", isOnPath("clangd"))
         runBlocking(Dispatchers.IO) {
             val client = object : DefaultLanguageClient() {
                 override suspend fun windowLogMessage(params: LogMessageParams) = Unit

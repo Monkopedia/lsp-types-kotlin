@@ -27,7 +27,6 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import org.junit.Assume.assumeTrue
 
 /**
  * Tests that drive **our generated server** via the actual LSP wire protocol,
@@ -55,7 +54,7 @@ class RawClientServerTest {
             File("samples/echo-server/build/install/echo-server/bin/echo-server"),
             File("../samples/echo-server/build/install/echo-server/bin/echo-server")
         ).firstOrNull { it.exists() }
-        assumeTrue(
+        requireOrSkip(
             "echo-server not built; run :samples:echo-server:installDist",
             script != null
         )
