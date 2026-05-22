@@ -717,6 +717,7 @@ public final class com/monkopedia/lsp/codegen/UnionCategory : java/lang/Enum {
 	public static final field INT_OR_STRING Lcom/monkopedia/lsp/codegen/UnionCategory;
 	public static final field KEEP_JSON_ELEMENT Lcom/monkopedia/lsp/codegen/UnionCategory;
 	public static final field LITERAL_UNION Lcom/monkopedia/lsp/codegen/UnionCategory;
+	public static final field MIXED_REF_LITERAL Lcom/monkopedia/lsp/codegen/UnionCategory;
 	public static final field NAMED_REFERENCES Lcom/monkopedia/lsp/codegen/UnionCategory;
 	public static final field STRING_OR Lcom/monkopedia/lsp/codegen/UnionCategory;
 	public static final field T_OR_ARRAY_T Lcom/monkopedia/lsp/codegen/UnionCategory;

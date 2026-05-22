@@ -37,7 +37,8 @@ class TypeAliasGenerator(private val resolver: TypeResolver) {
             // Categories that produce a sealed interface keyed on the alias name —
             // skip emitting a typealias entirely (the interface IS the type).
             if (cls.category == UnionCategory.NAMED_REFERENCES ||
-                cls.category == UnionCategory.LITERAL_UNION
+                cls.category == UnionCategory.LITERAL_UNION ||
+                cls.category == UnionCategory.MIXED_REF_LITERAL
             ) {
                 resolver.topLevelAliasName = alias.name
                 resolver.resolve(alias.type, alias.name)

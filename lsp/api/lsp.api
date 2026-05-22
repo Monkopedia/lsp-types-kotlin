@@ -1807,19 +1807,19 @@ public final class com/monkopedia/lsp/CompletionList$Companion {
 
 public final class com/monkopedia/lsp/CompletionListItemDefaults {
 	public static final field Companion Lcom/monkopedia/lsp/CompletionListItemDefaults$Companion;
-	public synthetic fun <init> (Ljava/util/List;Lkotlinx/serialization/json/JsonElement;Lcom/monkopedia/lsp/InsertTextFormat;Lcom/monkopedia/lsp/InsertTextMode;Lkotlinx/serialization/json/JsonElement;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Ljava/util/List;Lkotlinx/serialization/json/JsonElement;Lcom/monkopedia/lsp/InsertTextFormat;Lcom/monkopedia/lsp/InsertTextMode;Lkotlinx/serialization/json/JsonElement;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/util/List;Lcom/monkopedia/lsp/CompletionListItemDefaultsEditRange;Lcom/monkopedia/lsp/InsertTextFormat;Lcom/monkopedia/lsp/InsertTextMode;Lkotlinx/serialization/json/JsonElement;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/util/List;Lcom/monkopedia/lsp/CompletionListItemDefaultsEditRange;Lcom/monkopedia/lsp/InsertTextFormat;Lcom/monkopedia/lsp/InsertTextMode;Lkotlinx/serialization/json/JsonElement;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/util/List;
-	public final fun component2 ()Lkotlinx/serialization/json/JsonElement;
+	public final fun component2 ()Lcom/monkopedia/lsp/CompletionListItemDefaultsEditRange;
 	public final fun component3-QYY3dwg ()Lcom/monkopedia/lsp/InsertTextFormat;
 	public final fun component4-5277pEg ()Lcom/monkopedia/lsp/InsertTextMode;
 	public final fun component5 ()Lkotlinx/serialization/json/JsonElement;
-	public final fun copy-4sNb91I (Ljava/util/List;Lkotlinx/serialization/json/JsonElement;Lcom/monkopedia/lsp/InsertTextFormat;Lcom/monkopedia/lsp/InsertTextMode;Lkotlinx/serialization/json/JsonElement;)Lcom/monkopedia/lsp/CompletionListItemDefaults;
-	public static synthetic fun copy-4sNb91I$default (Lcom/monkopedia/lsp/CompletionListItemDefaults;Ljava/util/List;Lkotlinx/serialization/json/JsonElement;Lcom/monkopedia/lsp/InsertTextFormat;Lcom/monkopedia/lsp/InsertTextMode;Lkotlinx/serialization/json/JsonElement;ILjava/lang/Object;)Lcom/monkopedia/lsp/CompletionListItemDefaults;
+	public final fun copy-4sNb91I (Ljava/util/List;Lcom/monkopedia/lsp/CompletionListItemDefaultsEditRange;Lcom/monkopedia/lsp/InsertTextFormat;Lcom/monkopedia/lsp/InsertTextMode;Lkotlinx/serialization/json/JsonElement;)Lcom/monkopedia/lsp/CompletionListItemDefaults;
+	public static synthetic fun copy-4sNb91I$default (Lcom/monkopedia/lsp/CompletionListItemDefaults;Ljava/util/List;Lcom/monkopedia/lsp/CompletionListItemDefaultsEditRange;Lcom/monkopedia/lsp/InsertTextFormat;Lcom/monkopedia/lsp/InsertTextMode;Lkotlinx/serialization/json/JsonElement;ILjava/lang/Object;)Lcom/monkopedia/lsp/CompletionListItemDefaults;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getCommitCharacters ()Ljava/util/List;
 	public final fun getData ()Lkotlinx/serialization/json/JsonElement;
-	public final fun getEditRange ()Lkotlinx/serialization/json/JsonElement;
+	public final fun getEditRange ()Lcom/monkopedia/lsp/CompletionListItemDefaultsEditRange;
 	public final fun getInsertTextFormat-QYY3dwg ()Lcom/monkopedia/lsp/InsertTextFormat;
 	public final fun getInsertTextMode-5277pEg ()Lcom/monkopedia/lsp/InsertTextMode;
 	public fun hashCode ()I
@@ -1839,6 +1839,47 @@ public final synthetic class com/monkopedia/lsp/CompletionListItemDefaults$$seri
 
 public final class com/monkopedia/lsp/CompletionListItemDefaults$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public abstract interface class com/monkopedia/lsp/CompletionListItemDefaultsEditRange {
+	public static final field Companion Lcom/monkopedia/lsp/CompletionListItemDefaultsEditRange$Companion;
+}
+
+public final class com/monkopedia/lsp/CompletionListItemDefaultsEditRange$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/CompletionListItemDefaultsEditRangeInsert : com/monkopedia/lsp/CompletionListItemDefaultsEditRange {
+	public static final field Companion Lcom/monkopedia/lsp/CompletionListItemDefaultsEditRangeInsert$Companion;
+	public fun <init> (Lcom/monkopedia/lsp/Range;Lcom/monkopedia/lsp/Range;)V
+	public final fun component1 ()Lcom/monkopedia/lsp/Range;
+	public final fun component2 ()Lcom/monkopedia/lsp/Range;
+	public final fun copy (Lcom/monkopedia/lsp/Range;Lcom/monkopedia/lsp/Range;)Lcom/monkopedia/lsp/CompletionListItemDefaultsEditRangeInsert;
+	public static synthetic fun copy$default (Lcom/monkopedia/lsp/CompletionListItemDefaultsEditRangeInsert;Lcom/monkopedia/lsp/Range;Lcom/monkopedia/lsp/Range;ILjava/lang/Object;)Lcom/monkopedia/lsp/CompletionListItemDefaultsEditRangeInsert;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getInsert ()Lcom/monkopedia/lsp/Range;
+	public final fun getReplace ()Lcom/monkopedia/lsp/Range;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class com/monkopedia/lsp/CompletionListItemDefaultsEditRangeInsert$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/monkopedia/lsp/CompletionListItemDefaultsEditRangeInsert$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/monkopedia/lsp/CompletionListItemDefaultsEditRangeInsert;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/monkopedia/lsp/CompletionListItemDefaultsEditRangeInsert;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/CompletionListItemDefaultsEditRangeInsert$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/CompletionListItemDefaultsEditRangeSerializer : kotlinx/serialization/json/JsonContentPolymorphicSerializer {
+	public static final field INSTANCE Lcom/monkopedia/lsp/CompletionListItemDefaultsEditRangeSerializer;
 }
 
 public final class com/monkopedia/lsp/CompletionOptions {
@@ -2892,13 +2933,13 @@ public final class com/monkopedia/lsp/DidChangeConfigurationParams$Companion {
 public final class com/monkopedia/lsp/DidChangeConfigurationRegistrationOptions {
 	public static final field Companion Lcom/monkopedia/lsp/DidChangeConfigurationRegistrationOptions$Companion;
 	public fun <init> ()V
-	public fun <init> (Lkotlinx/serialization/json/JsonElement;)V
-	public synthetic fun <init> (Lkotlinx/serialization/json/JsonElement;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Lkotlinx/serialization/json/JsonElement;
-	public final fun copy (Lkotlinx/serialization/json/JsonElement;)Lcom/monkopedia/lsp/DidChangeConfigurationRegistrationOptions;
-	public static synthetic fun copy$default (Lcom/monkopedia/lsp/DidChangeConfigurationRegistrationOptions;Lkotlinx/serialization/json/JsonElement;ILjava/lang/Object;)Lcom/monkopedia/lsp/DidChangeConfigurationRegistrationOptions;
+	public fun <init> (Lcom/monkopedia/lsp/SingleOrArray;)V
+	public synthetic fun <init> (Lcom/monkopedia/lsp/SingleOrArray;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcom/monkopedia/lsp/SingleOrArray;
+	public final fun copy (Lcom/monkopedia/lsp/SingleOrArray;)Lcom/monkopedia/lsp/DidChangeConfigurationRegistrationOptions;
+	public static synthetic fun copy$default (Lcom/monkopedia/lsp/DidChangeConfigurationRegistrationOptions;Lcom/monkopedia/lsp/SingleOrArray;ILjava/lang/Object;)Lcom/monkopedia/lsp/DidChangeConfigurationRegistrationOptions;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getSection ()Lkotlinx/serialization/json/JsonElement;
+	public final fun getSection ()Lcom/monkopedia/lsp/SingleOrArray;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -5941,22 +5982,22 @@ public final class com/monkopedia/lsp/InitializedParams$Companion {
 
 public final class com/monkopedia/lsp/InlayHint {
 	public static final field Companion Lcom/monkopedia/lsp/InlayHint$Companion;
-	public synthetic fun <init> (Lcom/monkopedia/lsp/Position;Lkotlinx/serialization/json/JsonElement;Lcom/monkopedia/lsp/InlayHintKind;Ljava/util/List;Lcom/monkopedia/lsp/StringOr;Ljava/lang/Boolean;Ljava/lang/Boolean;Lkotlinx/serialization/json/JsonElement;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Lcom/monkopedia/lsp/Position;Lkotlinx/serialization/json/JsonElement;Lcom/monkopedia/lsp/InlayHintKind;Ljava/util/List;Lcom/monkopedia/lsp/StringOr;Ljava/lang/Boolean;Ljava/lang/Boolean;Lkotlinx/serialization/json/JsonElement;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lcom/monkopedia/lsp/Position;Lcom/monkopedia/lsp/StringOr;Lcom/monkopedia/lsp/InlayHintKind;Ljava/util/List;Lcom/monkopedia/lsp/StringOr;Ljava/lang/Boolean;Ljava/lang/Boolean;Lkotlinx/serialization/json/JsonElement;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lcom/monkopedia/lsp/Position;Lcom/monkopedia/lsp/StringOr;Lcom/monkopedia/lsp/InlayHintKind;Ljava/util/List;Lcom/monkopedia/lsp/StringOr;Ljava/lang/Boolean;Ljava/lang/Boolean;Lkotlinx/serialization/json/JsonElement;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Lcom/monkopedia/lsp/Position;
-	public final fun component2 ()Lkotlinx/serialization/json/JsonElement;
+	public final fun component2 ()Lcom/monkopedia/lsp/StringOr;
 	public final fun component3-25cCy00 ()Lcom/monkopedia/lsp/InlayHintKind;
 	public final fun component4 ()Ljava/util/List;
 	public final fun component5 ()Lcom/monkopedia/lsp/StringOr;
 	public final fun component6 ()Ljava/lang/Boolean;
 	public final fun component7 ()Ljava/lang/Boolean;
 	public final fun component8 ()Lkotlinx/serialization/json/JsonElement;
-	public final fun copy-wZ6mjy8 (Lcom/monkopedia/lsp/Position;Lkotlinx/serialization/json/JsonElement;Lcom/monkopedia/lsp/InlayHintKind;Ljava/util/List;Lcom/monkopedia/lsp/StringOr;Ljava/lang/Boolean;Ljava/lang/Boolean;Lkotlinx/serialization/json/JsonElement;)Lcom/monkopedia/lsp/InlayHint;
-	public static synthetic fun copy-wZ6mjy8$default (Lcom/monkopedia/lsp/InlayHint;Lcom/monkopedia/lsp/Position;Lkotlinx/serialization/json/JsonElement;Lcom/monkopedia/lsp/InlayHintKind;Ljava/util/List;Lcom/monkopedia/lsp/StringOr;Ljava/lang/Boolean;Ljava/lang/Boolean;Lkotlinx/serialization/json/JsonElement;ILjava/lang/Object;)Lcom/monkopedia/lsp/InlayHint;
+	public final fun copy-wZ6mjy8 (Lcom/monkopedia/lsp/Position;Lcom/monkopedia/lsp/StringOr;Lcom/monkopedia/lsp/InlayHintKind;Ljava/util/List;Lcom/monkopedia/lsp/StringOr;Ljava/lang/Boolean;Ljava/lang/Boolean;Lkotlinx/serialization/json/JsonElement;)Lcom/monkopedia/lsp/InlayHint;
+	public static synthetic fun copy-wZ6mjy8$default (Lcom/monkopedia/lsp/InlayHint;Lcom/monkopedia/lsp/Position;Lcom/monkopedia/lsp/StringOr;Lcom/monkopedia/lsp/InlayHintKind;Ljava/util/List;Lcom/monkopedia/lsp/StringOr;Ljava/lang/Boolean;Ljava/lang/Boolean;Lkotlinx/serialization/json/JsonElement;ILjava/lang/Object;)Lcom/monkopedia/lsp/InlayHint;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getData ()Lkotlinx/serialization/json/JsonElement;
 	public final fun getKind-25cCy00 ()Lcom/monkopedia/lsp/InlayHintKind;
-	public final fun getLabel ()Lkotlinx/serialization/json/JsonElement;
+	public final fun getLabel ()Lcom/monkopedia/lsp/StringOr;
 	public final fun getPaddingLeft ()Ljava/lang/Boolean;
 	public final fun getPaddingRight ()Ljava/lang/Boolean;
 	public final fun getPosition ()Lcom/monkopedia/lsp/Position;
@@ -7382,7 +7423,7 @@ public final class com/monkopedia/lsp/LinkedEditingRanges$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class com/monkopedia/lsp/Location {
+public final class com/monkopedia/lsp/Location : com/monkopedia/lsp/WorkspaceSymbolLocation {
 	public static final field Companion Lcom/monkopedia/lsp/Location$Companion;
 	public fun <init> (Ljava/lang/String;Lcom/monkopedia/lsp/Range;)V
 	public final fun component1 ()Ljava/lang/String;
@@ -7939,15 +7980,15 @@ public final class com/monkopedia/lsp/NotebookCellKind$Companion {
 
 public final class com/monkopedia/lsp/NotebookCellTextDocumentFilter {
 	public static final field Companion Lcom/monkopedia/lsp/NotebookCellTextDocumentFilter$Companion;
-	public fun <init> (Lkotlinx/serialization/json/JsonElement;Ljava/lang/String;)V
-	public synthetic fun <init> (Lkotlinx/serialization/json/JsonElement;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Lkotlinx/serialization/json/JsonElement;
+	public fun <init> (Lcom/monkopedia/lsp/StringOr;Ljava/lang/String;)V
+	public synthetic fun <init> (Lcom/monkopedia/lsp/StringOr;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcom/monkopedia/lsp/StringOr;
 	public final fun component2 ()Ljava/lang/String;
-	public final fun copy (Lkotlinx/serialization/json/JsonElement;Ljava/lang/String;)Lcom/monkopedia/lsp/NotebookCellTextDocumentFilter;
-	public static synthetic fun copy$default (Lcom/monkopedia/lsp/NotebookCellTextDocumentFilter;Lkotlinx/serialization/json/JsonElement;Ljava/lang/String;ILjava/lang/Object;)Lcom/monkopedia/lsp/NotebookCellTextDocumentFilter;
+	public final fun copy (Lcom/monkopedia/lsp/StringOr;Ljava/lang/String;)Lcom/monkopedia/lsp/NotebookCellTextDocumentFilter;
+	public static synthetic fun copy$default (Lcom/monkopedia/lsp/NotebookCellTextDocumentFilter;Lcom/monkopedia/lsp/StringOr;Ljava/lang/String;ILjava/lang/Object;)Lcom/monkopedia/lsp/NotebookCellTextDocumentFilter;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getLanguage ()Ljava/lang/String;
-	public final fun getNotebook ()Lkotlinx/serialization/json/JsonElement;
+	public final fun getNotebook ()Lcom/monkopedia/lsp/StringOr;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -8363,15 +8404,15 @@ public final class com/monkopedia/lsp/NotebookDocumentSyncOptionsNotebookSelecto
 
 public final class com/monkopedia/lsp/NotebookDocumentSyncOptionsNotebookSelectorCells : com/monkopedia/lsp/NotebookDocumentSyncOptionsNotebookSelector {
 	public static final field Companion Lcom/monkopedia/lsp/NotebookDocumentSyncOptionsNotebookSelectorCells$Companion;
-	public fun <init> (Lkotlinx/serialization/json/JsonElement;Ljava/util/List;)V
-	public synthetic fun <init> (Lkotlinx/serialization/json/JsonElement;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Lkotlinx/serialization/json/JsonElement;
+	public fun <init> (Lcom/monkopedia/lsp/StringOr;Ljava/util/List;)V
+	public synthetic fun <init> (Lcom/monkopedia/lsp/StringOr;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcom/monkopedia/lsp/StringOr;
 	public final fun component2 ()Ljava/util/List;
-	public final fun copy (Lkotlinx/serialization/json/JsonElement;Ljava/util/List;)Lcom/monkopedia/lsp/NotebookDocumentSyncOptionsNotebookSelectorCells;
-	public static synthetic fun copy$default (Lcom/monkopedia/lsp/NotebookDocumentSyncOptionsNotebookSelectorCells;Lkotlinx/serialization/json/JsonElement;Ljava/util/List;ILjava/lang/Object;)Lcom/monkopedia/lsp/NotebookDocumentSyncOptionsNotebookSelectorCells;
+	public final fun copy (Lcom/monkopedia/lsp/StringOr;Ljava/util/List;)Lcom/monkopedia/lsp/NotebookDocumentSyncOptionsNotebookSelectorCells;
+	public static synthetic fun copy$default (Lcom/monkopedia/lsp/NotebookDocumentSyncOptionsNotebookSelectorCells;Lcom/monkopedia/lsp/StringOr;Ljava/util/List;ILjava/lang/Object;)Lcom/monkopedia/lsp/NotebookDocumentSyncOptionsNotebookSelectorCells;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getCells ()Ljava/util/List;
-	public final fun getNotebook ()Lkotlinx/serialization/json/JsonElement;
+	public final fun getNotebook ()Lcom/monkopedia/lsp/StringOr;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -8420,15 +8461,15 @@ public final class com/monkopedia/lsp/NotebookDocumentSyncOptionsNotebookSelecto
 
 public final class com/monkopedia/lsp/NotebookDocumentSyncOptionsNotebookSelectorNotebook : com/monkopedia/lsp/NotebookDocumentSyncOptionsNotebookSelector {
 	public static final field Companion Lcom/monkopedia/lsp/NotebookDocumentSyncOptionsNotebookSelectorNotebook$Companion;
-	public fun <init> (Lkotlinx/serialization/json/JsonElement;Ljava/util/List;)V
-	public synthetic fun <init> (Lkotlinx/serialization/json/JsonElement;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Lkotlinx/serialization/json/JsonElement;
+	public fun <init> (Lcom/monkopedia/lsp/StringOr;Ljava/util/List;)V
+	public synthetic fun <init> (Lcom/monkopedia/lsp/StringOr;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcom/monkopedia/lsp/StringOr;
 	public final fun component2 ()Ljava/util/List;
-	public final fun copy (Lkotlinx/serialization/json/JsonElement;Ljava/util/List;)Lcom/monkopedia/lsp/NotebookDocumentSyncOptionsNotebookSelectorNotebook;
-	public static synthetic fun copy$default (Lcom/monkopedia/lsp/NotebookDocumentSyncOptionsNotebookSelectorNotebook;Lkotlinx/serialization/json/JsonElement;Ljava/util/List;ILjava/lang/Object;)Lcom/monkopedia/lsp/NotebookDocumentSyncOptionsNotebookSelectorNotebook;
+	public final fun copy (Lcom/monkopedia/lsp/StringOr;Ljava/util/List;)Lcom/monkopedia/lsp/NotebookDocumentSyncOptionsNotebookSelectorNotebook;
+	public static synthetic fun copy$default (Lcom/monkopedia/lsp/NotebookDocumentSyncOptionsNotebookSelectorNotebook;Lcom/monkopedia/lsp/StringOr;Ljava/util/List;ILjava/lang/Object;)Lcom/monkopedia/lsp/NotebookDocumentSyncOptionsNotebookSelectorNotebook;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getCells ()Ljava/util/List;
-	public final fun getNotebook ()Lkotlinx/serialization/json/JsonElement;
+	public final fun getNotebook ()Lcom/monkopedia/lsp/StringOr;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -8521,15 +8562,15 @@ public final class com/monkopedia/lsp/NotebookDocumentSyncRegistrationOptionsNot
 
 public final class com/monkopedia/lsp/NotebookDocumentSyncRegistrationOptionsNotebookSelectorCells : com/monkopedia/lsp/NotebookDocumentSyncRegistrationOptionsNotebookSelector {
 	public static final field Companion Lcom/monkopedia/lsp/NotebookDocumentSyncRegistrationOptionsNotebookSelectorCells$Companion;
-	public fun <init> (Lkotlinx/serialization/json/JsonElement;Ljava/util/List;)V
-	public synthetic fun <init> (Lkotlinx/serialization/json/JsonElement;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Lkotlinx/serialization/json/JsonElement;
+	public fun <init> (Lcom/monkopedia/lsp/StringOr;Ljava/util/List;)V
+	public synthetic fun <init> (Lcom/monkopedia/lsp/StringOr;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcom/monkopedia/lsp/StringOr;
 	public final fun component2 ()Ljava/util/List;
-	public final fun copy (Lkotlinx/serialization/json/JsonElement;Ljava/util/List;)Lcom/monkopedia/lsp/NotebookDocumentSyncRegistrationOptionsNotebookSelectorCells;
-	public static synthetic fun copy$default (Lcom/monkopedia/lsp/NotebookDocumentSyncRegistrationOptionsNotebookSelectorCells;Lkotlinx/serialization/json/JsonElement;Ljava/util/List;ILjava/lang/Object;)Lcom/monkopedia/lsp/NotebookDocumentSyncRegistrationOptionsNotebookSelectorCells;
+	public final fun copy (Lcom/monkopedia/lsp/StringOr;Ljava/util/List;)Lcom/monkopedia/lsp/NotebookDocumentSyncRegistrationOptionsNotebookSelectorCells;
+	public static synthetic fun copy$default (Lcom/monkopedia/lsp/NotebookDocumentSyncRegistrationOptionsNotebookSelectorCells;Lcom/monkopedia/lsp/StringOr;Ljava/util/List;ILjava/lang/Object;)Lcom/monkopedia/lsp/NotebookDocumentSyncRegistrationOptionsNotebookSelectorCells;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getCells ()Ljava/util/List;
-	public final fun getNotebook ()Lkotlinx/serialization/json/JsonElement;
+	public final fun getNotebook ()Lcom/monkopedia/lsp/StringOr;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -8578,15 +8619,15 @@ public final class com/monkopedia/lsp/NotebookDocumentSyncRegistrationOptionsNot
 
 public final class com/monkopedia/lsp/NotebookDocumentSyncRegistrationOptionsNotebookSelectorNotebook : com/monkopedia/lsp/NotebookDocumentSyncRegistrationOptionsNotebookSelector {
 	public static final field Companion Lcom/monkopedia/lsp/NotebookDocumentSyncRegistrationOptionsNotebookSelectorNotebook$Companion;
-	public fun <init> (Lkotlinx/serialization/json/JsonElement;Ljava/util/List;)V
-	public synthetic fun <init> (Lkotlinx/serialization/json/JsonElement;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Lkotlinx/serialization/json/JsonElement;
+	public fun <init> (Lcom/monkopedia/lsp/StringOr;Ljava/util/List;)V
+	public synthetic fun <init> (Lcom/monkopedia/lsp/StringOr;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcom/monkopedia/lsp/StringOr;
 	public final fun component2 ()Ljava/util/List;
-	public final fun copy (Lkotlinx/serialization/json/JsonElement;Ljava/util/List;)Lcom/monkopedia/lsp/NotebookDocumentSyncRegistrationOptionsNotebookSelectorNotebook;
-	public static synthetic fun copy$default (Lcom/monkopedia/lsp/NotebookDocumentSyncRegistrationOptionsNotebookSelectorNotebook;Lkotlinx/serialization/json/JsonElement;Ljava/util/List;ILjava/lang/Object;)Lcom/monkopedia/lsp/NotebookDocumentSyncRegistrationOptionsNotebookSelectorNotebook;
+	public final fun copy (Lcom/monkopedia/lsp/StringOr;Ljava/util/List;)Lcom/monkopedia/lsp/NotebookDocumentSyncRegistrationOptionsNotebookSelectorNotebook;
+	public static synthetic fun copy$default (Lcom/monkopedia/lsp/NotebookDocumentSyncRegistrationOptionsNotebookSelectorNotebook;Lcom/monkopedia/lsp/StringOr;Ljava/util/List;ILjava/lang/Object;)Lcom/monkopedia/lsp/NotebookDocumentSyncRegistrationOptionsNotebookSelectorNotebook;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getCells ()Ljava/util/List;
-	public final fun getNotebook ()Lkotlinx/serialization/json/JsonElement;
+	public final fun getNotebook ()Lcom/monkopedia/lsp/StringOr;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -8819,6 +8860,74 @@ public final class com/monkopedia/lsp/PrepareRenameParams$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
+public abstract interface class com/monkopedia/lsp/PrepareRenameResult {
+	public static final field Companion Lcom/monkopedia/lsp/PrepareRenameResult$Companion;
+}
+
+public final class com/monkopedia/lsp/PrepareRenameResult$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/PrepareRenameResultDefaultBehavior : com/monkopedia/lsp/PrepareRenameResult {
+	public static final field Companion Lcom/monkopedia/lsp/PrepareRenameResultDefaultBehavior$Companion;
+	public fun <init> (Z)V
+	public final fun component1 ()Z
+	public final fun copy (Z)Lcom/monkopedia/lsp/PrepareRenameResultDefaultBehavior;
+	public static synthetic fun copy$default (Lcom/monkopedia/lsp/PrepareRenameResultDefaultBehavior;ZILjava/lang/Object;)Lcom/monkopedia/lsp/PrepareRenameResultDefaultBehavior;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDefaultBehavior ()Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class com/monkopedia/lsp/PrepareRenameResultDefaultBehavior$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/monkopedia/lsp/PrepareRenameResultDefaultBehavior$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/monkopedia/lsp/PrepareRenameResultDefaultBehavior;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/monkopedia/lsp/PrepareRenameResultDefaultBehavior;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/PrepareRenameResultDefaultBehavior$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/PrepareRenameResultRange : com/monkopedia/lsp/PrepareRenameResult {
+	public static final field Companion Lcom/monkopedia/lsp/PrepareRenameResultRange$Companion;
+	public fun <init> (Lcom/monkopedia/lsp/Range;Ljava/lang/String;)V
+	public final fun component1 ()Lcom/monkopedia/lsp/Range;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Lcom/monkopedia/lsp/Range;Ljava/lang/String;)Lcom/monkopedia/lsp/PrepareRenameResultRange;
+	public static synthetic fun copy$default (Lcom/monkopedia/lsp/PrepareRenameResultRange;Lcom/monkopedia/lsp/Range;Ljava/lang/String;ILjava/lang/Object;)Lcom/monkopedia/lsp/PrepareRenameResultRange;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getPlaceholder ()Ljava/lang/String;
+	public final fun getRange ()Lcom/monkopedia/lsp/Range;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class com/monkopedia/lsp/PrepareRenameResultRange$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/monkopedia/lsp/PrepareRenameResultRange$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/monkopedia/lsp/PrepareRenameResultRange;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/monkopedia/lsp/PrepareRenameResultRange;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/PrepareRenameResultRange$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/PrepareRenameResultSerializer : kotlinx/serialization/json/JsonContentPolymorphicSerializer {
+	public static final field INSTANCE Lcom/monkopedia/lsp/PrepareRenameResultSerializer;
+}
+
 public final class com/monkopedia/lsp/PrepareSupportDefaultBehavior {
 	public static final field Companion Lcom/monkopedia/lsp/PrepareSupportDefaultBehavior$Companion;
 	public static final synthetic fun box-impl (I)Lcom/monkopedia/lsp/PrepareSupportDefaultBehavior;
@@ -9004,7 +9113,7 @@ public final class com/monkopedia/lsp/PublishDiagnosticsParams$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class com/monkopedia/lsp/Range {
+public final class com/monkopedia/lsp/Range : com/monkopedia/lsp/CompletionListItemDefaultsEditRange, com/monkopedia/lsp/PrepareRenameResult {
 	public static final field Companion Lcom/monkopedia/lsp/Range$Companion;
 	public fun <init> (Lcom/monkopedia/lsp/Position;Lcom/monkopedia/lsp/Position;)V
 	public final fun component1 ()Lcom/monkopedia/lsp/Position;
@@ -13506,21 +13615,21 @@ public final class com/monkopedia/lsp/WorkspaceFullDocumentDiagnosticReport$Comp
 
 public final class com/monkopedia/lsp/WorkspaceSymbol {
 	public static final field Companion Lcom/monkopedia/lsp/WorkspaceSymbol$Companion;
-	public synthetic fun <init> (Ljava/lang/String;ILjava/util/List;Ljava/lang/String;Lkotlinx/serialization/json/JsonElement;Lkotlinx/serialization/json/JsonElement;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Ljava/lang/String;ILjava/util/List;Ljava/lang/String;Lkotlinx/serialization/json/JsonElement;Lkotlinx/serialization/json/JsonElement;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/lang/String;ILjava/util/List;Ljava/lang/String;Lcom/monkopedia/lsp/WorkspaceSymbolLocation;Lkotlinx/serialization/json/JsonElement;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/lang/String;ILjava/util/List;Ljava/lang/String;Lcom/monkopedia/lsp/WorkspaceSymbolLocation;Lkotlinx/serialization/json/JsonElement;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/String;
 	public final fun component2-oS_7dDo ()I
 	public final fun component3 ()Ljava/util/List;
 	public final fun component4 ()Ljava/lang/String;
-	public final fun component5 ()Lkotlinx/serialization/json/JsonElement;
+	public final fun component5 ()Lcom/monkopedia/lsp/WorkspaceSymbolLocation;
 	public final fun component6 ()Lkotlinx/serialization/json/JsonElement;
-	public final fun copy-mI9wSmE (Ljava/lang/String;ILjava/util/List;Ljava/lang/String;Lkotlinx/serialization/json/JsonElement;Lkotlinx/serialization/json/JsonElement;)Lcom/monkopedia/lsp/WorkspaceSymbol;
-	public static synthetic fun copy-mI9wSmE$default (Lcom/monkopedia/lsp/WorkspaceSymbol;Ljava/lang/String;ILjava/util/List;Ljava/lang/String;Lkotlinx/serialization/json/JsonElement;Lkotlinx/serialization/json/JsonElement;ILjava/lang/Object;)Lcom/monkopedia/lsp/WorkspaceSymbol;
+	public final fun copy-mI9wSmE (Ljava/lang/String;ILjava/util/List;Ljava/lang/String;Lcom/monkopedia/lsp/WorkspaceSymbolLocation;Lkotlinx/serialization/json/JsonElement;)Lcom/monkopedia/lsp/WorkspaceSymbol;
+	public static synthetic fun copy-mI9wSmE$default (Lcom/monkopedia/lsp/WorkspaceSymbol;Ljava/lang/String;ILjava/util/List;Ljava/lang/String;Lcom/monkopedia/lsp/WorkspaceSymbolLocation;Lkotlinx/serialization/json/JsonElement;ILjava/lang/Object;)Lcom/monkopedia/lsp/WorkspaceSymbol;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getContainerName ()Ljava/lang/String;
 	public final fun getData ()Lkotlinx/serialization/json/JsonElement;
 	public final fun getKind-oS_7dDo ()I
-	public final fun getLocation ()Lkotlinx/serialization/json/JsonElement;
+	public final fun getLocation ()Lcom/monkopedia/lsp/WorkspaceSymbolLocation;
 	public final fun getName ()Ljava/lang/String;
 	public final fun getTags ()Ljava/util/List;
 	public fun hashCode ()I
@@ -13657,6 +13766,45 @@ public final synthetic class com/monkopedia/lsp/WorkspaceSymbolClientCapabilitie
 }
 
 public final class com/monkopedia/lsp/WorkspaceSymbolClientCapabilitiesTagSupport$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public abstract interface class com/monkopedia/lsp/WorkspaceSymbolLocation {
+	public static final field Companion Lcom/monkopedia/lsp/WorkspaceSymbolLocation$Companion;
+}
+
+public final class com/monkopedia/lsp/WorkspaceSymbolLocation$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/WorkspaceSymbolLocationSerializer : kotlinx/serialization/json/JsonContentPolymorphicSerializer {
+	public static final field INSTANCE Lcom/monkopedia/lsp/WorkspaceSymbolLocationSerializer;
+}
+
+public final class com/monkopedia/lsp/WorkspaceSymbolLocationUri : com/monkopedia/lsp/WorkspaceSymbolLocation {
+	public static final field Companion Lcom/monkopedia/lsp/WorkspaceSymbolLocationUri$Companion;
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Lcom/monkopedia/lsp/WorkspaceSymbolLocationUri;
+	public static synthetic fun copy$default (Lcom/monkopedia/lsp/WorkspaceSymbolLocationUri;Ljava/lang/String;ILjava/lang/Object;)Lcom/monkopedia/lsp/WorkspaceSymbolLocationUri;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getUri ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class com/monkopedia/lsp/WorkspaceSymbolLocationUri$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/monkopedia/lsp/WorkspaceSymbolLocationUri$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/monkopedia/lsp/WorkspaceSymbolLocationUri;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/monkopedia/lsp/WorkspaceSymbolLocationUri;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/WorkspaceSymbolLocationUri$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 

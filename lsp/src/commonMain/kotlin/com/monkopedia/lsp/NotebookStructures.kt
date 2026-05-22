@@ -243,7 +243,7 @@ data class NotebookCellTextDocumentFilter(
      * value is provided it matches against the
      * notebook type. '*' matches every notebook.
      */
-    val notebook: JsonElement,
+    val notebook: StringOr<NotebookDocumentFilter>,
     /**
      * A language id like `python`.
      *

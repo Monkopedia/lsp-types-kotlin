@@ -59,7 +59,7 @@ data class InlayHint(
      *
      * *Note* that neither the string nor the label part can be empty.
      */
-    val label: JsonElement,
+    val label: StringOr<List<InlayHintLabelPart>>,
     /**
      * The kind of this hint. Can be omitted in which case the client
      * should fall back to a reasonable default.

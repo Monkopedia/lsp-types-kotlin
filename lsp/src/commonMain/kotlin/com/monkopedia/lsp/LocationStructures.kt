@@ -23,7 +23,7 @@ import kotlinx.serialization.json.JsonElement
  * inside a text file.
  */
 @Serializable
-data class Location(val uri: DocumentUri, val range: Range)
+data class Location(val uri: DocumentUri, val range: Range) : WorkspaceSymbolLocation
 
 /**
  * Represents the connection of two locations. Provides additional metadata over normal {@link Location locations},

@@ -1211,7 +1211,8 @@ data class Range(
      * The range's end position.
      */
     val end: Position
-)
+) : CompletionListItemDefaultsEditRange,
+    PrepareRenameResult
 
 /**
  * Static registration options to be returned in the initialize
