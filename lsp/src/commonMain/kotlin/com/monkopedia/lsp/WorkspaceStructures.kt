@@ -181,7 +181,7 @@ data class WorkspaceSymbol(
      *
      * See SymbolInformation#location for more details.
      */
-    val location: JsonElement,
+    val location: WorkspaceSymbolLocation,
     /**
      * A data entry field that is preserved on a workspace symbol between a
      * workspace symbol request and a workspace symbol resolve request.

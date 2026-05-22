@@ -75,7 +75,7 @@ data class DidChangeConfigurationParams(
 )
 
 @Serializable
-data class DidChangeConfigurationRegistrationOptions(val section: JsonElement? = null)
+data class DidChangeConfigurationRegistrationOptions(val section: SingleOrArray<String>? = null)
 
 /**
  * The change text document notification's parameters.

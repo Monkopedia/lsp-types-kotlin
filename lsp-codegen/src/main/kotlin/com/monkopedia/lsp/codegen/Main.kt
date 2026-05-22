@@ -288,6 +288,7 @@ private fun preClassifyUnions(model: MetaModel, resolver: TypeResolver, unionGen
                 val cls = classifyUnion(type, resolver)
                 if (cls.category == UnionCategory.NAMED_REFERENCES ||
                     cls.category == UnionCategory.LITERAL_UNION ||
+                    cls.category == UnionCategory.MIXED_REF_LITERAL ||
                     cls.category == UnionCategory.BOOLEAN_OR_OPTIONS
                 ) {
                     unionGen.resolveUnion(type, contextName, topLevelAliasName)

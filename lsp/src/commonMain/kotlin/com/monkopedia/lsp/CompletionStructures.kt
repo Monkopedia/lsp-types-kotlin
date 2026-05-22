@@ -258,7 +258,7 @@ data class CompletionListItemDefaults(
      *
      * @since 3.17.0
      */
-    val editRange: JsonElement? = null,
+    val editRange: CompletionListItemDefaultsEditRange? = null,
     /**
      * A default insert text format.
      *

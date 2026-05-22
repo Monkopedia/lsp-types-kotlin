@@ -55,8 +55,10 @@ class UnionGenerator(private val resolver: TypeResolver) {
             UnionCategory.BOOLEAN_OR_OPTIONS -> resolveBooleanOr(cls, contextName)
 
             UnionCategory.T_OR_ARRAY_T -> {
-                val refItem = cls.nonNullItems.filterIsInstance<LspType.Reference>()[0]
-                "SingleOrArray<${refItem.name}>"
+                // The single (non-array) item; its type may be a reference
+                // (Location | Location[]) or a base type (string | string[]).
+                val single = cls.nonNullItems.first { it !is LspType.Array }
+                "SingleOrArray<${resolver.resolve(single, contextName)}>"
             }
 
             UnionCategory.NAMED_REFERENCES -> {
@@ -75,6 +77,16 @@ class UnionGenerator(private val resolver: TypeResolver) {
                     "JsonElement"
                 } else {
                     emitLiteralUnionSealed(name, cls.nonNullItems)
+                    name
+                }
+            }
+
+            UnionCategory.MIXED_REF_LITERAL -> {
+                val name = topLevelAliasName ?: contextName.ifEmpty { "" }
+                if (name.isEmpty()) {
+                    "JsonElement"
+                } else {
+                    emitMixedRefLiteralSealed(name, cls.nonNullItems)
                     name
                 }
             }
@@ -265,6 +277,92 @@ class UnionGenerator(private val resolver: TypeResolver) {
         for (case in cases) {
             w.line("${case.discriminator} -> ${case.name}.serializer() $cast")
         }
+    }
+
+    /**
+     * Emit a sealed interface for a union mixing struct references and inline
+     * literals (e.g. `Range | { insert: Range; replace: Range }`). Struct refs
+     * implement the interface via [structureInterfaces] (as NAMED_REFERENCES does);
+     * literal branches become generated classes via [literalBranches] (as
+     * LITERAL_UNION does). Discrimination spans both kinds.
+     */
+    private fun emitMixedRefLiteralSealed(name: String, branches: List<LspType>) {
+        if (name in emittedSealedInterfaces) return
+
+        val refs = branches.filterIsInstance<LspType.Reference>()
+        val literals = branches.filterIsInstance<LspType.Literal>()
+        if (refs.size + literals.size != branches.size) return // unexpected branch kind
+
+        val literalNames = pickLiteralBranchNames(name, literals)
+
+        // Register implementers: existing struct refs + generated literal classes.
+        for (ref in refs) {
+            structureInterfaces.getOrPut(ref.name) { mutableListOf() }.add(name)
+        }
+        for ((branchName, lit) in literalNames.zip(literals)) {
+            literalBranches[branchName] = lit.value.properties
+            structureInterfaces.getOrPut(branchName) { mutableListOf() }.add(name)
+        }
+
+        // Required-field sets per branch, for discrimination.
+        data class Branch(val typeName: String, val required: Set<String>)
+        val all = refs.map { ref ->
+            val props = resolver.getStructure(ref.name)
+                ?.let { resolver.collectAllProperties(it) }.orEmpty()
+            Branch(ref.name, props.filter { !it.optional }.map { it.name }.toSet())
+        } + literalNames.zip(literals).map { (branchName, lit) ->
+            Branch(branchName, lit.value.properties.filter { !it.optional }.map { it.name }.toSet())
+        }
+
+        val cast = "as DeserializationStrategy<$name>"
+        data class Case(val expr: String, val priority: Int)
+        val cases = all.map { b ->
+            val others = all.filter { it !== b }.flatMap { it.required }.toSet()
+            val unique = b.required - others
+            val serializer = "${b.typeName}.serializer() $cast"
+            when {
+                unique.isNotEmpty() ->
+                    Case("\"${unique.first()}\" in obj -> $serializer", 100 + b.required.size)
+
+                b.required.isNotEmpty() ->
+                    Case("\"${b.required.first()}\" in obj -> $serializer", b.required.size)
+
+                else ->
+                    Case("/* fallback */ obj.isNotEmpty() -> $serializer", 0)
+            }
+        }.sortedByDescending { it.priority }
+
+        val w = CodeWriter()
+        w.line("/**")
+        w.line(" * Sealed interface for the LSP union: ${all.joinToString(" | ") { it.typeName }}.")
+        w.line(" */")
+        w.line("@Serializable(with = ${name}Serializer::class)")
+        w.line("sealed interface $name")
+        w.line()
+        w.line("object ${name}Serializer :")
+        w.indent {
+            line("JsonContentPolymorphicSerializer<$name>($name::class) {")
+            indent {
+                line("override fun selectDeserializer(")
+                indent { line("element: JsonElement") }
+                line("): DeserializationStrategy<$name> {")
+                indent {
+                    line("val obj = element.jsonObject")
+                    line("return when {")
+                    indent {
+                        for (case in cases) line(case.expr)
+                        line(
+                            "else -> throw SerializationException(" +
+                                "\"Unknown $name variant: \$obj\")"
+                        )
+                    }
+                    line("}")
+                }
+                line("}")
+            }
+            line("}")
+        }
+        emittedSealedInterfaces[name] = w.toString()
     }
 
     private fun emitLiteralUnionSealed(name: String, branches: List<LspType>) {

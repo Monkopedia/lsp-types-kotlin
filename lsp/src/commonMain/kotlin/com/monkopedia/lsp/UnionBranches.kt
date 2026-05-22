@@ -19,13 +19,20 @@ import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 
 @Serializable
+data class CompletionListItemDefaultsEditRangeInsert(val insert: Range, val replace: Range) :
+    CompletionListItemDefaultsEditRange
+
+@Serializable
+data class WorkspaceSymbolLocationUri(val uri: DocumentUri) : WorkspaceSymbolLocation
+
+@Serializable
 data class NotebookDocumentSyncOptionsNotebookSelectorNotebook(
     /**
      * The notebook to be synced If a string
      * value is provided it matches against the
      * notebook type. '*' matches every notebook.
      */
-    val notebook: JsonElement,
+    val notebook: StringOr<NotebookDocumentFilter>,
     /**
      * The cells of the matching notebook to be synced.
      */
@@ -42,7 +49,7 @@ data class NotebookDocumentSyncOptionsNotebookSelectorCells(
      * value is provided it matches against the
      * notebook type. '*' matches every notebook.
      */
-    val notebook: JsonElement? = null,
+    val notebook: StringOr<NotebookDocumentFilter>? = null,
     /**
      * The cells of the matching notebook to be synced.
      */
@@ -51,6 +58,12 @@ data class NotebookDocumentSyncOptionsNotebookSelectorCells(
 
 @Serializable
 data class NotebookDocumentSyncOptionsNotebookSelectorCellsCells(val language: String)
+
+@Serializable
+data class PrepareRenameResultRange(val range: Range, val placeholder: String) : PrepareRenameResult
+
+@Serializable
+data class PrepareRenameResultDefaultBehavior(val defaultBehavior: Boolean) : PrepareRenameResult
 
 @Serializable
 data class TextDocumentContentChangeEventRange(
@@ -181,7 +194,7 @@ data class NotebookDocumentSyncRegistrationOptionsNotebookSelectorNotebook(
      * value is provided it matches against the
      * notebook type. '*' matches every notebook.
      */
-    val notebook: JsonElement,
+    val notebook: StringOr<NotebookDocumentFilter>,
     /**
      * The cells of the matching notebook to be synced.
      */
@@ -200,7 +213,7 @@ data class NotebookDocumentSyncRegistrationOptionsNotebookSelectorCells(
      * value is provided it matches against the
      * notebook type. '*' matches every notebook.
      */
-    val notebook: JsonElement? = null,
+    val notebook: StringOr<NotebookDocumentFilter>? = null,
     /**
      * The cells of the matching notebook to be synced.
      */

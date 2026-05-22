@@ -246,4 +246,126 @@ class UnionDiscriminatorTest {
         assertIs<RelatedUnchangedDocumentDiagnosticReport>(decoded)
         assertEquals("v42", decoded.resultId)
     }
+
+    // ---- MIXED_REF_LITERAL unions (struct ref | inline literal) ----
+
+    @Test
+    fun `WorkspaceSymbolLocation full Location branch`() {
+        val decoded = json.decodeFromString(
+            WorkspaceSymbolLocationSerializer,
+            """{"uri": "file:///a.kt", "range": {"start": {"line": 1, "character": 2}, """ +
+                """"end": {"line": 3, "character": 4}}}"""
+        )
+        assertIs<Location>(decoded)
+        assertEquals("file:///a.kt", decoded.uri)
+    }
+
+    @Test
+    fun `WorkspaceSymbolLocation uri-only branch`() {
+        val decoded = json.decodeFromString(
+            WorkspaceSymbolLocationSerializer,
+            """{"uri": "file:///a.kt"}"""
+        )
+        assertIs<WorkspaceSymbolLocationUri>(decoded)
+        assertEquals("file:///a.kt", decoded.uri)
+    }
+
+    @Test
+    fun `CompletionListItemDefaultsEditRange Range branch`() {
+        val decoded = json.decodeFromString(
+            CompletionListItemDefaultsEditRangeSerializer,
+            """{"start": {"line": 1, "character": 0}, "end": {"line": 1, "character": 5}}"""
+        )
+        assertIs<Range>(decoded)
+    }
+
+    @Test
+    fun `CompletionListItemDefaultsEditRange insert-replace branch`() {
+        val decoded = json.decodeFromString(
+            CompletionListItemDefaultsEditRangeSerializer,
+            """{"insert": {"start": {"line": 1, "character": 0}, """ +
+                """"end": {"line": 1, "character": 2}}, """ +
+                """"replace": {"start": {"line": 1, "character": 0}, """ +
+                """"end": {"line": 1, "character": 5}}}"""
+        )
+        assertIs<CompletionListItemDefaultsEditRangeInsert>(decoded)
+    }
+
+    @Test
+    fun `PrepareRenameResult discriminates its three branches`() {
+        val asRange = json.decodeFromString(
+            PrepareRenameResultSerializer,
+            """{"start": {"line": 1, "character": 0}, "end": {"line": 1, "character": 5}}"""
+        )
+        assertIs<Range>(asRange)
+
+        val asRangePlaceholder = json.decodeFromString(
+            PrepareRenameResultSerializer,
+            """{"range": {"start": {"line": 1, "character": 0}, """ +
+                """"end": {"line": 1, "character": 5}}, "placeholder": "name"}"""
+        )
+        assertIs<PrepareRenameResultRange>(asRangePlaceholder)
+        assertEquals("name", asRangePlaceholder.placeholder)
+
+        val asDefault = json.decodeFromString(
+            PrepareRenameResultSerializer,
+            """{"defaultBehavior": true}"""
+        )
+        assertIs<PrepareRenameResultDefaultBehavior>(asDefault)
+        assertTrue(asDefault.defaultBehavior)
+    }
+
+    // ---- string | T[] and base | base[] field shapes ----
+
+    @Test
+    fun `InlayHint label is StringOr string branch`() {
+        val hint = json.decodeFromString<InlayHint>(
+            """{"position": {"line": 1, "character": 2}, "label": "hello"}"""
+        )
+        val label = hint.label
+        assertTrue(label is StringOr.StringValue)
+        assertEquals("hello", label.value)
+    }
+
+    @Test
+    fun `InlayHint label is StringOr label-parts branch`() {
+        val hint = json.decodeFromString<InlayHint>(
+            """{"position": {"line": 1, "character": 2}, """ +
+                """"label": [{"value": "part1"}, {"value": "part2"}]}"""
+        )
+        val label = hint.label
+        assertTrue(label is StringOr.Value)
+        assertEquals(2, label.value.size)
+        assertEquals("part1", label.value[0].value)
+    }
+
+    @Test
+    fun `section is SingleOrArray of String - single and array`() {
+        val single = json.decodeFromString<DidChangeConfigurationRegistrationOptions>(
+            """{"section": "files"}"""
+        )
+        val s = single.section
+        assertTrue(s is SingleOrArray.Single)
+        assertEquals("files", s.value)
+
+        val multiple = json.decodeFromString<DidChangeConfigurationRegistrationOptions>(
+            """{"section": ["files", "editor"]}"""
+        )
+        val m = multiple.section
+        assertTrue(m is SingleOrArray.Multiple)
+        assertEquals(2, m.value.size)
+    }
+
+    @Test
+    fun `notebook is StringOr of NotebookDocumentFilter - string and filter`() {
+        val asString = json.decodeFromString<NotebookCellTextDocumentFilter>(
+            """{"notebook": "jupyter-notebook"}"""
+        )
+        assertTrue(asString.notebook is StringOr.StringValue)
+
+        val asFilter = json.decodeFromString<NotebookCellTextDocumentFilter>(
+            """{"notebook": {"notebookType": "jupyter"}}"""
+        )
+        assertTrue(asFilter.notebook is StringOr.Value)
+    }
 }

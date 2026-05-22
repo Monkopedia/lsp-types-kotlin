@@ -64,8 +64,6 @@ typealias Declaration = SingleOrArray<Location>
  */
 typealias DeclarationLink = LocationLink
 
-typealias PrepareRenameResult = JsonElement
-
 /**
  * A document selector is the combination of one or many document filters.
  *

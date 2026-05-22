@@ -42,6 +42,32 @@ object CompletionItemTextEditSerializer :
 }
 
 /**
+ * Sealed interface for the LSP union: Range | CompletionListItemDefaultsEditRangeInsert.
+ */
+@Serializable(with = CompletionListItemDefaultsEditRangeSerializer::class)
+sealed interface CompletionListItemDefaultsEditRange
+
+object CompletionListItemDefaultsEditRangeSerializer :
+    JsonContentPolymorphicSerializer<CompletionListItemDefaultsEditRange>(
+        CompletionListItemDefaultsEditRange::class
+    ) {
+    override fun selectDeserializer(
+        element: JsonElement
+    ): DeserializationStrategy<CompletionListItemDefaultsEditRange> {
+        val obj = element.jsonObject
+        return when {
+            "start" in obj -> Range.serializer() as DeserializationStrategy<CompletionListItemDefaultsEditRange>
+
+            "insert" in obj -> CompletionListItemDefaultsEditRangeInsert.serializer() as DeserializationStrategy<CompletionListItemDefaultsEditRange>
+
+            else -> throw SerializationException(
+                "Unknown CompletionListItemDefaultsEditRange variant: $obj"
+            )
+        }
+    }
+}
+
+/**
  * Sealed interface for the LSP union type: RelatedFullDocumentDiagnosticReport | RelatedUnchangedDocumentDiagnosticReport.
  */
 @Serializable(with = DocumentDiagnosticReportSerializer::class)
@@ -182,6 +208,27 @@ object NotebookDocumentSyncRegistrationOptionsNotebookSelectorSerializer :
             else -> throw SerializationException(
                 "Unknown NotebookDocumentSyncRegistrationOptionsNotebookSelector variant: $obj"
             )
+        }
+    }
+}
+
+/**
+ * Sealed interface for the LSP union: Range | PrepareRenameResultRange | PrepareRenameResultDefaultBehavior.
+ */
+@Serializable(with = PrepareRenameResultSerializer::class)
+sealed interface PrepareRenameResult
+
+object PrepareRenameResultSerializer :
+    JsonContentPolymorphicSerializer<PrepareRenameResult>(PrepareRenameResult::class) {
+    override fun selectDeserializer(
+        element: JsonElement
+    ): DeserializationStrategy<PrepareRenameResult> {
+        val obj = element.jsonObject
+        return when {
+            "start" in obj -> Range.serializer() as DeserializationStrategy<PrepareRenameResult>
+            "range" in obj -> PrepareRenameResultRange.serializer() as DeserializationStrategy<PrepareRenameResult>
+            "defaultBehavior" in obj -> PrepareRenameResultDefaultBehavior.serializer() as DeserializationStrategy<PrepareRenameResult>
+            else -> throw SerializationException("Unknown PrepareRenameResult variant: $obj")
         }
     }
 }
@@ -812,6 +859,30 @@ object WorkspaceEditDocumentChangesSerializer :
 
             else -> throw SerializationException(
                 "Unknown WorkspaceEditDocumentChanges variant: $obj"
+            )
+        }
+    }
+}
+
+/**
+ * Sealed interface for the LSP union: Location | WorkspaceSymbolLocationUri.
+ */
+@Serializable(with = WorkspaceSymbolLocationSerializer::class)
+sealed interface WorkspaceSymbolLocation
+
+object WorkspaceSymbolLocationSerializer :
+    JsonContentPolymorphicSerializer<WorkspaceSymbolLocation>(WorkspaceSymbolLocation::class) {
+    override fun selectDeserializer(
+        element: JsonElement
+    ): DeserializationStrategy<WorkspaceSymbolLocation> {
+        val obj = element.jsonObject
+        return when {
+            "range" in obj -> Location.serializer() as DeserializationStrategy<WorkspaceSymbolLocation>
+
+            "uri" in obj -> WorkspaceSymbolLocationUri.serializer() as DeserializationStrategy<WorkspaceSymbolLocation>
+
+            else -> throw SerializationException(
+                "Unknown WorkspaceSymbolLocation variant: $obj"
             )
         }
     }
