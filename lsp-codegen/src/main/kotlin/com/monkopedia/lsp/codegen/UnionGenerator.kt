@@ -319,13 +319,16 @@ class UnionGenerator(private val resolver: TypeResolver) {
         val cases = all.map { b ->
             val others = all.filter { it !== b }.flatMap { it.required }.toSet()
             val unique = b.required - others
+            val serializer = "${b.typeName}.serializer() $cast"
             when {
                 unique.isNotEmpty() ->
-                    Case("\"${unique.first()}\" in obj -> ${b.typeName}.serializer() $cast", 100 + b.required.size)
+                    Case("\"${unique.first()}\" in obj -> $serializer", 100 + b.required.size)
+
                 b.required.isNotEmpty() ->
-                    Case("\"${b.required.first()}\" in obj -> ${b.typeName}.serializer() $cast", b.required.size)
+                    Case("\"${b.required.first()}\" in obj -> $serializer", b.required.size)
+
                 else ->
-                    Case("/* fallback */ obj.isNotEmpty() -> ${b.typeName}.serializer() $cast", 0)
+                    Case("/* fallback */ obj.isNotEmpty() -> $serializer", 0)
             }
         }.sortedByDescending { it.priority }
 

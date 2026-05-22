@@ -77,10 +77,14 @@ fun classifyUnion(type: LspType.Or, resolver: TypeResolver? = null): UnionClassi
     // ref is excluded since it serializes as a string and would be ambiguous.
     fun isStringOrOther(t: LspType): Boolean = when {
         isStructRef(t) -> true
+
         t is LspType.Literal -> true
+
         t is LspType.Array -> true
+
         t is LspType.Reference ->
             resolver != null && resolver.isAlias(t.name) && !resolver.isEnum(t.name)
+
         else -> false
     }
 
