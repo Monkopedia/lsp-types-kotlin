@@ -104,6 +104,16 @@ class UnionGenerator(private val resolver: TypeResolver) {
                 }
             }
 
+            UnionCategory.REF_PLUS_SINGLE_ARRAY -> {
+                val name = topLevelAliasName ?: contextName.ifEmpty { "" }
+                if (name.isEmpty()) {
+                    "JsonElement"
+                } else {
+                    emitRefPlusSingleArraySealed(name, cls.nonNullItems)
+                    name
+                }
+            }
+
             UnionCategory.STRING_OR -> {
                 val other = cls.nonNullItems
                     .firstOrNull { !isStringLike(it) }
@@ -416,6 +426,84 @@ class UnionGenerator(private val resolver: TypeResolver) {
                     indent { line("${structRef.name}.serializer() $cast") }
                     line("} else {")
                     indent { line("${enumRef.name}.serializer() $cast") }
+                    line("}")
+                }
+                line("}")
+            }
+            line("}")
+        }
+        emittedSealedInterfaces[name] = w.toString()
+    }
+
+    /**
+     * Emit a sealed interface for an `A | X | X[]` union (e.g.
+     * `MarkupContent | MarkedString | MarkedString[]`). Three @JvmInline value-class
+     * branches wrap A, X and List<X>. Discrimination: a JSON array → the list branch;
+     * a JSON object carrying all of A's required fields → the A branch; otherwise → X
+     * (which may itself be a string-or-object handled by X's own serializer).
+     */
+    private fun emitRefPlusSingleArraySealed(name: String, branches: List<LspType>) {
+        if (name in emittedSealedInterfaces) return
+        val array = branches.filterIsInstance<LspType.Array>().firstOrNull() ?: return
+        val element = array.element
+        val refA = branches.firstOrNull {
+            it !is LspType.Array && it != element &&
+                resolver.isStructure((it as? LspType.Reference)?.name ?: "")
+        } as? LspType.Reference ?: return
+
+        val xType = resolver.resolve(element, name)
+        val aName = refA.name
+        val xSimple = xType.substringBefore('<').substringAfterLast('.')
+        val aBranch = "${aName.substringAfterLast('.')}Value"
+        val xBranch = "${xSimple}Value"
+        val xArrayBranch = "${xSimple}Array"
+
+        val aRequired = resolver.getStructure(aName)
+            ?.let { resolver.collectAllProperties(it) }
+            ?.filter { !it.optional }?.map { it.name }.orEmpty()
+        val aDiscriminator = if (aRequired.isEmpty()) {
+            "element is JsonObject"
+        } else {
+            "element is JsonObject && " + aRequired.joinToString(" && ") { "\"$it\" in element" }
+        }
+
+        val cast = "as DeserializationStrategy<$name>"
+        val w = CodeWriter()
+        w.line("/**")
+        w.line(" * Sealed interface for the LSP union: $aName | $xType | $xType\\[\\].")
+        w.line(" */")
+        w.line("@Serializable(with = ${name}Serializer::class)")
+        w.block("sealed interface $name") {
+            line("@Serializable")
+            line("@JvmInline")
+            line("value class $aBranch(val value: $aName) : $name")
+            line()
+            line("@Serializable")
+            line("@JvmInline")
+            line("value class $xBranch(val value: $xType) : $name")
+            line()
+            line("@Serializable")
+            line("@JvmInline")
+            line("value class $xArrayBranch(val value: List<$xType>) : $name")
+            line()
+            line("companion object")
+        }
+        w.line()
+        w.line("object ${name}Serializer :")
+        w.indent {
+            line("JsonContentPolymorphicSerializer<$name>($name::class) {")
+            indent {
+                line("override fun selectDeserializer(")
+                indent { line("element: JsonElement") }
+                line("): DeserializationStrategy<$name> {")
+                indent {
+                    line("return when {")
+                    indent {
+                        line("element is JsonArray -> $name.$xArrayBranch.serializer() $cast")
+                        line("$aDiscriminator ->")
+                        indent { line("$name.$aBranch.serializer() $cast") }
+                        line("else -> $name.$xBranch.serializer() $cast")
+                    }
                     line("}")
                 }
                 line("}")

@@ -40,6 +40,13 @@ enum class UnionCategory {
     /** `StructRef | EnumRef` (object | int/string-enum) — sealed interface; both branches implement it. */
     STRUCT_OR_ENUM,
 
+    /**
+     * `A | X | X[]` — a struct ref `A` plus a type `X` appearing both alone and as an
+     * array (e.g. `Hover.contents = MarkupContent | MarkedString | MarkedString[]`).
+     * Generated as a sealed interface with value-class branches for A, X, and List<X>.
+     */
+    REF_PLUS_SINGLE_ARRAY,
+
     /** `string | T` — generate `StringOr<T>`. */
     STRING_OR,
 
@@ -105,6 +112,7 @@ fun classifyUnion(type: LspType.Or, resolver: TypeResolver? = null): UnionClassi
         isAllLiterals(nonNull) -> UnionCategory.LITERAL_UNION
         isRefLiteralMix(nonNull, ::isStructRef) -> UnionCategory.MIXED_REF_LITERAL
         isStructOrEnum(nonNull, ::isStructRef, ::isEnumRef) -> UnionCategory.STRUCT_OR_ENUM
+        isRefPlusSingleArray(nonNull, ::isStructRef) -> UnionCategory.REF_PLUS_SINGLE_ARRAY
         isIntOrString(nonNull) -> UnionCategory.INT_OR_STRING
         isStringPlusOther(nonNull, ::isStringOrOther) -> UnionCategory.STRING_OR
         else -> UnionCategory.KEEP_JSON_ELEMENT
@@ -156,6 +164,22 @@ private fun isStructOrEnum(
 ): Boolean {
     if (items.size != 2) return false
     return items.count { isStructRef(it) } == 1 && items.count { isEnumRef(it) } == 1
+}
+
+/**
+ * `A | X | X[]` — exactly one array whose element `X` also appears as a standalone
+ * item, plus exactly one other item `A` that is a struct ref. (e.g.
+ * `MarkupContent | MarkedString | MarkedString[]`.)
+ */
+private fun isRefPlusSingleArray(items: List<LspType>, isStructRef: (LspType) -> Boolean): Boolean {
+    if (items.size != 3) return false
+    val arrays = items.filterIsInstance<LspType.Array>()
+    if (arrays.size != 1) return false
+    val element = arrays[0].element
+    val nonArrays = items.filter { it !is LspType.Array }
+    val matchesElement = nonArrays.filter { typesEqual(it, element) }
+    val others = nonArrays.filter { !typesEqual(it, element) }
+    return matchesElement.size == 1 && others.size == 1 && isStructRef(others[0])
 }
 
 private fun isAllLiterals(items: List<LspType>): Boolean = items.all { it is LspType.Literal }

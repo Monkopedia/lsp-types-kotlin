@@ -12,9 +12,11 @@
 
 package com.monkopedia.lsp
 
+import kotlin.jvm.JvmInline
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonContentPolymorphicSerializer
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
@@ -116,6 +118,39 @@ object DocumentDiagnosticReportPartialResultRelatedDocumentsSerializer :
             )
         }
     }
+}
+
+/**
+ * Sealed interface for the LSP union: MarkupContent | MarkedString | MarkedString\[\].
+ */
+@Serializable(with = HoverContentsSerializer::class)
+sealed interface HoverContents {
+    @Serializable
+    @JvmInline
+    value class MarkupContentValue(val value: MarkupContent) : HoverContents
+
+    @Serializable
+    @JvmInline
+    value class MarkedStringValue(val value: MarkedString) : HoverContents
+
+    @Serializable
+    @JvmInline
+    value class MarkedStringArray(val value: List<MarkedString>) : HoverContents
+
+    companion object
+}
+
+object HoverContentsSerializer :
+    JsonContentPolymorphicSerializer<HoverContents>(HoverContents::class) {
+    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<HoverContents> =
+        when {
+            element is JsonArray -> HoverContents.MarkedStringArray.serializer() as DeserializationStrategy<HoverContents>
+
+            element is JsonObject && "kind" in element && "value" in element ->
+                HoverContents.MarkupContentValue.serializer() as DeserializationStrategy<HoverContents>
+
+            else -> HoverContents.MarkedStringValue.serializer() as DeserializationStrategy<HoverContents>
+        }
 }
 
 /**

@@ -45,7 +45,7 @@ data class Hover(
     /**
      * The hover's content
      */
-    val contents: JsonElement,
+    val contents: HoverContents,
     /**
      * An optional range inside the text document that is used to
      * visualize the hover, e.g. by changing the background color.

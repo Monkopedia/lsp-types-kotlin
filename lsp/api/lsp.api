@@ -5512,14 +5512,14 @@ public final class com/monkopedia/lsp/GeneralClientCapabilitiesStaleRequestSuppo
 
 public final class com/monkopedia/lsp/Hover {
 	public static final field Companion Lcom/monkopedia/lsp/Hover$Companion;
-	public fun <init> (Lkotlinx/serialization/json/JsonElement;Lcom/monkopedia/lsp/Range;)V
-	public synthetic fun <init> (Lkotlinx/serialization/json/JsonElement;Lcom/monkopedia/lsp/Range;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Lkotlinx/serialization/json/JsonElement;
+	public fun <init> (Lcom/monkopedia/lsp/HoverContents;Lcom/monkopedia/lsp/Range;)V
+	public synthetic fun <init> (Lcom/monkopedia/lsp/HoverContents;Lcom/monkopedia/lsp/Range;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcom/monkopedia/lsp/HoverContents;
 	public final fun component2 ()Lcom/monkopedia/lsp/Range;
-	public final fun copy (Lkotlinx/serialization/json/JsonElement;Lcom/monkopedia/lsp/Range;)Lcom/monkopedia/lsp/Hover;
-	public static synthetic fun copy$default (Lcom/monkopedia/lsp/Hover;Lkotlinx/serialization/json/JsonElement;Lcom/monkopedia/lsp/Range;ILjava/lang/Object;)Lcom/monkopedia/lsp/Hover;
+	public final fun copy (Lcom/monkopedia/lsp/HoverContents;Lcom/monkopedia/lsp/Range;)Lcom/monkopedia/lsp/Hover;
+	public static synthetic fun copy$default (Lcom/monkopedia/lsp/Hover;Lcom/monkopedia/lsp/HoverContents;Lcom/monkopedia/lsp/Range;ILjava/lang/Object;)Lcom/monkopedia/lsp/Hover;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getContents ()Lkotlinx/serialization/json/JsonElement;
+	public final fun getContents ()Lcom/monkopedia/lsp/HoverContents;
 	public final fun getRange ()Lcom/monkopedia/lsp/Range;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
@@ -5571,12 +5571,113 @@ public final class com/monkopedia/lsp/HoverClientCapabilities$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class com/monkopedia/lsp/HoverContents {
-	public static final field INSTANCE Lcom/monkopedia/lsp/HoverContents;
-	public final fun markdown (Ljava/lang/String;)Lkotlinx/serialization/json/JsonElement;
-	public final fun markup (Lcom/monkopedia/lsp/MarkupContent;)Lkotlinx/serialization/json/JsonElement;
-	public final fun plaintext (Ljava/lang/String;)Lkotlinx/serialization/json/JsonElement;
-	public final fun string (Ljava/lang/String;)Lkotlinx/serialization/json/JsonElement;
+public abstract interface class com/monkopedia/lsp/HoverContents {
+	public static final field Companion Lcom/monkopedia/lsp/HoverContents$Companion;
+}
+
+public final class com/monkopedia/lsp/HoverContents$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/HoverContents$MarkedStringArray : com/monkopedia/lsp/HoverContents {
+	public static final field Companion Lcom/monkopedia/lsp/HoverContents$MarkedStringArray$Companion;
+	public static final synthetic fun box-impl (Ljava/util/List;)Lcom/monkopedia/lsp/HoverContents$MarkedStringArray;
+	public static fun constructor-impl (Ljava/util/List;)Ljava/util/List;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Ljava/util/List;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Ljava/util/List;Ljava/util/List;)Z
+	public final fun getValue ()Ljava/util/List;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Ljava/util/List;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Ljava/util/List;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Ljava/util/List;
+}
+
+public final synthetic class com/monkopedia/lsp/HoverContents$MarkedStringArray$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/monkopedia/lsp/HoverContents$MarkedStringArray$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize-jwfUfd0 (Lkotlinx/serialization/encoding/Decoder;)Ljava/util/List;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize-bhS92vc (Lkotlinx/serialization/encoding/Encoder;Ljava/util/List;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/HoverContents$MarkedStringArray$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/HoverContents$MarkedStringValue : com/monkopedia/lsp/HoverContents {
+	public static final field Companion Lcom/monkopedia/lsp/HoverContents$MarkedStringValue$Companion;
+	public static final synthetic fun box-impl (Lcom/monkopedia/lsp/StringOr;)Lcom/monkopedia/lsp/HoverContents$MarkedStringValue;
+	public static fun constructor-impl (Lcom/monkopedia/lsp/StringOr;)Lcom/monkopedia/lsp/StringOr;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Lcom/monkopedia/lsp/StringOr;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Lcom/monkopedia/lsp/StringOr;Lcom/monkopedia/lsp/StringOr;)Z
+	public final fun getValue ()Lcom/monkopedia/lsp/StringOr;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Lcom/monkopedia/lsp/StringOr;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Lcom/monkopedia/lsp/StringOr;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Lcom/monkopedia/lsp/StringOr;
+}
+
+public final synthetic class com/monkopedia/lsp/HoverContents$MarkedStringValue$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/monkopedia/lsp/HoverContents$MarkedStringValue$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize--oRqNQg (Lkotlinx/serialization/encoding/Decoder;)Lcom/monkopedia/lsp/StringOr;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize-0fSx7A0 (Lkotlinx/serialization/encoding/Encoder;Lcom/monkopedia/lsp/StringOr;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/HoverContents$MarkedStringValue$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/HoverContents$MarkupContentValue : com/monkopedia/lsp/HoverContents {
+	public static final field Companion Lcom/monkopedia/lsp/HoverContents$MarkupContentValue$Companion;
+	public static final synthetic fun box-impl (Lcom/monkopedia/lsp/MarkupContent;)Lcom/monkopedia/lsp/HoverContents$MarkupContentValue;
+	public static fun constructor-impl (Lcom/monkopedia/lsp/MarkupContent;)Lcom/monkopedia/lsp/MarkupContent;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Lcom/monkopedia/lsp/MarkupContent;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Lcom/monkopedia/lsp/MarkupContent;Lcom/monkopedia/lsp/MarkupContent;)Z
+	public final fun getValue ()Lcom/monkopedia/lsp/MarkupContent;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Lcom/monkopedia/lsp/MarkupContent;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Lcom/monkopedia/lsp/MarkupContent;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Lcom/monkopedia/lsp/MarkupContent;
+}
+
+public final synthetic class com/monkopedia/lsp/HoverContents$MarkupContentValue$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/monkopedia/lsp/HoverContents$MarkupContentValue$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize-Ns2kQBA (Lkotlinx/serialization/encoding/Decoder;)Lcom/monkopedia/lsp/MarkupContent;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize-C8B0bps (Lkotlinx/serialization/encoding/Encoder;Lcom/monkopedia/lsp/MarkupContent;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/HoverContents$MarkupContentValue$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/HoverContentsBuildersKt {
+	public static final fun markdown (Lcom/monkopedia/lsp/HoverContents$Companion;Ljava/lang/String;)Lcom/monkopedia/lsp/HoverContents;
+	public static final fun markup (Lcom/monkopedia/lsp/HoverContents$Companion;Lcom/monkopedia/lsp/MarkupContent;)Lcom/monkopedia/lsp/HoverContents;
+	public static final fun plaintext (Lcom/monkopedia/lsp/HoverContents$Companion;Ljava/lang/String;)Lcom/monkopedia/lsp/HoverContents;
+	public static final fun string (Lcom/monkopedia/lsp/HoverContents$Companion;Ljava/lang/String;)Lcom/monkopedia/lsp/HoverContents;
+}
+
+public final class com/monkopedia/lsp/HoverContentsSerializer : kotlinx/serialization/json/JsonContentPolymorphicSerializer {
+	public static final field INSTANCE Lcom/monkopedia/lsp/HoverContentsSerializer;
 }
 
 public final class com/monkopedia/lsp/HoverOptions {

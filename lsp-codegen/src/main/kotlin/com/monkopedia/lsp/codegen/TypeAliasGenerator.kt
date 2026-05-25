@@ -39,7 +39,8 @@ class TypeAliasGenerator(private val resolver: TypeResolver) {
             if (cls.category == UnionCategory.NAMED_REFERENCES ||
                 cls.category == UnionCategory.LITERAL_UNION ||
                 cls.category == UnionCategory.MIXED_REF_LITERAL ||
-                cls.category == UnionCategory.STRUCT_OR_ENUM
+                cls.category == UnionCategory.STRUCT_OR_ENUM ||
+                cls.category == UnionCategory.REF_PLUS_SINGLE_ARRAY
             ) {
                 resolver.topLevelAliasName = alias.name
                 resolver.resolve(alias.type, alias.name)

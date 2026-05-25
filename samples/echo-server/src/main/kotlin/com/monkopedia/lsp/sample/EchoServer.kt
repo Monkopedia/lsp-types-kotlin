@@ -32,9 +32,9 @@ import com.monkopedia.lsp.TextDocumentSyncKind
 import com.monkopedia.lsp.ksrpc.LifecycleState
 import com.monkopedia.lsp.ksrpc.connectAsLspServer
 import com.monkopedia.lsp.ksrpc.stdInLspConnection
+import com.monkopedia.lsp.markdown
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.json.JsonElement
 
 /**
  * Minimal LSP server demo. Reads from stdin and writes to stdout — connect to
