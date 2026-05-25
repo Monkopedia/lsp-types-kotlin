@@ -11949,6 +11949,78 @@ public final class com/monkopedia/lsp/TextDocumentCodeActionResultSerializer : k
 	public static final field INSTANCE Lcom/monkopedia/lsp/TextDocumentCodeActionResultSerializer;
 }
 
+public abstract interface class com/monkopedia/lsp/TextDocumentCompletionResult {
+	public static final field Companion Lcom/monkopedia/lsp/TextDocumentCompletionResult$Companion;
+}
+
+public final class com/monkopedia/lsp/TextDocumentCompletionResult$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/TextDocumentCompletionResult$CompletionItemArray : com/monkopedia/lsp/TextDocumentCompletionResult {
+	public static final field Companion Lcom/monkopedia/lsp/TextDocumentCompletionResult$CompletionItemArray$Companion;
+	public static final synthetic fun box-impl (Ljava/util/List;)Lcom/monkopedia/lsp/TextDocumentCompletionResult$CompletionItemArray;
+	public static fun constructor-impl (Ljava/util/List;)Ljava/util/List;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Ljava/util/List;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Ljava/util/List;Ljava/util/List;)Z
+	public final fun getValue ()Ljava/util/List;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Ljava/util/List;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Ljava/util/List;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Ljava/util/List;
+}
+
+public final synthetic class com/monkopedia/lsp/TextDocumentCompletionResult$CompletionItemArray$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/monkopedia/lsp/TextDocumentCompletionResult$CompletionItemArray$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize-8ZYf0B4 (Lkotlinx/serialization/encoding/Decoder;)Ljava/util/List;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize-6rHBZUc (Lkotlinx/serialization/encoding/Encoder;Ljava/util/List;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/TextDocumentCompletionResult$CompletionItemArray$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/TextDocumentCompletionResult$CompletionListValue : com/monkopedia/lsp/TextDocumentCompletionResult {
+	public static final field Companion Lcom/monkopedia/lsp/TextDocumentCompletionResult$CompletionListValue$Companion;
+	public static final synthetic fun box-impl (Lcom/monkopedia/lsp/CompletionList;)Lcom/monkopedia/lsp/TextDocumentCompletionResult$CompletionListValue;
+	public static fun constructor-impl (Lcom/monkopedia/lsp/CompletionList;)Lcom/monkopedia/lsp/CompletionList;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Lcom/monkopedia/lsp/CompletionList;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Lcom/monkopedia/lsp/CompletionList;Lcom/monkopedia/lsp/CompletionList;)Z
+	public final fun getValue ()Lcom/monkopedia/lsp/CompletionList;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Lcom/monkopedia/lsp/CompletionList;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Lcom/monkopedia/lsp/CompletionList;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Lcom/monkopedia/lsp/CompletionList;
+}
+
+public final synthetic class com/monkopedia/lsp/TextDocumentCompletionResult$CompletionListValue$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/monkopedia/lsp/TextDocumentCompletionResult$CompletionListValue$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize-r3fIcug (Lkotlinx/serialization/encoding/Decoder;)Lcom/monkopedia/lsp/CompletionList;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize-ue0MRUg (Lkotlinx/serialization/encoding/Encoder;Lcom/monkopedia/lsp/CompletionList;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/TextDocumentCompletionResult$CompletionListValue$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/TextDocumentCompletionResultSerializer : kotlinx/serialization/json/JsonContentPolymorphicSerializer {
+	public static final field INSTANCE Lcom/monkopedia/lsp/TextDocumentCompletionResultSerializer;
+}
+
 public abstract interface class com/monkopedia/lsp/TextDocumentContentChangeEvent {
 	public static final field Companion Lcom/monkopedia/lsp/TextDocumentContentChangeEvent$Companion;
 }
@@ -12018,6 +12090,222 @@ public final synthetic class com/monkopedia/lsp/TextDocumentContentChangeEventVa
 
 public final class com/monkopedia/lsp/TextDocumentContentChangeEventVariant$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public abstract interface class com/monkopedia/lsp/TextDocumentDeclarationResult {
+	public static final field Companion Lcom/monkopedia/lsp/TextDocumentDeclarationResult$Companion;
+}
+
+public final class com/monkopedia/lsp/TextDocumentDeclarationResult$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/TextDocumentDeclarationResult$DeclarationLinkArray : com/monkopedia/lsp/TextDocumentDeclarationResult {
+	public static final field Companion Lcom/monkopedia/lsp/TextDocumentDeclarationResult$DeclarationLinkArray$Companion;
+	public static final synthetic fun box-impl (Ljava/util/List;)Lcom/monkopedia/lsp/TextDocumentDeclarationResult$DeclarationLinkArray;
+	public static fun constructor-impl (Ljava/util/List;)Ljava/util/List;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Ljava/util/List;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Ljava/util/List;Ljava/util/List;)Z
+	public final fun getValue ()Ljava/util/List;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Ljava/util/List;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Ljava/util/List;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Ljava/util/List;
+}
+
+public final synthetic class com/monkopedia/lsp/TextDocumentDeclarationResult$DeclarationLinkArray$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/monkopedia/lsp/TextDocumentDeclarationResult$DeclarationLinkArray$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize-paMRJok (Lkotlinx/serialization/encoding/Decoder;)Ljava/util/List;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize-I9oB6uo (Lkotlinx/serialization/encoding/Encoder;Ljava/util/List;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/TextDocumentDeclarationResult$DeclarationLinkArray$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/TextDocumentDeclarationResult$DeclarationValue : com/monkopedia/lsp/TextDocumentDeclarationResult {
+	public static final field Companion Lcom/monkopedia/lsp/TextDocumentDeclarationResult$DeclarationValue$Companion;
+	public static final synthetic fun box-impl (Lcom/monkopedia/lsp/SingleOrArray;)Lcom/monkopedia/lsp/TextDocumentDeclarationResult$DeclarationValue;
+	public static fun constructor-impl (Lcom/monkopedia/lsp/SingleOrArray;)Lcom/monkopedia/lsp/SingleOrArray;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Lcom/monkopedia/lsp/SingleOrArray;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Lcom/monkopedia/lsp/SingleOrArray;Lcom/monkopedia/lsp/SingleOrArray;)Z
+	public final fun getValue ()Lcom/monkopedia/lsp/SingleOrArray;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Lcom/monkopedia/lsp/SingleOrArray;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Lcom/monkopedia/lsp/SingleOrArray;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Lcom/monkopedia/lsp/SingleOrArray;
+}
+
+public final synthetic class com/monkopedia/lsp/TextDocumentDeclarationResult$DeclarationValue$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/monkopedia/lsp/TextDocumentDeclarationResult$DeclarationValue$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize-ktYOYpA (Lkotlinx/serialization/encoding/Decoder;)Lcom/monkopedia/lsp/SingleOrArray;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize-Ey5F4Zw (Lkotlinx/serialization/encoding/Encoder;Lcom/monkopedia/lsp/SingleOrArray;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/TextDocumentDeclarationResult$DeclarationValue$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/TextDocumentDeclarationResultSerializer : kotlinx/serialization/json/JsonContentPolymorphicSerializer {
+	public static final field INSTANCE Lcom/monkopedia/lsp/TextDocumentDeclarationResultSerializer;
+}
+
+public abstract interface class com/monkopedia/lsp/TextDocumentDefinitionResult {
+	public static final field Companion Lcom/monkopedia/lsp/TextDocumentDefinitionResult$Companion;
+}
+
+public final class com/monkopedia/lsp/TextDocumentDefinitionResult$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/TextDocumentDefinitionResult$DefinitionLinkArray : com/monkopedia/lsp/TextDocumentDefinitionResult {
+	public static final field Companion Lcom/monkopedia/lsp/TextDocumentDefinitionResult$DefinitionLinkArray$Companion;
+	public static final synthetic fun box-impl (Ljava/util/List;)Lcom/monkopedia/lsp/TextDocumentDefinitionResult$DefinitionLinkArray;
+	public static fun constructor-impl (Ljava/util/List;)Ljava/util/List;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Ljava/util/List;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Ljava/util/List;Ljava/util/List;)Z
+	public final fun getValue ()Ljava/util/List;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Ljava/util/List;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Ljava/util/List;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Ljava/util/List;
+}
+
+public final synthetic class com/monkopedia/lsp/TextDocumentDefinitionResult$DefinitionLinkArray$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/monkopedia/lsp/TextDocumentDefinitionResult$DefinitionLinkArray$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize-IIxn9HA (Lkotlinx/serialization/encoding/Decoder;)Ljava/util/List;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize-IC4wqPI (Lkotlinx/serialization/encoding/Encoder;Ljava/util/List;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/TextDocumentDefinitionResult$DefinitionLinkArray$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/TextDocumentDefinitionResult$DefinitionValue : com/monkopedia/lsp/TextDocumentDefinitionResult {
+	public static final field Companion Lcom/monkopedia/lsp/TextDocumentDefinitionResult$DefinitionValue$Companion;
+	public static final synthetic fun box-impl (Lcom/monkopedia/lsp/SingleOrArray;)Lcom/monkopedia/lsp/TextDocumentDefinitionResult$DefinitionValue;
+	public static fun constructor-impl (Lcom/monkopedia/lsp/SingleOrArray;)Lcom/monkopedia/lsp/SingleOrArray;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Lcom/monkopedia/lsp/SingleOrArray;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Lcom/monkopedia/lsp/SingleOrArray;Lcom/monkopedia/lsp/SingleOrArray;)Z
+	public final fun getValue ()Lcom/monkopedia/lsp/SingleOrArray;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Lcom/monkopedia/lsp/SingleOrArray;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Lcom/monkopedia/lsp/SingleOrArray;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Lcom/monkopedia/lsp/SingleOrArray;
+}
+
+public final synthetic class com/monkopedia/lsp/TextDocumentDefinitionResult$DefinitionValue$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/monkopedia/lsp/TextDocumentDefinitionResult$DefinitionValue$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize-Vks1DfI (Lkotlinx/serialization/encoding/Decoder;)Lcom/monkopedia/lsp/SingleOrArray;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize-ged64J8 (Lkotlinx/serialization/encoding/Encoder;Lcom/monkopedia/lsp/SingleOrArray;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/TextDocumentDefinitionResult$DefinitionValue$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/TextDocumentDefinitionResultSerializer : kotlinx/serialization/json/JsonContentPolymorphicSerializer {
+	public static final field INSTANCE Lcom/monkopedia/lsp/TextDocumentDefinitionResultSerializer;
+}
+
+public abstract interface class com/monkopedia/lsp/TextDocumentDocumentSymbolResult {
+	public static final field Companion Lcom/monkopedia/lsp/TextDocumentDocumentSymbolResult$Companion;
+}
+
+public final class com/monkopedia/lsp/TextDocumentDocumentSymbolResult$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/TextDocumentDocumentSymbolResult$DocumentSymbolArray : com/monkopedia/lsp/TextDocumentDocumentSymbolResult {
+	public static final field Companion Lcom/monkopedia/lsp/TextDocumentDocumentSymbolResult$DocumentSymbolArray$Companion;
+	public static final synthetic fun box-impl (Ljava/util/List;)Lcom/monkopedia/lsp/TextDocumentDocumentSymbolResult$DocumentSymbolArray;
+	public static fun constructor-impl (Ljava/util/List;)Ljava/util/List;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Ljava/util/List;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Ljava/util/List;Ljava/util/List;)Z
+	public final fun getValue ()Ljava/util/List;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Ljava/util/List;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Ljava/util/List;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Ljava/util/List;
+}
+
+public final synthetic class com/monkopedia/lsp/TextDocumentDocumentSymbolResult$DocumentSymbolArray$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/monkopedia/lsp/TextDocumentDocumentSymbolResult$DocumentSymbolArray$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize-lx5DmjA (Lkotlinx/serialization/encoding/Decoder;)Ljava/util/List;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize-uQF-WAg (Lkotlinx/serialization/encoding/Encoder;Ljava/util/List;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/TextDocumentDocumentSymbolResult$DocumentSymbolArray$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/TextDocumentDocumentSymbolResult$SymbolInformationArray : com/monkopedia/lsp/TextDocumentDocumentSymbolResult {
+	public static final field Companion Lcom/monkopedia/lsp/TextDocumentDocumentSymbolResult$SymbolInformationArray$Companion;
+	public static final synthetic fun box-impl (Ljava/util/List;)Lcom/monkopedia/lsp/TextDocumentDocumentSymbolResult$SymbolInformationArray;
+	public static fun constructor-impl (Ljava/util/List;)Ljava/util/List;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Ljava/util/List;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Ljava/util/List;Ljava/util/List;)Z
+	public final fun getValue ()Ljava/util/List;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Ljava/util/List;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Ljava/util/List;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Ljava/util/List;
+}
+
+public final synthetic class com/monkopedia/lsp/TextDocumentDocumentSymbolResult$SymbolInformationArray$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/monkopedia/lsp/TextDocumentDocumentSymbolResult$SymbolInformationArray$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize-FekqUhM (Lkotlinx/serialization/encoding/Decoder;)Ljava/util/List;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize-MlHlOBA (Lkotlinx/serialization/encoding/Encoder;Ljava/util/List;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/TextDocumentDocumentSymbolResult$SymbolInformationArray$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/TextDocumentDocumentSymbolResultSerializer : kotlinx/serialization/json/JsonContentPolymorphicSerializer {
+	public static final field INSTANCE Lcom/monkopedia/lsp/TextDocumentDocumentSymbolResultSerializer;
 }
 
 public final class com/monkopedia/lsp/TextDocumentEdit : com/monkopedia/lsp/WorkspaceEditDocumentChanges {
@@ -12194,6 +12482,150 @@ public final synthetic class com/monkopedia/lsp/TextDocumentIdentifier$$serializ
 
 public final class com/monkopedia/lsp/TextDocumentIdentifier$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public abstract interface class com/monkopedia/lsp/TextDocumentImplementationResult {
+	public static final field Companion Lcom/monkopedia/lsp/TextDocumentImplementationResult$Companion;
+}
+
+public final class com/monkopedia/lsp/TextDocumentImplementationResult$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/TextDocumentImplementationResult$DefinitionLinkArray : com/monkopedia/lsp/TextDocumentImplementationResult {
+	public static final field Companion Lcom/monkopedia/lsp/TextDocumentImplementationResult$DefinitionLinkArray$Companion;
+	public static final synthetic fun box-impl (Ljava/util/List;)Lcom/monkopedia/lsp/TextDocumentImplementationResult$DefinitionLinkArray;
+	public static fun constructor-impl (Ljava/util/List;)Ljava/util/List;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Ljava/util/List;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Ljava/util/List;Ljava/util/List;)Z
+	public final fun getValue ()Ljava/util/List;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Ljava/util/List;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Ljava/util/List;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Ljava/util/List;
+}
+
+public final synthetic class com/monkopedia/lsp/TextDocumentImplementationResult$DefinitionLinkArray$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/monkopedia/lsp/TextDocumentImplementationResult$DefinitionLinkArray$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize-eCoeMvc (Lkotlinx/serialization/encoding/Decoder;)Ljava/util/List;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize-27G6Ihg (Lkotlinx/serialization/encoding/Encoder;Ljava/util/List;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/TextDocumentImplementationResult$DefinitionLinkArray$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/TextDocumentImplementationResult$DefinitionValue : com/monkopedia/lsp/TextDocumentImplementationResult {
+	public static final field Companion Lcom/monkopedia/lsp/TextDocumentImplementationResult$DefinitionValue$Companion;
+	public static final synthetic fun box-impl (Lcom/monkopedia/lsp/SingleOrArray;)Lcom/monkopedia/lsp/TextDocumentImplementationResult$DefinitionValue;
+	public static fun constructor-impl (Lcom/monkopedia/lsp/SingleOrArray;)Lcom/monkopedia/lsp/SingleOrArray;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Lcom/monkopedia/lsp/SingleOrArray;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Lcom/monkopedia/lsp/SingleOrArray;Lcom/monkopedia/lsp/SingleOrArray;)Z
+	public final fun getValue ()Lcom/monkopedia/lsp/SingleOrArray;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Lcom/monkopedia/lsp/SingleOrArray;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Lcom/monkopedia/lsp/SingleOrArray;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Lcom/monkopedia/lsp/SingleOrArray;
+}
+
+public final synthetic class com/monkopedia/lsp/TextDocumentImplementationResult$DefinitionValue$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/monkopedia/lsp/TextDocumentImplementationResult$DefinitionValue$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize-p4Yqmsw (Lkotlinx/serialization/encoding/Decoder;)Lcom/monkopedia/lsp/SingleOrArray;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize-hjm6Wcg (Lkotlinx/serialization/encoding/Encoder;Lcom/monkopedia/lsp/SingleOrArray;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/TextDocumentImplementationResult$DefinitionValue$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/TextDocumentImplementationResultSerializer : kotlinx/serialization/json/JsonContentPolymorphicSerializer {
+	public static final field INSTANCE Lcom/monkopedia/lsp/TextDocumentImplementationResultSerializer;
+}
+
+public abstract interface class com/monkopedia/lsp/TextDocumentInlineCompletionResult {
+	public static final field Companion Lcom/monkopedia/lsp/TextDocumentInlineCompletionResult$Companion;
+}
+
+public final class com/monkopedia/lsp/TextDocumentInlineCompletionResult$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/TextDocumentInlineCompletionResult$InlineCompletionItemArray : com/monkopedia/lsp/TextDocumentInlineCompletionResult {
+	public static final field Companion Lcom/monkopedia/lsp/TextDocumentInlineCompletionResult$InlineCompletionItemArray$Companion;
+	public static final synthetic fun box-impl (Ljava/util/List;)Lcom/monkopedia/lsp/TextDocumentInlineCompletionResult$InlineCompletionItemArray;
+	public static fun constructor-impl (Ljava/util/List;)Ljava/util/List;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Ljava/util/List;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Ljava/util/List;Ljava/util/List;)Z
+	public final fun getValue ()Ljava/util/List;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Ljava/util/List;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Ljava/util/List;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Ljava/util/List;
+}
+
+public final synthetic class com/monkopedia/lsp/TextDocumentInlineCompletionResult$InlineCompletionItemArray$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/monkopedia/lsp/TextDocumentInlineCompletionResult$InlineCompletionItemArray$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize-FaCLyrA (Lkotlinx/serialization/encoding/Decoder;)Ljava/util/List;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize-dQvXxrM (Lkotlinx/serialization/encoding/Encoder;Ljava/util/List;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/TextDocumentInlineCompletionResult$InlineCompletionItemArray$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/TextDocumentInlineCompletionResult$InlineCompletionListValue : com/monkopedia/lsp/TextDocumentInlineCompletionResult {
+	public static final field Companion Lcom/monkopedia/lsp/TextDocumentInlineCompletionResult$InlineCompletionListValue$Companion;
+	public static final synthetic fun box-impl (Lcom/monkopedia/lsp/InlineCompletionList;)Lcom/monkopedia/lsp/TextDocumentInlineCompletionResult$InlineCompletionListValue;
+	public static fun constructor-impl (Lcom/monkopedia/lsp/InlineCompletionList;)Lcom/monkopedia/lsp/InlineCompletionList;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Lcom/monkopedia/lsp/InlineCompletionList;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Lcom/monkopedia/lsp/InlineCompletionList;Lcom/monkopedia/lsp/InlineCompletionList;)Z
+	public final fun getValue ()Lcom/monkopedia/lsp/InlineCompletionList;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Lcom/monkopedia/lsp/InlineCompletionList;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Lcom/monkopedia/lsp/InlineCompletionList;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Lcom/monkopedia/lsp/InlineCompletionList;
+}
+
+public final synthetic class com/monkopedia/lsp/TextDocumentInlineCompletionResult$InlineCompletionListValue$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/monkopedia/lsp/TextDocumentInlineCompletionResult$InlineCompletionListValue$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize-UzBGZ-w (Lkotlinx/serialization/encoding/Decoder;)Lcom/monkopedia/lsp/InlineCompletionList;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize-aBMcsc4 (Lkotlinx/serialization/encoding/Encoder;Lcom/monkopedia/lsp/InlineCompletionList;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/TextDocumentInlineCompletionResult$InlineCompletionListValue$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/TextDocumentInlineCompletionResultSerializer : kotlinx/serialization/json/JsonContentPolymorphicSerializer {
+	public static final field INSTANCE Lcom/monkopedia/lsp/TextDocumentInlineCompletionResultSerializer;
 }
 
 public final class com/monkopedia/lsp/TextDocumentItem {
@@ -12465,6 +12897,78 @@ public final synthetic class com/monkopedia/lsp/TextDocumentSyncOptions$$seriali
 
 public final class com/monkopedia/lsp/TextDocumentSyncOptions$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public abstract interface class com/monkopedia/lsp/TextDocumentTypeDefinitionResult {
+	public static final field Companion Lcom/monkopedia/lsp/TextDocumentTypeDefinitionResult$Companion;
+}
+
+public final class com/monkopedia/lsp/TextDocumentTypeDefinitionResult$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/TextDocumentTypeDefinitionResult$DefinitionLinkArray : com/monkopedia/lsp/TextDocumentTypeDefinitionResult {
+	public static final field Companion Lcom/monkopedia/lsp/TextDocumentTypeDefinitionResult$DefinitionLinkArray$Companion;
+	public static final synthetic fun box-impl (Ljava/util/List;)Lcom/monkopedia/lsp/TextDocumentTypeDefinitionResult$DefinitionLinkArray;
+	public static fun constructor-impl (Ljava/util/List;)Ljava/util/List;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Ljava/util/List;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Ljava/util/List;Ljava/util/List;)Z
+	public final fun getValue ()Ljava/util/List;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Ljava/util/List;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Ljava/util/List;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Ljava/util/List;
+}
+
+public final synthetic class com/monkopedia/lsp/TextDocumentTypeDefinitionResult$DefinitionLinkArray$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/monkopedia/lsp/TextDocumentTypeDefinitionResult$DefinitionLinkArray$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize-hMZrHBc (Lkotlinx/serialization/encoding/Decoder;)Ljava/util/List;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize-UH3BW5A (Lkotlinx/serialization/encoding/Encoder;Ljava/util/List;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/TextDocumentTypeDefinitionResult$DefinitionLinkArray$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/TextDocumentTypeDefinitionResult$DefinitionValue : com/monkopedia/lsp/TextDocumentTypeDefinitionResult {
+	public static final field Companion Lcom/monkopedia/lsp/TextDocumentTypeDefinitionResult$DefinitionValue$Companion;
+	public static final synthetic fun box-impl (Lcom/monkopedia/lsp/SingleOrArray;)Lcom/monkopedia/lsp/TextDocumentTypeDefinitionResult$DefinitionValue;
+	public static fun constructor-impl (Lcom/monkopedia/lsp/SingleOrArray;)Lcom/monkopedia/lsp/SingleOrArray;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Lcom/monkopedia/lsp/SingleOrArray;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Lcom/monkopedia/lsp/SingleOrArray;Lcom/monkopedia/lsp/SingleOrArray;)Z
+	public final fun getValue ()Lcom/monkopedia/lsp/SingleOrArray;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Lcom/monkopedia/lsp/SingleOrArray;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Lcom/monkopedia/lsp/SingleOrArray;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Lcom/monkopedia/lsp/SingleOrArray;
+}
+
+public final synthetic class com/monkopedia/lsp/TextDocumentTypeDefinitionResult$DefinitionValue$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/monkopedia/lsp/TextDocumentTypeDefinitionResult$DefinitionValue$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize-9EJmyd8 (Lkotlinx/serialization/encoding/Decoder;)Lcom/monkopedia/lsp/SingleOrArray;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize-dWBH378 (Lkotlinx/serialization/encoding/Encoder;Lcom/monkopedia/lsp/SingleOrArray;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/TextDocumentTypeDefinitionResult$DefinitionValue$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/TextDocumentTypeDefinitionResultSerializer : kotlinx/serialization/json/JsonContentPolymorphicSerializer {
+	public static final field INSTANCE Lcom/monkopedia/lsp/TextDocumentTypeDefinitionResultSerializer;
 }
 
 public final class com/monkopedia/lsp/TextEdit : com/monkopedia/lsp/CompletionItemTextEdit, com/monkopedia/lsp/TextDocumentEditEdits {

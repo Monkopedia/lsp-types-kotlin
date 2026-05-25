@@ -47,6 +47,17 @@ enum class UnionCategory {
      */
     REF_PLUS_SINGLE_ARRAY,
 
+    /**
+     * A union of struct/alias refs and arrays-of-refs with at least one array,
+     * whose branches are mutually discriminable by shape (object vs array) and by
+     * array-element required fields — e.g. method results like
+     * `CompletionItem[] | CompletionList`, `Definition | DefinitionLink[]`,
+     * `SymbolInformation[] | DocumentSymbol[]`. Generated as a sealed interface with
+     * value-class branches. Unions whose array branches can't be told apart (e.g.
+     * `SymbolInformation[] | WorkspaceSymbol[]`) do NOT match and stay JsonElement.
+     */
+    ARRAY_REF_UNION,
+
     /** `string | T` — generate `StringOr<T>`. */
     STRING_OR,
 
@@ -113,6 +124,7 @@ fun classifyUnion(type: LspType.Or, resolver: TypeResolver? = null): UnionClassi
         isRefLiteralMix(nonNull, ::isStructRef) -> UnionCategory.MIXED_REF_LITERAL
         isStructOrEnum(nonNull, ::isStructRef, ::isEnumRef) -> UnionCategory.STRUCT_OR_ENUM
         isRefPlusSingleArray(nonNull, ::isStructRef) -> UnionCategory.REF_PLUS_SINGLE_ARRAY
+        isArrayRefUnion(nonNull, resolver) -> UnionCategory.ARRAY_REF_UNION
         isIntOrString(nonNull) -> UnionCategory.INT_OR_STRING
         isStringPlusOther(nonNull, ::isStringOrOther) -> UnionCategory.STRING_OR
         else -> UnionCategory.KEEP_JSON_ELEMENT
@@ -180,6 +192,73 @@ private fun isRefPlusSingleArray(items: List<LspType>, isStructRef: (LspType) ->
     val matchesElement = nonArrays.filter { typesEqual(it, element) }
     val others = nonArrays.filter { !typesEqual(it, element) }
     return matchesElement.size == 1 && others.size == 1 && isStructRef(others[0])
+}
+
+/**
+ * The set of array-element structs a union item contributes (for discrimination):
+ * an `Array` item contributes its element struct; a non-array item that is an alias
+ * to a `T | T[]` union (e.g. `Definition` = `Location | Location[]`) contributes the
+ * single element's struct (its array form). Returns null if any contributor can't be
+ * resolved to a concrete struct.
+ */
+private fun arrayElementStructs(items: List<LspType>, resolver: TypeResolver): List<Structure>? {
+    val structs = mutableListOf<Structure>()
+    for (item in items) {
+        when {
+            item is LspType.Array ->
+                structs.add(resolver.underlyingStructure(item.element) ?: return null)
+
+            item is LspType.Reference -> {
+                val target = resolver.getAlias(item.name)?.type
+                if (target is LspType.Or &&
+                    classifyUnion(target, resolver).category == UnionCategory.T_OR_ARRAY_T
+                ) {
+                    val single = target.items.first { it !is LspType.Array }
+                    structs.add(resolver.underlyingStructure(single) ?: return null)
+                }
+            }
+        }
+    }
+    return structs
+}
+
+/**
+ * A union of refs/aliases and arrays-of-refs (≥1 array) whose array branches are
+ * discriminable: at most one array-element struct may lack a required field unique
+ * among the array branches (it becomes the default), and there is at most one plain
+ * (non-array, non-array-capable) object branch.
+ */
+private fun isArrayRefUnion(items: List<LspType>, resolver: TypeResolver?): Boolean {
+    if (resolver == null || items.size !in 2..3) return false
+
+    fun refOrAlias(t: LspType): Boolean = t is LspType.Reference &&
+        (resolver.isStructure(t.name) || (resolver.isAlias(t.name) && !resolver.isEnum(t.name)))
+
+    val allOk = items.all { refOrAlias(it) || (it is LspType.Array && refOrAlias(it.element)) }
+    if (!allOk || items.none { it is LspType.Array }) return false
+
+    // Plain object branches (non-array, not an alias to T | T[]) — only one is handleable.
+    val objectOnly = items.count { item ->
+        item !is LspType.Array &&
+            (item as? LspType.Reference)?.name?.let { name ->
+                val target = resolver.getAlias(name)?.type
+                !(
+                    target is LspType.Or &&
+                        classifyUnion(target, resolver).category == UnionCategory.T_OR_ARRAY_T
+                    )
+            } ?: true
+    }
+    if (objectOnly > 1) return false
+
+    val elementStructs = arrayElementStructs(items, resolver) ?: return false
+    if (elementStructs.size < 1) return false
+    fun required(s: Structure) =
+        resolver.collectAllProperties(s).filter { !it.optional }.map { it.name }
+    val withoutUnique = elementStructs.count { s ->
+        val others = elementStructs.filter { it !== s }.flatMap { required(it) }.toSet()
+        (required(s).toSet() - others).isEmpty()
+    }
+    return withoutUnique <= 1
 }
 
 private fun isAllLiterals(items: List<LspType>): Boolean = items.all { it is LspType.Literal }

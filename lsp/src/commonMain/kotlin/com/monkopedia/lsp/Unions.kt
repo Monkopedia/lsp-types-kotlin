@@ -769,6 +769,38 @@ object TextDocumentCodeActionResultSerializer :
 }
 
 /**
+ * Sealed interface for an LSP method-result union (value-class branches).
+ */
+@Serializable(with = TextDocumentCompletionResultSerializer::class)
+sealed interface TextDocumentCompletionResult {
+    @Serializable
+    @JvmInline
+    value class CompletionItemArray(val value: List<CompletionItem>) : TextDocumentCompletionResult
+
+    @Serializable
+    @JvmInline
+    value class CompletionListValue(val value: CompletionList) : TextDocumentCompletionResult
+}
+
+object TextDocumentCompletionResultSerializer :
+    JsonContentPolymorphicSerializer<TextDocumentCompletionResult>(
+        TextDocumentCompletionResult::class
+    ) {
+    override fun selectDeserializer(
+        element: JsonElement
+    ): DeserializationStrategy<TextDocumentCompletionResult> = when {
+        element is JsonObject -> TextDocumentCompletionResult.CompletionListValue.serializer() as DeserializationStrategy<TextDocumentCompletionResult>
+
+        element is JsonArray -> TextDocumentCompletionResult.CompletionItemArray.serializer() as DeserializationStrategy<TextDocumentCompletionResult>
+
+        else ->
+            throw SerializationException(
+                "Unexpected TextDocumentCompletionResult: $element"
+            )
+    }
+}
+
+/**
  * Sealed interface for the LSP literal union: TextDocumentContentChangeEvent.
  * Branches: TextDocumentContentChangeEventRange, TextDocumentContentChangeEventVariant.
  */
@@ -792,6 +824,115 @@ object TextDocumentContentChangeEventSerializer :
                 "Unknown TextDocumentContentChangeEvent variant: $obj"
             )
         }
+    }
+}
+
+/**
+ * Sealed interface for an LSP method-result union (value-class branches).
+ */
+@Serializable(with = TextDocumentDeclarationResultSerializer::class)
+sealed interface TextDocumentDeclarationResult {
+    @Serializable
+    @JvmInline
+    value class DeclarationValue(val value: Declaration) : TextDocumentDeclarationResult
+
+    @Serializable
+    @JvmInline
+    value class DeclarationLinkArray(val value: List<DeclarationLink>) :
+        TextDocumentDeclarationResult
+}
+
+object TextDocumentDeclarationResultSerializer :
+    JsonContentPolymorphicSerializer<TextDocumentDeclarationResult>(
+        TextDocumentDeclarationResult::class
+    ) {
+    override fun selectDeserializer(
+        element: JsonElement
+    ): DeserializationStrategy<TextDocumentDeclarationResult> = when {
+        element is JsonObject -> TextDocumentDeclarationResult.DeclarationValue.serializer() as DeserializationStrategy<TextDocumentDeclarationResult>
+
+        element is JsonArray &&
+            (element.firstOrNull() as? JsonObject)?.containsKey("targetUri") == true ->
+            TextDocumentDeclarationResult.DeclarationLinkArray.serializer() as DeserializationStrategy<TextDocumentDeclarationResult>
+
+        element is JsonArray -> TextDocumentDeclarationResult.DeclarationValue.serializer() as DeserializationStrategy<TextDocumentDeclarationResult>
+
+        else ->
+            throw SerializationException(
+                "Unexpected TextDocumentDeclarationResult: $element"
+            )
+    }
+}
+
+/**
+ * Sealed interface for an LSP method-result union (value-class branches).
+ */
+@Serializable(with = TextDocumentDefinitionResultSerializer::class)
+sealed interface TextDocumentDefinitionResult {
+    @Serializable
+    @JvmInline
+    value class DefinitionValue(val value: Definition) : TextDocumentDefinitionResult
+
+    @Serializable
+    @JvmInline
+    value class DefinitionLinkArray(val value: List<DefinitionLink>) : TextDocumentDefinitionResult
+}
+
+object TextDocumentDefinitionResultSerializer :
+    JsonContentPolymorphicSerializer<TextDocumentDefinitionResult>(
+        TextDocumentDefinitionResult::class
+    ) {
+    override fun selectDeserializer(
+        element: JsonElement
+    ): DeserializationStrategy<TextDocumentDefinitionResult> = when {
+        element is JsonObject -> TextDocumentDefinitionResult.DefinitionValue.serializer() as DeserializationStrategy<TextDocumentDefinitionResult>
+
+        element is JsonArray &&
+            (element.firstOrNull() as? JsonObject)?.containsKey("targetUri") == true ->
+            TextDocumentDefinitionResult.DefinitionLinkArray.serializer() as DeserializationStrategy<TextDocumentDefinitionResult>
+
+        element is JsonArray -> TextDocumentDefinitionResult.DefinitionValue.serializer() as DeserializationStrategy<TextDocumentDefinitionResult>
+
+        else ->
+            throw SerializationException(
+                "Unexpected TextDocumentDefinitionResult: $element"
+            )
+    }
+}
+
+/**
+ * Sealed interface for an LSP method-result union (value-class branches).
+ */
+@Serializable(with = TextDocumentDocumentSymbolResultSerializer::class)
+sealed interface TextDocumentDocumentSymbolResult {
+    @Serializable
+    @JvmInline
+    value class SymbolInformationArray(val value: List<SymbolInformation>) :
+        TextDocumentDocumentSymbolResult
+
+    @Serializable
+    @JvmInline
+    value class DocumentSymbolArray(val value: List<DocumentSymbol>) :
+        TextDocumentDocumentSymbolResult
+}
+
+object TextDocumentDocumentSymbolResultSerializer :
+    JsonContentPolymorphicSerializer<TextDocumentDocumentSymbolResult>(
+        TextDocumentDocumentSymbolResult::class
+    ) {
+    override fun selectDeserializer(
+        element: JsonElement
+    ): DeserializationStrategy<TextDocumentDocumentSymbolResult> = when {
+        element is JsonArray &&
+            (element.firstOrNull() as? JsonObject)?.containsKey("range") == true ->
+            TextDocumentDocumentSymbolResult.DocumentSymbolArray.serializer() as DeserializationStrategy<TextDocumentDocumentSymbolResult>
+
+        element is JsonArray -> TextDocumentDocumentSymbolResult.SymbolInformationArray.serializer() as DeserializationStrategy<TextDocumentDocumentSymbolResult>
+
+        else ->
+            throw SerializationException(
+                "Unexpected TextDocumentDocumentSymbolResult: $element"
+            )
     }
 }
 
@@ -838,6 +979,77 @@ object TextDocumentFilterSerializer :
 }
 
 /**
+ * Sealed interface for an LSP method-result union (value-class branches).
+ */
+@Serializable(with = TextDocumentImplementationResultSerializer::class)
+sealed interface TextDocumentImplementationResult {
+    @Serializable
+    @JvmInline
+    value class DefinitionValue(val value: Definition) : TextDocumentImplementationResult
+
+    @Serializable
+    @JvmInline
+    value class DefinitionLinkArray(val value: List<DefinitionLink>) :
+        TextDocumentImplementationResult
+}
+
+object TextDocumentImplementationResultSerializer :
+    JsonContentPolymorphicSerializer<TextDocumentImplementationResult>(
+        TextDocumentImplementationResult::class
+    ) {
+    override fun selectDeserializer(
+        element: JsonElement
+    ): DeserializationStrategy<TextDocumentImplementationResult> = when {
+        element is JsonObject -> TextDocumentImplementationResult.DefinitionValue.serializer() as DeserializationStrategy<TextDocumentImplementationResult>
+
+        element is JsonArray &&
+            (element.firstOrNull() as? JsonObject)?.containsKey("targetUri") == true ->
+            TextDocumentImplementationResult.DefinitionLinkArray.serializer() as DeserializationStrategy<TextDocumentImplementationResult>
+
+        element is JsonArray -> TextDocumentImplementationResult.DefinitionValue.serializer() as DeserializationStrategy<TextDocumentImplementationResult>
+
+        else ->
+            throw SerializationException(
+                "Unexpected TextDocumentImplementationResult: $element"
+            )
+    }
+}
+
+/**
+ * Sealed interface for an LSP method-result union (value-class branches).
+ */
+@Serializable(with = TextDocumentInlineCompletionResultSerializer::class)
+sealed interface TextDocumentInlineCompletionResult {
+    @Serializable
+    @JvmInline
+    value class InlineCompletionListValue(val value: InlineCompletionList) :
+        TextDocumentInlineCompletionResult
+
+    @Serializable
+    @JvmInline
+    value class InlineCompletionItemArray(val value: List<InlineCompletionItem>) :
+        TextDocumentInlineCompletionResult
+}
+
+object TextDocumentInlineCompletionResultSerializer :
+    JsonContentPolymorphicSerializer<TextDocumentInlineCompletionResult>(
+        TextDocumentInlineCompletionResult::class
+    ) {
+    override fun selectDeserializer(
+        element: JsonElement
+    ): DeserializationStrategy<TextDocumentInlineCompletionResult> = when {
+        element is JsonObject -> TextDocumentInlineCompletionResult.InlineCompletionListValue.serializer() as DeserializationStrategy<TextDocumentInlineCompletionResult>
+
+        element is JsonArray -> TextDocumentInlineCompletionResult.InlineCompletionItemArray.serializer() as DeserializationStrategy<TextDocumentInlineCompletionResult>
+
+        else ->
+            throw SerializationException(
+                "Unexpected TextDocumentInlineCompletionResult: $element"
+            )
+    }
+}
+
+/**
  * Sealed interface for the LSP union type: SemanticTokens | SemanticTokensDelta.
  */
 @Serializable(with = TextDocumentSemanticTokensFullDeltaResultSerializer::class)
@@ -860,6 +1072,43 @@ object TextDocumentSemanticTokensFullDeltaResultSerializer :
                 "Unknown TextDocumentSemanticTokensFullDeltaResult variant: $obj"
             )
         }
+    }
+}
+
+/**
+ * Sealed interface for an LSP method-result union (value-class branches).
+ */
+@Serializable(with = TextDocumentTypeDefinitionResultSerializer::class)
+sealed interface TextDocumentTypeDefinitionResult {
+    @Serializable
+    @JvmInline
+    value class DefinitionValue(val value: Definition) : TextDocumentTypeDefinitionResult
+
+    @Serializable
+    @JvmInline
+    value class DefinitionLinkArray(val value: List<DefinitionLink>) :
+        TextDocumentTypeDefinitionResult
+}
+
+object TextDocumentTypeDefinitionResultSerializer :
+    JsonContentPolymorphicSerializer<TextDocumentTypeDefinitionResult>(
+        TextDocumentTypeDefinitionResult::class
+    ) {
+    override fun selectDeserializer(
+        element: JsonElement
+    ): DeserializationStrategy<TextDocumentTypeDefinitionResult> = when {
+        element is JsonObject -> TextDocumentTypeDefinitionResult.DefinitionValue.serializer() as DeserializationStrategy<TextDocumentTypeDefinitionResult>
+
+        element is JsonArray &&
+            (element.firstOrNull() as? JsonObject)?.containsKey("targetUri") == true ->
+            TextDocumentTypeDefinitionResult.DefinitionLinkArray.serializer() as DeserializationStrategy<TextDocumentTypeDefinitionResult>
+
+        element is JsonArray -> TextDocumentTypeDefinitionResult.DefinitionValue.serializer() as DeserializationStrategy<TextDocumentTypeDefinitionResult>
+
+        else ->
+            throw SerializationException(
+                "Unexpected TextDocumentTypeDefinitionResult: $element"
+            )
     }
 }
 
