@@ -4,6 +4,44 @@ All notable changes to lsp-types-kotlin are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions track the
 `1.0.0-RC*` release-candidate train toward a stable `1.0.0`.
 
+## [1.0.0-RC4] - 2026-05-25
+
+Hardening + ergonomics pass from an independent API review.
+
+### Fixed
+- **Unreachable union branches** from colliding serializer discriminators:
+  `WorkspaceEditDocumentChanges.DeleteFile` and
+  `ServerCapabilitiesNotebookDocumentSync`'s registration branch never decoded.
+  The codegen now resolves discriminator collisions (kind-value / subtype field)
+  and asserts branch discriminators are distinct (#26).
+- **`DefaultLanguageServer`/`DefaultLanguageClient` notifications** were generated
+  to throw `NotImplementedError`; an un-overridden notification would crash the
+  receive loop. They now default to a no-op (requests still throw) (#27).
+- **`GlobalScope` in `LspProcessConnection`** — the stdout pump is now scoped to
+  the caller's job, fixing a leak and the structured-concurrency violation (#28).
+
+### Added
+- Companion factories on the union wrappers: `BooleanOr(true)`,
+  `SingleOrArray.single(x)`/`multiple(xs)`, `StringOr("s")`, `IntOrString(1)` (#30).
+- `LifecycleState` is coroutine-aware: `phases: StateFlow<Phase>`, `awaitInitialized()`,
+  and a non-throwing `advanceTo`; plus a `connectAsLspServer(server, lifecycle)`
+  overload that advances the lifecycle automatically (#32).
+
+### Changed
+- **Required-but-nullable** generated fields (e.g. `InitializeParams.processId`,
+  `rootUri`) now default to `null`, so callers can omit them (#31).
+- **Method-result unions are now strict types** (were `JsonElement`):
+  `textDocument/definition`·`/declaration`·`/typeDefinition`·`/implementation`
+  (`Definition | DefinitionLink[]`), `/completion`
+  (`CompletionItem[] | CompletionList`), `/documentSymbol`
+  (`SymbolInformation[] | DocumentSymbol[]`). `workspace/symbol` stays `JsonElement`
+  (its two array branches are structurally indistinguishable on the wire) (#29).
+
+### ⚠️ Breaking (pre-1.0)
+- `Hover.contents` (RC3) and the method-result return types above change from
+  `JsonElement` to strict sealed types. Source-breaking for consumers that read
+  those as `JsonElement`; the wire format is unchanged.
+
 ## [1.0.0-RC3] - 2026-05-25
 
 ### Changed
