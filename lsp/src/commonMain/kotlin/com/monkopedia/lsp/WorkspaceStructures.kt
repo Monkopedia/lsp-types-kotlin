@@ -277,7 +277,7 @@ data class WorkspaceFullDocumentDiagnosticReport(
      * The version number for which the diagnostics are reported.
      * If the document is not marked as open `null` can be provided.
      */
-    val version: Int?
+    val version: Int? = null
 ) : WorkspaceDocumentDiagnosticReport
 
 /**
@@ -307,7 +307,7 @@ data class WorkspaceUnchangedDocumentDiagnosticReport(
      * The version number for which the diagnostics are reported.
      * If the document is not marked as open `null` can be provided.
      */
-    val version: Int?
+    val version: Int? = null
 ) : WorkspaceDocumentDiagnosticReport
 
 @Serializable

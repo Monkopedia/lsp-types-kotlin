@@ -429,6 +429,7 @@ public final class com/monkopedia/lsp/CallHierarchyPrepareParams$Companion {
 
 public final class com/monkopedia/lsp/CallHierarchyRegistrationOptions : com/monkopedia/lsp/ServerCapabilitiesCallHierarchyProviderOptions {
 	public static final field Companion Lcom/monkopedia/lsp/CallHierarchyRegistrationOptions$Companion;
+	public fun <init> ()V
 	public fun <init> (Ljava/util/List;Ljava/lang/Boolean;Ljava/lang/String;)V
 	public synthetic fun <init> (Ljava/util/List;Ljava/lang/Boolean;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/util/List;
@@ -890,6 +891,7 @@ public final class com/monkopedia/lsp/CodeActionParams$Companion {
 
 public final class com/monkopedia/lsp/CodeActionRegistrationOptions {
 	public static final field Companion Lcom/monkopedia/lsp/CodeActionRegistrationOptions$Companion;
+	public fun <init> ()V
 	public fun <init> (Ljava/util/List;Ljava/lang/Boolean;Ljava/util/List;Ljava/lang/Boolean;)V
 	public synthetic fun <init> (Ljava/util/List;Ljava/lang/Boolean;Ljava/util/List;Ljava/lang/Boolean;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/util/List;
@@ -1107,6 +1109,7 @@ public final class com/monkopedia/lsp/CodeLensParams$Companion {
 
 public final class com/monkopedia/lsp/CodeLensRegistrationOptions {
 	public static final field Companion Lcom/monkopedia/lsp/CodeLensRegistrationOptions$Companion;
+	public fun <init> ()V
 	public fun <init> (Ljava/util/List;Ljava/lang/Boolean;Ljava/lang/Boolean;)V
 	public synthetic fun <init> (Ljava/util/List;Ljava/lang/Boolean;Ljava/lang/Boolean;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/util/List;
@@ -1988,6 +1991,7 @@ public final class com/monkopedia/lsp/CompletionParams$Companion {
 
 public final class com/monkopedia/lsp/CompletionRegistrationOptions {
 	public static final field Companion Lcom/monkopedia/lsp/CompletionRegistrationOptions$Companion;
+	public fun <init> ()V
 	public fun <init> (Ljava/util/List;Ljava/lang/Boolean;Ljava/util/List;Ljava/util/List;Ljava/lang/Boolean;Lcom/monkopedia/lsp/CompletionRegistrationOptionsCompletionItem;)V
 	public synthetic fun <init> (Ljava/util/List;Ljava/lang/Boolean;Ljava/util/List;Ljava/util/List;Ljava/lang/Boolean;Lcom/monkopedia/lsp/CompletionRegistrationOptionsCompletionItem;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/util/List;
@@ -2332,6 +2336,7 @@ public final class com/monkopedia/lsp/DeclarationParams$Companion {
 
 public final class com/monkopedia/lsp/DeclarationRegistrationOptions : com/monkopedia/lsp/ServerCapabilitiesDeclarationProviderOptions {
 	public static final field Companion Lcom/monkopedia/lsp/DeclarationRegistrationOptions$Companion;
+	public fun <init> ()V
 	public fun <init> (Ljava/lang/Boolean;Ljava/util/List;Ljava/lang/String;)V
 	public synthetic fun <init> (Ljava/lang/Boolean;Ljava/util/List;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/Boolean;
@@ -2458,6 +2463,7 @@ public final class com/monkopedia/lsp/DefinitionParams$Companion {
 
 public final class com/monkopedia/lsp/DefinitionRegistrationOptions {
 	public static final field Companion Lcom/monkopedia/lsp/DefinitionRegistrationOptions$Companion;
+	public fun <init> ()V
 	public fun <init> (Ljava/util/List;Ljava/lang/Boolean;)V
 	public synthetic fun <init> (Ljava/util/List;Ljava/lang/Boolean;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/util/List;
@@ -3393,6 +3399,7 @@ public final class com/monkopedia/lsp/DocumentColorParams$Companion {
 
 public final class com/monkopedia/lsp/DocumentColorRegistrationOptions : com/monkopedia/lsp/ServerCapabilitiesColorProviderOptions {
 	public static final field Companion Lcom/monkopedia/lsp/DocumentColorRegistrationOptions$Companion;
+	public fun <init> ()V
 	public fun <init> (Ljava/util/List;Ljava/lang/Boolean;Ljava/lang/String;)V
 	public synthetic fun <init> (Ljava/util/List;Ljava/lang/Boolean;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/util/List;
@@ -3615,6 +3622,7 @@ public final class com/monkopedia/lsp/DocumentFormattingParams$Companion {
 
 public final class com/monkopedia/lsp/DocumentFormattingRegistrationOptions {
 	public static final field Companion Lcom/monkopedia/lsp/DocumentFormattingRegistrationOptions$Companion;
+	public fun <init> ()V
 	public fun <init> (Ljava/util/List;Ljava/lang/Boolean;)V
 	public synthetic fun <init> (Ljava/util/List;Ljava/lang/Boolean;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/util/List;
@@ -3800,6 +3808,7 @@ public final class com/monkopedia/lsp/DocumentHighlightParams$Companion {
 
 public final class com/monkopedia/lsp/DocumentHighlightRegistrationOptions {
 	public static final field Companion Lcom/monkopedia/lsp/DocumentHighlightRegistrationOptions$Companion;
+	public fun <init> ()V
 	public fun <init> (Ljava/util/List;Ljava/lang/Boolean;)V
 	public synthetic fun <init> (Ljava/util/List;Ljava/lang/Boolean;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/util/List;
@@ -3958,6 +3967,7 @@ public final class com/monkopedia/lsp/DocumentLinkParams$Companion {
 
 public final class com/monkopedia/lsp/DocumentLinkRegistrationOptions {
 	public static final field Companion Lcom/monkopedia/lsp/DocumentLinkRegistrationOptions$Companion;
+	public fun <init> ()V
 	public fun <init> (Ljava/util/List;Ljava/lang/Boolean;Ljava/lang/Boolean;)V
 	public synthetic fun <init> (Ljava/util/List;Ljava/lang/Boolean;Ljava/lang/Boolean;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/util/List;
@@ -4210,6 +4220,7 @@ public final class com/monkopedia/lsp/DocumentRangeFormattingParams$Companion {
 
 public final class com/monkopedia/lsp/DocumentRangeFormattingRegistrationOptions {
 	public static final field Companion Lcom/monkopedia/lsp/DocumentRangeFormattingRegistrationOptions$Companion;
+	public fun <init> ()V
 	public fun <init> (Ljava/util/List;Ljava/lang/Boolean;Ljava/lang/Boolean;)V
 	public synthetic fun <init> (Ljava/util/List;Ljava/lang/Boolean;Ljava/lang/Boolean;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/util/List;
@@ -4474,6 +4485,7 @@ public final class com/monkopedia/lsp/DocumentSymbolParams$Companion {
 
 public final class com/monkopedia/lsp/DocumentSymbolRegistrationOptions {
 	public static final field Companion Lcom/monkopedia/lsp/DocumentSymbolRegistrationOptions$Companion;
+	public fun <init> ()V
 	public fun <init> (Ljava/util/List;Ljava/lang/Boolean;Ljava/lang/String;)V
 	public synthetic fun <init> (Ljava/util/List;Ljava/lang/Boolean;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/util/List;
@@ -5321,6 +5333,7 @@ public final class com/monkopedia/lsp/FoldingRangeParams$Companion {
 
 public final class com/monkopedia/lsp/FoldingRangeRegistrationOptions : com/monkopedia/lsp/ServerCapabilitiesFoldingRangeProviderOptions {
 	public static final field Companion Lcom/monkopedia/lsp/FoldingRangeRegistrationOptions$Companion;
+	public fun <init> ()V
 	public fun <init> (Ljava/util/List;Ljava/lang/Boolean;Ljava/lang/String;)V
 	public synthetic fun <init> (Ljava/util/List;Ljava/lang/Boolean;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/util/List;
@@ -5745,6 +5758,7 @@ public final class com/monkopedia/lsp/HoverParams$Companion {
 
 public final class com/monkopedia/lsp/HoverRegistrationOptions {
 	public static final field Companion Lcom/monkopedia/lsp/HoverRegistrationOptions$Companion;
+	public fun <init> ()V
 	public fun <init> (Ljava/util/List;Ljava/lang/Boolean;)V
 	public synthetic fun <init> (Ljava/util/List;Ljava/lang/Boolean;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/util/List;
@@ -5869,6 +5883,7 @@ public final class com/monkopedia/lsp/ImplementationParams$Companion {
 
 public final class com/monkopedia/lsp/ImplementationRegistrationOptions : com/monkopedia/lsp/ServerCapabilitiesImplementationProviderOptions {
 	public static final field Companion Lcom/monkopedia/lsp/ImplementationRegistrationOptions$Companion;
+	public fun <init> ()V
 	public fun <init> (Ljava/util/List;Ljava/lang/Boolean;Ljava/lang/String;)V
 	public synthetic fun <init> (Ljava/util/List;Ljava/lang/Boolean;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/util/List;
@@ -5928,6 +5943,7 @@ public final class com/monkopedia/lsp/InitializeError$Companion {
 
 public final class com/monkopedia/lsp/InitializeParams {
 	public static final field Companion Lcom/monkopedia/lsp/InitializeParams$Companion;
+	public fun <init> ()V
 	public fun <init> (Lcom/monkopedia/lsp/IntOrString;Ljava/lang/Integer;Lcom/monkopedia/lsp/InitializeParamsClientInfo;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcom/monkopedia/lsp/ClientCapabilities;Lkotlinx/serialization/json/JsonElement;Lcom/monkopedia/lsp/TraceValues;Ljava/util/List;)V
 	public synthetic fun <init> (Lcom/monkopedia/lsp/IntOrString;Ljava/lang/Integer;Lcom/monkopedia/lsp/InitializeParamsClientInfo;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcom/monkopedia/lsp/ClientCapabilities;Lkotlinx/serialization/json/JsonElement;Lcom/monkopedia/lsp/TraceValues;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Lcom/monkopedia/lsp/IntOrString;
@@ -6314,6 +6330,7 @@ public final class com/monkopedia/lsp/InlayHintParams$Companion {
 
 public final class com/monkopedia/lsp/InlayHintRegistrationOptions : com/monkopedia/lsp/ServerCapabilitiesInlayHintProviderOptions {
 	public static final field Companion Lcom/monkopedia/lsp/InlayHintRegistrationOptions$Companion;
+	public fun <init> ()V
 	public fun <init> (Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/util/List;Ljava/lang/String;)V
 	public synthetic fun <init> (Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/util/List;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/Boolean;
@@ -6560,6 +6577,7 @@ public final class com/monkopedia/lsp/InlineCompletionParams$Companion {
 
 public final class com/monkopedia/lsp/InlineCompletionRegistrationOptions {
 	public static final field Companion Lcom/monkopedia/lsp/InlineCompletionRegistrationOptions$Companion;
+	public fun <init> ()V
 	public fun <init> (Ljava/lang/Boolean;Ljava/util/List;Ljava/lang/String;)V
 	public synthetic fun <init> (Ljava/lang/Boolean;Ljava/util/List;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/Boolean;
@@ -6783,6 +6801,7 @@ public final class com/monkopedia/lsp/InlineValueParams$Companion {
 
 public final class com/monkopedia/lsp/InlineValueRegistrationOptions : com/monkopedia/lsp/ServerCapabilitiesInlineValueProviderOptions {
 	public static final field Companion Lcom/monkopedia/lsp/InlineValueRegistrationOptions$Companion;
+	public fun <init> ()V
 	public fun <init> (Ljava/lang/Boolean;Ljava/util/List;Ljava/lang/String;)V
 	public synthetic fun <init> (Ljava/lang/Boolean;Ljava/util/List;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/Boolean;
@@ -7468,6 +7487,7 @@ public final class com/monkopedia/lsp/LinkedEditingRangeParams$Companion {
 
 public final class com/monkopedia/lsp/LinkedEditingRangeRegistrationOptions : com/monkopedia/lsp/ServerCapabilitiesLinkedEditingRangeProviderOptions {
 	public static final field Companion Lcom/monkopedia/lsp/LinkedEditingRangeRegistrationOptions$Companion;
+	public fun <init> ()V
 	public fun <init> (Ljava/util/List;Ljava/lang/Boolean;Ljava/lang/String;)V
 	public synthetic fun <init> (Ljava/util/List;Ljava/lang/Boolean;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/util/List;
@@ -7957,6 +7977,7 @@ public final class com/monkopedia/lsp/MonikerParams$Companion {
 
 public final class com/monkopedia/lsp/MonikerRegistrationOptions : com/monkopedia/lsp/ServerCapabilitiesMonikerProviderOptions {
 	public static final field Companion Lcom/monkopedia/lsp/MonikerRegistrationOptions$Companion;
+	public fun <init> ()V
 	public fun <init> (Ljava/util/List;Ljava/lang/Boolean;)V
 	public synthetic fun <init> (Ljava/util/List;Ljava/lang/Boolean;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/util/List;
@@ -8786,6 +8807,7 @@ public final class com/monkopedia/lsp/NotebookDocumentSyncRegistrationOptionsNot
 public final class com/monkopedia/lsp/OptionalVersionedTextDocumentIdentifier {
 	public static final field Companion Lcom/monkopedia/lsp/OptionalVersionedTextDocumentIdentifier$Companion;
 	public fun <init> (Ljava/lang/String;Ljava/lang/Integer;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Integer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/String;
 	public final fun component2 ()Ljava/lang/Integer;
 	public final fun copy (Ljava/lang/String;Ljava/lang/Integer;)Lcom/monkopedia/lsp/OptionalVersionedTextDocumentIdentifier;
@@ -9370,6 +9392,7 @@ public final class com/monkopedia/lsp/ReferenceParams$Companion {
 
 public final class com/monkopedia/lsp/ReferenceRegistrationOptions {
 	public static final field Companion Lcom/monkopedia/lsp/ReferenceRegistrationOptions$Companion;
+	public fun <init> ()V
 	public fun <init> (Ljava/util/List;Ljava/lang/Boolean;)V
 	public synthetic fun <init> (Ljava/util/List;Ljava/lang/Boolean;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/util/List;
@@ -9801,6 +9824,7 @@ public final class com/monkopedia/lsp/RenameParams$Companion {
 
 public final class com/monkopedia/lsp/RenameRegistrationOptions {
 	public static final field Companion Lcom/monkopedia/lsp/RenameRegistrationOptions$Companion;
+	public fun <init> ()V
 	public fun <init> (Ljava/util/List;Ljava/lang/Boolean;Ljava/lang/Boolean;)V
 	public synthetic fun <init> (Ljava/util/List;Ljava/lang/Boolean;Ljava/lang/Boolean;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/util/List;
@@ -10057,6 +10081,7 @@ public final class com/monkopedia/lsp/SelectionRangeParams$Companion {
 
 public final class com/monkopedia/lsp/SelectionRangeRegistrationOptions : com/monkopedia/lsp/ServerCapabilitiesSelectionRangeProviderOptions {
 	public static final field Companion Lcom/monkopedia/lsp/SelectionRangeRegistrationOptions$Companion;
+	public fun <init> ()V
 	public fun <init> (Ljava/lang/Boolean;Ljava/util/List;Ljava/lang/String;)V
 	public synthetic fun <init> (Ljava/lang/Boolean;Ljava/util/List;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/Boolean;
@@ -11416,6 +11441,7 @@ public final class com/monkopedia/lsp/SignatureHelpParams$Companion {
 
 public final class com/monkopedia/lsp/SignatureHelpRegistrationOptions {
 	public static final field Companion Lcom/monkopedia/lsp/SignatureHelpRegistrationOptions$Companion;
+	public fun <init> ()V
 	public fun <init> (Ljava/util/List;Ljava/lang/Boolean;Ljava/util/List;Ljava/util/List;)V
 	public synthetic fun <init> (Ljava/util/List;Ljava/lang/Boolean;Ljava/util/List;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/util/List;
@@ -11794,6 +11820,7 @@ public final class com/monkopedia/lsp/SymbolTag$Companion {
 
 public final class com/monkopedia/lsp/TextDocumentChangeRegistrationOptions {
 	public static final field Companion Lcom/monkopedia/lsp/TextDocumentChangeRegistrationOptions$Companion;
+	public synthetic fun <init> (Ljava/util/List;IILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/util/List;
 	public final fun component2-5s_-5QQ ()I
@@ -12233,7 +12260,9 @@ public final class com/monkopedia/lsp/TextDocumentPositionParams$Companion {
 
 public final class com/monkopedia/lsp/TextDocumentRegistrationOptions {
 	public static final field Companion Lcom/monkopedia/lsp/TextDocumentRegistrationOptions$Companion;
+	public fun <init> ()V
 	public fun <init> (Ljava/util/List;)V
+	public synthetic fun <init> (Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/util/List;
 	public final fun copy (Ljava/util/List;)Lcom/monkopedia/lsp/TextDocumentRegistrationOptions;
 	public static synthetic fun copy$default (Lcom/monkopedia/lsp/TextDocumentRegistrationOptions;Ljava/util/List;ILjava/lang/Object;)Lcom/monkopedia/lsp/TextDocumentRegistrationOptions;
@@ -12293,6 +12322,7 @@ public final class com/monkopedia/lsp/TextDocumentSaveReason$Companion {
 
 public final class com/monkopedia/lsp/TextDocumentSaveRegistrationOptions {
 	public static final field Companion Lcom/monkopedia/lsp/TextDocumentSaveRegistrationOptions$Companion;
+	public fun <init> ()V
 	public fun <init> (Ljava/util/List;Ljava/lang/Boolean;)V
 	public synthetic fun <init> (Ljava/util/List;Ljava/lang/Boolean;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/util/List;
@@ -12588,6 +12618,7 @@ public final class com/monkopedia/lsp/TypeDefinitionParams$Companion {
 
 public final class com/monkopedia/lsp/TypeDefinitionRegistrationOptions : com/monkopedia/lsp/ServerCapabilitiesTypeDefinitionProviderOptions {
 	public static final field Companion Lcom/monkopedia/lsp/TypeDefinitionRegistrationOptions$Companion;
+	public fun <init> ()V
 	public fun <init> (Ljava/util/List;Ljava/lang/Boolean;Ljava/lang/String;)V
 	public synthetic fun <init> (Ljava/util/List;Ljava/lang/Boolean;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/util/List;
@@ -12752,6 +12783,7 @@ public final class com/monkopedia/lsp/TypeHierarchyPrepareParams$Companion {
 
 public final class com/monkopedia/lsp/TypeHierarchyRegistrationOptions : com/monkopedia/lsp/ServerCapabilitiesTypeHierarchyProviderOptions {
 	public static final field Companion Lcom/monkopedia/lsp/TypeHierarchyRegistrationOptions$Companion;
+	public fun <init> ()V
 	public fun <init> (Ljava/util/List;Ljava/lang/Boolean;Ljava/lang/String;)V
 	public synthetic fun <init> (Ljava/util/List;Ljava/lang/Boolean;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/util/List;
@@ -14026,6 +14058,7 @@ public final class com/monkopedia/lsp/WorkspaceSymbolRegistrationOptions$Compani
 public final class com/monkopedia/lsp/WorkspaceUnchangedDocumentDiagnosticReport : com/monkopedia/lsp/WorkspaceDocumentDiagnosticReport {
 	public static final field Companion Lcom/monkopedia/lsp/WorkspaceUnchangedDocumentDiagnosticReport$Companion;
 	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/String;
 	public final fun component2 ()Ljava/lang/String;
 	public final fun component3 ()Ljava/lang/String;
@@ -14058,6 +14091,7 @@ public final class com/monkopedia/lsp/WorkspaceUnchangedDocumentDiagnosticReport
 
 public final class com/monkopedia/lsp/_InitializeParams {
 	public static final field Companion Lcom/monkopedia/lsp/_InitializeParams$Companion;
+	public fun <init> ()V
 	public fun <init> (Lcom/monkopedia/lsp/IntOrString;Ljava/lang/Integer;Lcom/monkopedia/lsp/_InitializeParamsClientInfo;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcom/monkopedia/lsp/ClientCapabilities;Lkotlinx/serialization/json/JsonElement;Lcom/monkopedia/lsp/TraceValues;)V
 	public synthetic fun <init> (Lcom/monkopedia/lsp/IntOrString;Ljava/lang/Integer;Lcom/monkopedia/lsp/_InitializeParamsClientInfo;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcom/monkopedia/lsp/ClientCapabilities;Lkotlinx/serialization/json/JsonElement;Lcom/monkopedia/lsp/TraceValues;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Lcom/monkopedia/lsp/IntOrString;

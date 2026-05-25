@@ -27,7 +27,7 @@ data class TextDocumentRegistrationOptions(
      * A document selector to identify the scope of the registration. If set to null
      * the document selector provided on the client side will be used.
      */
-    val documentSelector: DocumentSelector?
+    val documentSelector: DocumentSelector? = null
 )
 
 /**
@@ -39,7 +39,7 @@ data class TextDocumentChangeRegistrationOptions(
      * A document selector to identify the scope of the registration. If set to null
      * the document selector provided on the client side will be used.
      */
-    val documentSelector: DocumentSelector?,
+    val documentSelector: DocumentSelector? = null,
     /**
      * How documents are synced to the server.
      */
@@ -55,7 +55,7 @@ data class TextDocumentSaveRegistrationOptions(
      * A document selector to identify the scope of the registration. If set to null
      * the document selector provided on the client side will be used.
      */
-    val documentSelector: DocumentSelector?,
+    val documentSelector: DocumentSelector? = null,
     /**
      * The client is supposed to include the content on save.
      */

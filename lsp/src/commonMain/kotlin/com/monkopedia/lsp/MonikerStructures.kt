@@ -71,7 +71,7 @@ data class MonikerRegistrationOptions(
      * A document selector to identify the scope of the registration. If set to null
      * the document selector provided on the client side will be used.
      */
-    val documentSelector: DocumentSelector?,
+    val documentSelector: DocumentSelector? = null,
     val workDoneProgress: Boolean? = null
 ) : ServerCapabilitiesMonikerProviderOptions
 

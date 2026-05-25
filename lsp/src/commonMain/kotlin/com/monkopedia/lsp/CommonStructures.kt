@@ -164,7 +164,7 @@ data class CallHierarchyRegistrationOptions(
      * A document selector to identify the scope of the registration. If set to null
      * the document selector provided on the client side will be used.
      */
-    val documentSelector: DocumentSelector?,
+    val documentSelector: DocumentSelector? = null,
     val workDoneProgress: Boolean? = null,
     /**
      * The id used to register the request. The id can be used to deregister
@@ -336,7 +336,7 @@ data class LinkedEditingRangeRegistrationOptions(
      * A document selector to identify the scope of the registration. If set to null
      * the document selector provided on the client side will be used.
      */
-    val documentSelector: DocumentSelector?,
+    val documentSelector: DocumentSelector? = null,
     val workDoneProgress: Boolean? = null,
     /**
      * The id used to register the request. The id can be used to deregister
@@ -465,7 +465,7 @@ data class TypeHierarchyRegistrationOptions(
      * A document selector to identify the scope of the registration. If set to null
      * the document selector provided on the client side will be used.
      */
-    val documentSelector: DocumentSelector?,
+    val documentSelector: DocumentSelector? = null,
     val workDoneProgress: Boolean? = null,
     /**
      * The id used to register the request. The id can be used to deregister
@@ -571,7 +571,7 @@ data class InitializeParams(
      * Is `null` if the process has not been started by another process.
      * If the parent process is not alive then the server should exit.
      */
-    val processId: Int?,
+    val processId: Int? = null,
     /**
      * Information about the client
      *
@@ -603,7 +603,7 @@ data class InitializeParams(
      *
      * @deprecated in favour of workspaceFolders.
      */
-    val rootUri: DocumentUri?,
+    val rootUri: DocumentUri? = null,
     /**
      * The capabilities provided by the client (editor or tool)
      */
@@ -797,7 +797,7 @@ data class ReferenceRegistrationOptions(
      * A document selector to identify the scope of the registration. If set to null
      * the document selector provided on the client side will be used.
      */
-    val documentSelector: DocumentSelector?,
+    val documentSelector: DocumentSelector? = null,
     val workDoneProgress: Boolean? = null
 )
 
@@ -899,7 +899,7 @@ data class DocumentFormattingRegistrationOptions(
      * A document selector to identify the scope of the registration. If set to null
      * the document selector provided on the client side will be used.
      */
-    val documentSelector: DocumentSelector?,
+    val documentSelector: DocumentSelector? = null,
     val workDoneProgress: Boolean? = null
 )
 
@@ -935,7 +935,7 @@ data class DocumentRangeFormattingRegistrationOptions(
      * A document selector to identify the scope of the registration. If set to null
      * the document selector provided on the client side will be used.
      */
-    val documentSelector: DocumentSelector?,
+    val documentSelector: DocumentSelector? = null,
     val workDoneProgress: Boolean? = null,
     /**
      * Whether the server supports formatting multiple ranges at once.
@@ -1009,7 +1009,7 @@ data class DocumentOnTypeFormattingRegistrationOptions(
      * A document selector to identify the scope of the registration. If set to null
      * the document selector provided on the client side will be used.
      */
-    val documentSelector: DocumentSelector?,
+    val documentSelector: DocumentSelector? = null,
     /**
      * A character on which formatting should be triggered, like `{`.
      */
@@ -1054,7 +1054,7 @@ data class RenameRegistrationOptions(
      * A document selector to identify the scope of the registration. If set to null
      * the document selector provided on the client side will be used.
      */
-    val documentSelector: DocumentSelector?,
+    val documentSelector: DocumentSelector? = null,
     val workDoneProgress: Boolean? = null,
     /**
      * Renames should be checked and tested before being executed.
@@ -1740,7 +1740,7 @@ data class _InitializeParams(
      * Is `null` if the process has not been started by another process.
      * If the parent process is not alive then the server should exit.
      */
-    val processId: Int?,
+    val processId: Int? = null,
     /**
      * Information about the client
      *
@@ -1772,7 +1772,7 @@ data class _InitializeParams(
      *
      * @deprecated in favour of workspaceFolders.
      */
-    val rootUri: DocumentUri?,
+    val rootUri: DocumentUri? = null,
     /**
      * The capabilities provided by the client (editor or tool)
      */
@@ -2270,7 +2270,7 @@ data class OptionalVersionedTextDocumentIdentifier(
      * `null` to indicate that the version is unknown and the content on disk is the
      * truth (as specified with document content ownership).
      */
-    val version: Int?
+    val version: Int? = null
 )
 
 /**
