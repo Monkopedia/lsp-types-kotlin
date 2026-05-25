@@ -15,7 +15,7 @@ Two artifacts, deliberately split:
 
 ## Status
 
-`1.0.0-RC3`. The types and codegen are complete and tested against real-world JSON samples, including lsp4j-driven wire-compatibility round-trips. Every union the spec models as a typeable shape is generated as a strict Kotlin type — the only fields left as `JsonElement` are the genuinely opaque `LSPAny` slots the protocol defines as free-form (`data`, `initializationOptions`, `experimental`, command `arguments`, etc.). The transport layer (`:lsp-ksrpc`) builds on ksrpc 1.0.0. Release candidates publish to Maven Central; a stable `1.0.0` is gated on downstream integration validation.
+`1.0.0-RC4`. The types and codegen are complete and tested against real-world JSON samples, including lsp4j-driven wire-compatibility round-trips. Every union the spec models as a typeable shape — fields and method results alike — is generated as a strict Kotlin type. The slots left as `JsonElement` are the genuinely opaque `LSPAny` ones the protocol defines as free-form (`data`, `initializationOptions`, `experimental`, command `arguments`, etc.), plus the single method result (`workspace/symbol`) whose two array branches are structurally indistinguishable on the wire. The transport layer (`:lsp-ksrpc`) builds on ksrpc 1.0.0. Release candidates publish to Maven Central; a stable `1.0.0` is gated on downstream integration validation.
 
 ## Modules
 
@@ -29,7 +29,7 @@ lsp-types-kotlin/
 ## Using `:lsp`
 
 ```kotlin
-implementation("com.monkopedia.lsp:lsp:1.0.0-RC3")
+implementation("com.monkopedia.lsp:lsp:1.0.0-RC4")
 ```
 
 Pure types and serialization. No transport. Use this if you have your own JSON-RPC plumbing and just need typed LSP messages.
@@ -74,7 +74,7 @@ when (val provider = capabilities.hoverProvider) {
 ## Using `:lsp-ksrpc`
 
 ```kotlin
-implementation("com.monkopedia.lsp:lsp-ksrpc:1.0.0-RC3")
+implementation("com.monkopedia.lsp:lsp-ksrpc:1.0.0-RC4")
 ```
 
 The `:lsp-ksrpc` artifact provides `KsrpcLanguageServer` / `KsrpcLanguageClient`
