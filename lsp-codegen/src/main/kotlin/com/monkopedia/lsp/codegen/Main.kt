@@ -306,6 +306,7 @@ private fun preClassifyUnions(model: MetaModel, resolver: TypeResolver, unionGen
                     cls.category == UnionCategory.MIXED_REF_LITERAL ||
                     cls.category == UnionCategory.STRUCT_OR_ENUM ||
                     cls.category == UnionCategory.REF_PLUS_SINGLE_ARRAY ||
+                    cls.category == UnionCategory.ARRAY_REF_UNION ||
                     cls.category == UnionCategory.BOOLEAN_OR_OPTIONS
                 ) {
                     unionGen.resolveUnion(type, contextName, topLevelAliasName)

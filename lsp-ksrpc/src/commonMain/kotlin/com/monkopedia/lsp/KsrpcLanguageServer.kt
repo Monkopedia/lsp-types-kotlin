@@ -29,10 +29,14 @@ interface KsrpcLanguageServer :
     RpcService {
 
     @KsMethod("textDocument/implementation")
-    override suspend fun textDocumentImplementation(params: ImplementationParams): JsonElement
+    override suspend fun textDocumentImplementation(
+        params: ImplementationParams
+    ): TextDocumentImplementationResult
 
     @KsMethod("textDocument/typeDefinition")
-    override suspend fun textDocumentTypeDefinition(params: TypeDefinitionParams): JsonElement
+    override suspend fun textDocumentTypeDefinition(
+        params: TypeDefinitionParams
+    ): TextDocumentTypeDefinitionResult
 
     @KsMethod("textDocument/documentColor")
     override suspend fun textDocumentDocumentColor(
@@ -48,7 +52,9 @@ interface KsrpcLanguageServer :
     override suspend fun textDocumentFoldingRange(params: FoldingRangeParams): List<FoldingRange>
 
     @KsMethod("textDocument/declaration")
-    override suspend fun textDocumentDeclaration(params: DeclarationParams): JsonElement
+    override suspend fun textDocumentDeclaration(
+        params: DeclarationParams
+    ): TextDocumentDeclarationResult
 
     @KsMethod("textDocument/selectionRange")
     override suspend fun textDocumentSelectionRange(
@@ -137,7 +143,9 @@ interface KsrpcLanguageServer :
     ): WorkspaceDiagnosticReport
 
     @KsMethod("textDocument/inlineCompletion")
-    override suspend fun textDocumentInlineCompletion(params: InlineCompletionParams): JsonElement
+    override suspend fun textDocumentInlineCompletion(
+        params: InlineCompletionParams
+    ): TextDocumentInlineCompletionResult
 
     @KsMethod("initialize")
     override suspend fun initialize(params: InitializeParams): InitializeResult
@@ -151,7 +159,9 @@ interface KsrpcLanguageServer :
     ): List<TextEdit>
 
     @KsMethod("textDocument/completion")
-    override suspend fun textDocumentCompletion(params: CompletionParams): JsonElement
+    override suspend fun textDocumentCompletion(
+        params: CompletionParams
+    ): TextDocumentCompletionResult
 
     @KsMethod("completionItem/resolve")
     override suspend fun completionItemResolve(params: CompletionItem): CompletionItem
@@ -163,7 +173,9 @@ interface KsrpcLanguageServer :
     override suspend fun textDocumentSignatureHelp(params: SignatureHelpParams): SignatureHelp
 
     @KsMethod("textDocument/definition")
-    override suspend fun textDocumentDefinition(params: DefinitionParams): JsonElement
+    override suspend fun textDocumentDefinition(
+        params: DefinitionParams
+    ): TextDocumentDefinitionResult
 
     @KsMethod("textDocument/references")
     override suspend fun textDocumentReferences(params: ReferenceParams): List<Location>
@@ -174,7 +186,9 @@ interface KsrpcLanguageServer :
     ): List<DocumentHighlight>
 
     @KsMethod("textDocument/documentSymbol")
-    override suspend fun textDocumentDocumentSymbol(params: DocumentSymbolParams): JsonElement
+    override suspend fun textDocumentDocumentSymbol(
+        params: DocumentSymbolParams
+    ): TextDocumentDocumentSymbolResult
 
     @KsMethod("textDocument/codeAction")
     override suspend fun textDocumentCodeAction(

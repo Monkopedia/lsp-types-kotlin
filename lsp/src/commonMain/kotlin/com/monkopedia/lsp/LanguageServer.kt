@@ -24,14 +24,18 @@ interface LanguageServer {
      * document position. The request's parameter is of type {@link TextDocumentPositionParams}
      * the response is of type {@link Definition} or a Thenable that resolves to such.
      */
-    suspend fun textDocumentImplementation(params: ImplementationParams): JsonElement
+    suspend fun textDocumentImplementation(
+        params: ImplementationParams
+    ): TextDocumentImplementationResult
 
     /**
      * A request to resolve the type definition locations of a symbol at a given text
      * document position. The request's parameter is of type {@link TextDocumentPositionParams}
      * the response is of type {@link Definition} or a Thenable that resolves to such.
      */
-    suspend fun textDocumentTypeDefinition(params: TypeDefinitionParams): JsonElement
+    suspend fun textDocumentTypeDefinition(
+        params: TypeDefinitionParams
+    ): TextDocumentTypeDefinitionResult
 
     /**
      * A request to list all color symbols found in a given text document. The request's
@@ -65,7 +69,7 @@ interface LanguageServer {
      * the response is of type {@link Declaration} or a typed array of {@link DeclarationLink}
      * or a Thenable that resolves to such.
      */
-    suspend fun textDocumentDeclaration(params: DeclarationParams): JsonElement
+    suspend fun textDocumentDeclaration(params: DeclarationParams): TextDocumentDeclarationResult
 
     /**
      * A request to provide selection ranges in a document. The request's
@@ -241,7 +245,9 @@ interface LanguageServer {
      * @since 3.18.0
      * @proposed
      */
-    suspend fun textDocumentInlineCompletion(params: InlineCompletionParams): JsonElement
+    suspend fun textDocumentInlineCompletion(
+        params: InlineCompletionParams
+    ): TextDocumentInlineCompletionResult
 
     /**
      * The initialize request is sent from the client to the server.
@@ -282,7 +288,7 @@ interface LanguageServer {
      * request. However, properties that are needed for the initial sorting and filtering, like `sortText`,
      * `filterText`, `insertText`, and `textEdit`, must not be changed during resolve.
      */
-    suspend fun textDocumentCompletion(params: CompletionParams): JsonElement
+    suspend fun textDocumentCompletion(params: CompletionParams): TextDocumentCompletionResult
 
     /**
      * Request to resolve additional information for a given completion item.The request's
@@ -306,7 +312,7 @@ interface LanguageServer {
      * the response is of either type {@link Definition} or a typed array of
      * {@link DefinitionLink} or a Thenable that resolves to such.
      */
-    suspend fun textDocumentDefinition(params: DefinitionParams): JsonElement
+    suspend fun textDocumentDefinition(params: DefinitionParams): TextDocumentDefinitionResult
 
     /**
      * A request to resolve project-wide references for the symbol denoted
@@ -332,7 +338,9 @@ interface LanguageServer {
      * response is of type {@link SymbolInformation SymbolInformation[]} or a Thenable
      * that resolves to such.
      */
-    suspend fun textDocumentDocumentSymbol(params: DocumentSymbolParams): JsonElement
+    suspend fun textDocumentDocumentSymbol(
+        params: DocumentSymbolParams
+    ): TextDocumentDocumentSymbolResult
 
     /**
      * A request to provide commands for the given text document and range.

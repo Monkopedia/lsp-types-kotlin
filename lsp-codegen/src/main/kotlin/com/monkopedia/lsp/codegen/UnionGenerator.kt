@@ -114,6 +114,16 @@ class UnionGenerator(private val resolver: TypeResolver) {
                 }
             }
 
+            UnionCategory.ARRAY_REF_UNION -> {
+                val name = topLevelAliasName ?: contextName.ifEmpty { "" }
+                if (name.isEmpty()) {
+                    "JsonElement"
+                } else {
+                    emitArrayRefUnionSealed(name, cls.nonNullItems)
+                    name
+                }
+            }
+
             UnionCategory.STRING_OR -> {
                 val other = cls.nonNullItems
                     .firstOrNull { !isStringLike(it) }
@@ -553,6 +563,133 @@ class UnionGenerator(private val resolver: TypeResolver) {
                         line("$aDiscriminator ->")
                         indent { line("$name.$aBranch.serializer() $cast") }
                         line("else -> $name.$xBranch.serializer() $cast")
+                    }
+                    line("}")
+                }
+                line("}")
+            }
+            line("}")
+        }
+        emittedSealedInterfaces[name] = w.toString()
+    }
+
+    /**
+     * Emit a sealed interface for a method-result-style union of refs/aliases and
+     * arrays-of-refs (e.g. `CompletionItem[] | CompletionList`,
+     * `Definition | DefinitionLink[]`, `SymbolInformation[] | DocumentSymbol[]`).
+     * One @JvmInline value-class branch per union item. The serializer discriminates
+     * a JSON object → the object branch, and a JSON array → the array branch whose
+     * element carries a distinguishing required field (a branch that is also
+     * object-capable — i.e. an alias to `T | T[]` — is the array default). The
+     * classifier only routes here when the branches are actually distinguishable.
+     */
+    private fun emitArrayRefUnionSealed(name: String, items: List<LspType>) {
+        if (name in emittedSealedInterfaces) return
+
+        data class Branch(
+            val branchName: String,
+            val valueType: String,
+            val arrayElementStruct: Structure?,
+            val objectCapable: Boolean
+        )
+
+        fun aliasArrayElement(ref: LspType.Reference): LspType? {
+            val target = resolver.getAlias(ref.name)?.type
+            if (target is LspType.Or &&
+                classifyUnion(target, resolver).category == UnionCategory.T_OR_ARRAY_T
+            ) {
+                return target.items.firstOrNull { it !is LspType.Array }
+            }
+            return null
+        }
+
+        val branches = items.map { item ->
+            if (item is LspType.Array) {
+                val elemType = resolver.resolve(item.element, name)
+                val simple = elemType.substringAfterLast('.').substringBefore('<')
+                Branch(
+                    "${simple}Array",
+                    "List<$elemType>",
+                    resolver.underlyingStructure(item.element),
+                    false
+                )
+            } else {
+                val valueType = resolver.resolve(item, name)
+                val simple = valueType.substringAfterLast('.').substringBefore('<')
+                val arrayElem = (item as? LspType.Reference)?.let { aliasArrayElement(it) }
+                Branch(
+                    "${simple}Value",
+                    valueType,
+                    arrayElem?.let {
+                        resolver.underlyingStructure(it)
+                    },
+                    true
+                )
+            }
+        }
+
+        fun required(s: Structure) =
+            resolver.collectAllProperties(s).filter { !it.optional }.map { it.name }
+
+        val arrayBranches = branches.filter { it.arrayElementStruct != null }
+        val keyed = arrayBranches.mapNotNull { b ->
+            val others = arrayBranches.filter { it !== b }
+                .flatMap { required(it.arrayElementStruct!!) }.toSet()
+            (required(b.arrayElementStruct!!).toSet() - others).firstOrNull()?.let { b to it }
+        }
+        val defaultArrayBranch =
+            arrayBranches.firstOrNull { it.objectCapable }
+                ?: arrayBranches.firstOrNull { b -> keyed.none { it.first === b } }
+                ?: arrayBranches.first()
+        val objectBranch = branches.firstOrNull { it.objectCapable }
+
+        val cast = "as DeserializationStrategy<$name>"
+        val w = CodeWriter()
+        w.line("/**")
+        w.line(" * Sealed interface for an LSP method-result union (value-class branches).")
+        w.line(" */")
+        w.line("@Serializable(with = ${name}Serializer::class)")
+        w.block("sealed interface $name") {
+            branches.forEachIndexed { i, b ->
+                if (i > 0) line()
+                line("@Serializable")
+                line("@JvmInline")
+                line("value class ${b.branchName}(val value: ${b.valueType}) : $name")
+            }
+        }
+        w.line()
+        w.line("object ${name}Serializer :")
+        w.indent {
+            line("JsonContentPolymorphicSerializer<$name>($name::class) {")
+            indent {
+                line("override fun selectDeserializer(")
+                indent { line("element: JsonElement") }
+                line("): DeserializationStrategy<$name> {")
+                indent {
+                    line("return when {")
+                    indent {
+                        if (objectBranch != null) {
+                            line(
+                                "element is JsonObject -> " +
+                                    "$name.${objectBranch.branchName}.serializer() $cast"
+                            )
+                        }
+                        for ((b, field) in keyed) {
+                            if (b === defaultArrayBranch) continue
+                            line(
+                                "element is JsonArray && (element.firstOrNull() as? JsonObject)" +
+                                    "?.containsKey(\"$field\") == true ->"
+                            )
+                            indent { line("$name.${b.branchName}.serializer() $cast") }
+                        }
+                        line(
+                            "element is JsonArray -> " +
+                                "$name.${defaultArrayBranch.branchName}.serializer() $cast"
+                        )
+                        line("else ->")
+                        indent {
+                            line("throw SerializationException(\"Unexpected $name: \$element\")")
+                        }
                     }
                     line("}")
                 }

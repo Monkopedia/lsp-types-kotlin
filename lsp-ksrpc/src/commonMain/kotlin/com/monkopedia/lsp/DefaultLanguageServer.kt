@@ -20,10 +20,14 @@ import kotlinx.serialization.json.JsonElement
  */
 open class DefaultLanguageServer : KsrpcLanguageServer {
 
-    override suspend fun textDocumentImplementation(params: ImplementationParams): JsonElement =
+    override suspend fun textDocumentImplementation(
+        params: ImplementationParams
+    ): TextDocumentImplementationResult =
         throw NotImplementedError("textDocumentImplementation not implemented")
 
-    override suspend fun textDocumentTypeDefinition(params: TypeDefinitionParams): JsonElement =
+    override suspend fun textDocumentTypeDefinition(
+        params: TypeDefinitionParams
+    ): TextDocumentTypeDefinitionResult =
         throw NotImplementedError("textDocumentTypeDefinition not implemented")
 
     override suspend fun textDocumentDocumentColor(
@@ -39,7 +43,9 @@ open class DefaultLanguageServer : KsrpcLanguageServer {
     override suspend fun textDocumentFoldingRange(params: FoldingRangeParams): List<FoldingRange> =
         throw NotImplementedError("textDocumentFoldingRange not implemented")
 
-    override suspend fun textDocumentDeclaration(params: DeclarationParams): JsonElement =
+    override suspend fun textDocumentDeclaration(
+        params: DeclarationParams
+    ): TextDocumentDeclarationResult =
         throw NotImplementedError("textDocumentDeclaration not implemented")
 
     override suspend fun textDocumentSelectionRange(
@@ -124,7 +130,9 @@ open class DefaultLanguageServer : KsrpcLanguageServer {
         params: WorkspaceDiagnosticParams
     ): WorkspaceDiagnosticReport = throw NotImplementedError("workspaceDiagnostic not implemented")
 
-    override suspend fun textDocumentInlineCompletion(params: InlineCompletionParams): JsonElement =
+    override suspend fun textDocumentInlineCompletion(
+        params: InlineCompletionParams
+    ): TextDocumentInlineCompletionResult =
         throw NotImplementedError("textDocumentInlineCompletion not implemented")
 
     override suspend fun initialize(params: InitializeParams): InitializeResult =
@@ -137,7 +145,9 @@ open class DefaultLanguageServer : KsrpcLanguageServer {
         params: WillSaveTextDocumentParams
     ): List<TextEdit> = throw NotImplementedError("textDocumentWillSaveWaitUntil not implemented")
 
-    override suspend fun textDocumentCompletion(params: CompletionParams): JsonElement =
+    override suspend fun textDocumentCompletion(
+        params: CompletionParams
+    ): TextDocumentCompletionResult =
         throw NotImplementedError("textDocumentCompletion not implemented")
 
     override suspend fun completionItemResolve(params: CompletionItem): CompletionItem =
@@ -149,7 +159,9 @@ open class DefaultLanguageServer : KsrpcLanguageServer {
     override suspend fun textDocumentSignatureHelp(params: SignatureHelpParams): SignatureHelp =
         throw NotImplementedError("textDocumentSignatureHelp not implemented")
 
-    override suspend fun textDocumentDefinition(params: DefinitionParams): JsonElement =
+    override suspend fun textDocumentDefinition(
+        params: DefinitionParams
+    ): TextDocumentDefinitionResult =
         throw NotImplementedError("textDocumentDefinition not implemented")
 
     override suspend fun textDocumentReferences(params: ReferenceParams): List<Location> =
@@ -160,7 +172,9 @@ open class DefaultLanguageServer : KsrpcLanguageServer {
     ): List<DocumentHighlight> =
         throw NotImplementedError("textDocumentDocumentHighlight not implemented")
 
-    override suspend fun textDocumentDocumentSymbol(params: DocumentSymbolParams): JsonElement =
+    override suspend fun textDocumentDocumentSymbol(
+        params: DocumentSymbolParams
+    ): TextDocumentDocumentSymbolResult =
         throw NotImplementedError("textDocumentDocumentSymbol not implemented")
 
     override suspend fun textDocumentCodeAction(

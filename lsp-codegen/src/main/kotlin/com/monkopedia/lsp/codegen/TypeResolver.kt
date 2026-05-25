@@ -199,6 +199,22 @@ class TypeResolver(private val model: MetaModel) {
     fun isEnum(name: String) = name in enumsByName
     fun isAlias(name: String) = name in aliasesByName
     fun getStructure(name: String) = structuresByName[name]
+    fun getAlias(name: String) = aliasesByName[name]
+
+    /**
+     * Resolve a reference (possibly through one or more type-alias hops) to the
+     * underlying [Structure], or `null` if it doesn't bottom out in a struct.
+     * E.g. `DefinitionLink` → alias → `LocationLink` (a structure).
+     */
+    fun underlyingStructure(type: LspType): Structure? {
+        var current = type
+        repeat(8) {
+            val ref = current as? LspType.Reference ?: return null
+            structuresByName[ref.name]?.let { return it }
+            current = aliasesByName[ref.name]?.type ?: return null
+        }
+        return null
+    }
 
     /**
      * If [type] refers to a [Structure] with no required properties (every property

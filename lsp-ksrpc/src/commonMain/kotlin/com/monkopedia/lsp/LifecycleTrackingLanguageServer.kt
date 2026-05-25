@@ -25,11 +25,13 @@ internal class LifecycleTrackingLanguageServer(
     private val lifecycle: LifecycleState
 ) : KsrpcLanguageServer {
 
-    override suspend fun textDocumentImplementation(params: ImplementationParams): JsonElement =
-        delegate.textDocumentImplementation(params)
+    override suspend fun textDocumentImplementation(
+        params: ImplementationParams
+    ): TextDocumentImplementationResult = delegate.textDocumentImplementation(params)
 
-    override suspend fun textDocumentTypeDefinition(params: TypeDefinitionParams): JsonElement =
-        delegate.textDocumentTypeDefinition(params)
+    override suspend fun textDocumentTypeDefinition(
+        params: TypeDefinitionParams
+    ): TextDocumentTypeDefinitionResult = delegate.textDocumentTypeDefinition(params)
 
     override suspend fun textDocumentDocumentColor(
         params: DocumentColorParams
@@ -42,8 +44,9 @@ internal class LifecycleTrackingLanguageServer(
     override suspend fun textDocumentFoldingRange(params: FoldingRangeParams): List<FoldingRange> =
         delegate.textDocumentFoldingRange(params)
 
-    override suspend fun textDocumentDeclaration(params: DeclarationParams): JsonElement =
-        delegate.textDocumentDeclaration(params)
+    override suspend fun textDocumentDeclaration(
+        params: DeclarationParams
+    ): TextDocumentDeclarationResult = delegate.textDocumentDeclaration(params)
 
     override suspend fun textDocumentSelectionRange(
         params: SelectionRangeParams
@@ -119,8 +122,9 @@ internal class LifecycleTrackingLanguageServer(
         params: WorkspaceDiagnosticParams
     ): WorkspaceDiagnosticReport = delegate.workspaceDiagnostic(params)
 
-    override suspend fun textDocumentInlineCompletion(params: InlineCompletionParams): JsonElement =
-        delegate.textDocumentInlineCompletion(params)
+    override suspend fun textDocumentInlineCompletion(
+        params: InlineCompletionParams
+    ): TextDocumentInlineCompletionResult = delegate.textDocumentInlineCompletion(params)
 
     override suspend fun initialize(params: InitializeParams): InitializeResult =
         delegate.initialize(params)
@@ -135,8 +139,9 @@ internal class LifecycleTrackingLanguageServer(
         params: WillSaveTextDocumentParams
     ): List<TextEdit> = delegate.textDocumentWillSaveWaitUntil(params)
 
-    override suspend fun textDocumentCompletion(params: CompletionParams): JsonElement =
-        delegate.textDocumentCompletion(params)
+    override suspend fun textDocumentCompletion(
+        params: CompletionParams
+    ): TextDocumentCompletionResult = delegate.textDocumentCompletion(params)
 
     override suspend fun completionItemResolve(params: CompletionItem): CompletionItem =
         delegate.completionItemResolve(params)
@@ -147,8 +152,9 @@ internal class LifecycleTrackingLanguageServer(
     override suspend fun textDocumentSignatureHelp(params: SignatureHelpParams): SignatureHelp =
         delegate.textDocumentSignatureHelp(params)
 
-    override suspend fun textDocumentDefinition(params: DefinitionParams): JsonElement =
-        delegate.textDocumentDefinition(params)
+    override suspend fun textDocumentDefinition(
+        params: DefinitionParams
+    ): TextDocumentDefinitionResult = delegate.textDocumentDefinition(params)
 
     override suspend fun textDocumentReferences(params: ReferenceParams): List<Location> =
         delegate.textDocumentReferences(params)
@@ -157,8 +163,9 @@ internal class LifecycleTrackingLanguageServer(
         params: DocumentHighlightParams
     ): List<DocumentHighlight> = delegate.textDocumentDocumentHighlight(params)
 
-    override suspend fun textDocumentDocumentSymbol(params: DocumentSymbolParams): JsonElement =
-        delegate.textDocumentDocumentSymbol(params)
+    override suspend fun textDocumentDocumentSymbol(
+        params: DocumentSymbolParams
+    ): TextDocumentDocumentSymbolResult = delegate.textDocumentDocumentSymbol(params)
 
     override suspend fun textDocumentCodeAction(
         params: CodeActionParams
