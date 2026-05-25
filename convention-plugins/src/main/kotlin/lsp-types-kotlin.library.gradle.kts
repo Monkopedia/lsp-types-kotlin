@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+
 plugins {
     id("org.jetbrains.kotlin.multiplatform")
     id("org.jetbrains.kotlin.plugin.serialization")
@@ -27,6 +30,29 @@ group = "com.monkopedia.lsp"
 
 ktlint {
     version.set("1.8.0")
+}
+
+// Aggregate verification task for the macOS CI leg: compile (and simulator/host
+// test) every Apple Kotlin/Native target — without redoing the JVM/JS/Wasm/Linux
+// work the ubuntu leg already covers. Auto-discovers Apple targets so new ones
+// are picked up. Testable targets (simulator/host) run their tests; device-only
+// targets compile their main klib.
+afterEvaluate {
+    val kmp = extensions.findByType(KotlinMultiplatformExtension::class.java)
+        ?: return@afterEvaluate
+    val appleTargets = kmp.targets.withType(KotlinNativeTarget::class.java)
+        .filter { it.konanTarget.family.isAppleFamily }
+    if (appleTargets.isEmpty()) return@afterEvaluate
+    tasks.register("appleCheck") {
+        group = "verification"
+        description = "Compiles and (simulator/host) tests all Apple Kotlin/Native targets."
+        dependsOn(
+            appleTargets.map { target ->
+                val testTask = "${target.name}Test"
+                if (tasks.findByName(testTask) != null) testTask else "${target.name}MainKlibrary"
+            }
+        )
+    }
 }
 
 // Signing uses the maintainer's GPG key. It's off by default so local builds
