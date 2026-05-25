@@ -24,7 +24,7 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.nio.channels.Channels
 import kotlin.coroutines.coroutineContext
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CoroutineScope
 
 /**
  * Open an LSP-compatible JSON-RPC connection over a pair of byte streams.
@@ -32,12 +32,13 @@ import kotlinx.coroutines.GlobalScope
  * Configures `Content-Length` framing and the LSP `$/cancelRequest` cancellation
  * convention. Use [connectAsLspClient] or [connectAsLspServer] to wire up service stubs.
  */
-@Suppress("OPT_IN_USAGE")
 suspend fun Pair<InputStream, OutputStream>.asLspConnection(
     env: KsrpcEnvironment<String> = lspKsrpcEnvironment()
 ): SingleChannelConnection<String> {
     val (input, output) = this
-    val writeChannel = GlobalScope.reader(coroutineContext) {
+    // Parent the stdout-pump coroutine to the caller's job (via coroutineContext)
+    // rather than GlobalScope, so it is cancelled when the caller's scope ends.
+    val writeChannel = CoroutineScope(coroutineContext).reader(coroutineContext) {
         val outputChannel = Channels.newChannel(output)
         while (!channel.isClosedForRead) {
             channel.read { buffer ->
