@@ -258,9 +258,11 @@ private fun runGeneration(args: Array<String>) {
                 fileHeader(
                     LSP_PACKAGE,
                     imports = listOf(
+                        "kotlin.jvm.JvmInline",
                         "kotlinx.serialization.DeserializationStrategy",
                         "kotlinx.serialization.SerializationException",
                         "kotlinx.serialization.Serializable",
+                        "kotlinx.serialization.json.JsonArray",
                         "kotlinx.serialization.json.JsonContentPolymorphicSerializer",
                         "kotlinx.serialization.json.JsonElement",
                         "kotlinx.serialization.json.JsonObject",
@@ -291,6 +293,7 @@ private fun preClassifyUnions(model: MetaModel, resolver: TypeResolver, unionGen
                     cls.category == UnionCategory.LITERAL_UNION ||
                     cls.category == UnionCategory.MIXED_REF_LITERAL ||
                     cls.category == UnionCategory.STRUCT_OR_ENUM ||
+                    cls.category == UnionCategory.REF_PLUS_SINGLE_ARRAY ||
                     cls.category == UnionCategory.BOOLEAN_OR_OPTIONS
                 ) {
                     unionGen.resolveUnion(type, contextName, topLevelAliasName)

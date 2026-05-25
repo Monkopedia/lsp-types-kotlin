@@ -17,54 +17,71 @@ package com.monkopedia.lsp
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
+import kotlin.test.assertTrue
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 
 class HoverContentsTest {
 
     private val json = Json { encodeDefaults = false }
 
     @Test
-    fun `markdown produces MarkupContent with markdown kind`() {
-        val element = HoverContents.markdown("**hello**")
-        val obj = (element as JsonObject).jsonObject
-        assertEquals("markdown", obj["kind"]?.jsonPrimitive?.content)
-        assertEquals("**hello**", obj["value"]?.jsonPrimitive?.content)
+    fun `markdown builds a MarkupContent markdown branch`() {
+        val contents = HoverContents.markdown("**hello**")
+        assertIs<HoverContents.MarkupContentValue>(contents)
+        assertEquals(MarkupKind.MARKDOWN, contents.value.kind)
+        assertEquals("**hello**", contents.value.value)
     }
 
     @Test
-    fun `plaintext produces MarkupContent with plaintext kind`() {
-        val element = HoverContents.plaintext("hello")
-        val obj = (element as JsonObject).jsonObject
-        assertEquals("plaintext", obj["kind"]?.jsonPrimitive?.content)
-        assertEquals("hello", obj["value"]?.jsonPrimitive?.content)
+    fun `plaintext builds a MarkupContent plaintext branch`() {
+        val contents = HoverContents.plaintext("hello")
+        assertIs<HoverContents.MarkupContentValue>(contents)
+        assertEquals(MarkupKind.PLAIN_TEXT, contents.value.kind)
     }
 
     @Test
-    fun `string produces a JSON string primitive - the deprecated MarkedString shape`() {
-        val element = HoverContents.string("a hint")
-        val prim = element as JsonPrimitive
-        assertEquals(true, prim.isString)
-        assertEquals("a hint", prim.content)
+    fun `string builds a MarkedString string branch`() {
+        val contents = HoverContents.string("a hint")
+        assertIs<HoverContents.MarkedStringValue>(contents)
+        val marked = contents.value
+        assertTrue(marked is StringOr.StringValue)
+        assertEquals("a hint", marked.value)
     }
 
     @Test
     fun `markup wraps a MarkupContent value`() {
-        val element = HoverContents.markup(MarkupContent(MarkupKind.MARKDOWN, "hi"))
-        val obj = (element as JsonObject).jsonObject
-        assertEquals("markdown", obj["kind"]?.jsonPrimitive?.content)
-        assertEquals("hi", obj["value"]?.jsonPrimitive?.content)
+        val contents = HoverContents.markup(MarkupContent(MarkupKind.MARKDOWN, "hi"))
+        assertIs<HoverContents.MarkupContentValue>(contents)
+        assertEquals("hi", contents.value.value)
     }
 
     @Test
-    fun `Hover with markdown contents round-trips through JSON`() {
+    fun `Hover with markdown contents round-trips as a MarkupContent`() {
         val original = Hover(contents = HoverContents.markdown("**bold**"))
-        val encoded = json.encodeToString(Hover.serializer(), original)
-        val decoded = json.decodeFromString(Hover.serializer(), encoded)
-        // Hover.contents is JsonElement, so equality check works on JsonElement ==.
-        assertEquals(original.contents, decoded.contents)
+        val decoded = json.decodeFromString(
+            Hover.serializer(),
+            json.encodeToString(Hover.serializer(), original)
+        )
+        val contents = decoded.contents
+        assertIs<HoverContents.MarkupContentValue>(contents)
+        assertEquals("**bold**", contents.value.value)
+        assertEquals(MarkupKind.MARKDOWN, contents.value.kind)
+    }
+
+    @Test
+    fun `Hover with a MarkedString array round-trips`() {
+        val original = Hover(
+            contents = HoverContents.MarkedStringArray(
+                listOf<MarkedString>(StringOr.StringValue("one"), StringOr.StringValue("two"))
+            )
+        )
+        val decoded = json.decodeFromString(
+            Hover.serializer(),
+            json.encodeToString(Hover.serializer(), original)
+        )
+        val contents = decoded.contents
+        assertIs<HoverContents.MarkedStringArray>(contents)
+        assertEquals(2, contents.value.size)
     }
 }
