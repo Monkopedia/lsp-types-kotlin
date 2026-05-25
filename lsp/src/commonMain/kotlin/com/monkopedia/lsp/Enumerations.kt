@@ -377,7 +377,7 @@ value class MessageType(val value: UInt) {
  */
 @Serializable
 @JvmInline
-value class TextDocumentSyncKind(val value: UInt) {
+value class TextDocumentSyncKind(val value: UInt) : ServerCapabilitiesTextDocumentSync {
     companion object {
         /**
          * Documents should not be synced at all.

@@ -162,7 +162,7 @@ data class TextDocumentSyncOptions(
      * sent.
      */
     val save: BooleanOr<SaveOptions>? = null
-)
+) : ServerCapabilitiesTextDocumentSync
 
 /**
  * Text document specific client capabilities.

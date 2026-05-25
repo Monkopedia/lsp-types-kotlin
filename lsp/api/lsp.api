@@ -8709,15 +8709,15 @@ public final class com/monkopedia/lsp/OptionalVersionedTextDocumentIdentifier$Co
 
 public final class com/monkopedia/lsp/ParameterInformation {
 	public static final field Companion Lcom/monkopedia/lsp/ParameterInformation$Companion;
-	public fun <init> (Lkotlinx/serialization/json/JsonElement;Lcom/monkopedia/lsp/StringOr;)V
-	public synthetic fun <init> (Lkotlinx/serialization/json/JsonElement;Lcom/monkopedia/lsp/StringOr;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Lkotlinx/serialization/json/JsonElement;
+	public fun <init> (Lcom/monkopedia/lsp/StringOr;Lcom/monkopedia/lsp/StringOr;)V
+	public synthetic fun <init> (Lcom/monkopedia/lsp/StringOr;Lcom/monkopedia/lsp/StringOr;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcom/monkopedia/lsp/StringOr;
 	public final fun component2 ()Lcom/monkopedia/lsp/StringOr;
-	public final fun copy (Lkotlinx/serialization/json/JsonElement;Lcom/monkopedia/lsp/StringOr;)Lcom/monkopedia/lsp/ParameterInformation;
-	public static synthetic fun copy$default (Lcom/monkopedia/lsp/ParameterInformation;Lkotlinx/serialization/json/JsonElement;Lcom/monkopedia/lsp/StringOr;ILjava/lang/Object;)Lcom/monkopedia/lsp/ParameterInformation;
+	public final fun copy (Lcom/monkopedia/lsp/StringOr;Lcom/monkopedia/lsp/StringOr;)Lcom/monkopedia/lsp/ParameterInformation;
+	public static synthetic fun copy$default (Lcom/monkopedia/lsp/ParameterInformation;Lcom/monkopedia/lsp/StringOr;Lcom/monkopedia/lsp/StringOr;ILjava/lang/Object;)Lcom/monkopedia/lsp/ParameterInformation;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getDocumentation ()Lcom/monkopedia/lsp/StringOr;
-	public final fun getLabel ()Lkotlinx/serialization/json/JsonElement;
+	public final fun getLabel ()Lcom/monkopedia/lsp/StringOr;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -9474,13 +9474,13 @@ public final class com/monkopedia/lsp/RelatedUnchangedDocumentDiagnosticReportRe
 
 public final class com/monkopedia/lsp/RelativePattern {
 	public static final field Companion Lcom/monkopedia/lsp/RelativePattern$Companion;
-	public fun <init> (Lkotlinx/serialization/json/JsonElement;Ljava/lang/String;)V
-	public final fun component1 ()Lkotlinx/serialization/json/JsonElement;
+	public fun <init> (Lcom/monkopedia/lsp/StringOr;Ljava/lang/String;)V
+	public final fun component1 ()Lcom/monkopedia/lsp/StringOr;
 	public final fun component2 ()Ljava/lang/String;
-	public final fun copy (Lkotlinx/serialization/json/JsonElement;Ljava/lang/String;)Lcom/monkopedia/lsp/RelativePattern;
-	public static synthetic fun copy$default (Lcom/monkopedia/lsp/RelativePattern;Lkotlinx/serialization/json/JsonElement;Ljava/lang/String;ILjava/lang/Object;)Lcom/monkopedia/lsp/RelativePattern;
+	public final fun copy (Lcom/monkopedia/lsp/StringOr;Ljava/lang/String;)Lcom/monkopedia/lsp/RelativePattern;
+	public static synthetic fun copy$default (Lcom/monkopedia/lsp/RelativePattern;Lcom/monkopedia/lsp/StringOr;Ljava/lang/String;ILjava/lang/Object;)Lcom/monkopedia/lsp/RelativePattern;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getBaseUri ()Lkotlinx/serialization/json/JsonElement;
+	public final fun getBaseUri ()Lcom/monkopedia/lsp/StringOr;
 	public final fun getPattern ()Ljava/lang/String;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
@@ -10528,8 +10528,8 @@ public final class com/monkopedia/lsp/SemanticTokensWorkspaceClientCapabilities$
 
 public final class com/monkopedia/lsp/ServerCapabilities {
 	public static final field Companion Lcom/monkopedia/lsp/ServerCapabilities$Companion;
-	public synthetic fun <init> (Ljava/lang/String;Lkotlinx/serialization/json/JsonElement;Lcom/monkopedia/lsp/ServerCapabilitiesNotebookDocumentSync;Lcom/monkopedia/lsp/CompletionOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/SignatureHelpOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/CodeLensOptions;Lcom/monkopedia/lsp/DocumentLinkOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/DocumentOnTypeFormattingOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/ExecuteCommandOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/ServerCapabilitiesSemanticTokensProvider;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/ServerCapabilitiesDiagnosticProvider;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/ServerCapabilitiesWorkspace;Lkotlinx/serialization/json/JsonElement;IILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Ljava/lang/String;Lkotlinx/serialization/json/JsonElement;Lcom/monkopedia/lsp/ServerCapabilitiesNotebookDocumentSync;Lcom/monkopedia/lsp/CompletionOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/SignatureHelpOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/CodeLensOptions;Lcom/monkopedia/lsp/DocumentLinkOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/DocumentOnTypeFormattingOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/ExecuteCommandOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/ServerCapabilitiesSemanticTokensProvider;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/ServerCapabilitiesDiagnosticProvider;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/ServerCapabilitiesWorkspace;Lkotlinx/serialization/json/JsonElement;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/lang/String;Lcom/monkopedia/lsp/ServerCapabilitiesTextDocumentSync;Lcom/monkopedia/lsp/ServerCapabilitiesNotebookDocumentSync;Lcom/monkopedia/lsp/CompletionOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/SignatureHelpOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/CodeLensOptions;Lcom/monkopedia/lsp/DocumentLinkOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/DocumentOnTypeFormattingOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/ExecuteCommandOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/ServerCapabilitiesSemanticTokensProvider;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/ServerCapabilitiesDiagnosticProvider;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/ServerCapabilitiesWorkspace;Lkotlinx/serialization/json/JsonElement;IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/lang/String;Lcom/monkopedia/lsp/ServerCapabilitiesTextDocumentSync;Lcom/monkopedia/lsp/ServerCapabilitiesNotebookDocumentSync;Lcom/monkopedia/lsp/CompletionOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/SignatureHelpOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/CodeLensOptions;Lcom/monkopedia/lsp/DocumentLinkOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/DocumentOnTypeFormattingOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/ExecuteCommandOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/ServerCapabilitiesSemanticTokensProvider;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/ServerCapabilitiesDiagnosticProvider;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/ServerCapabilitiesWorkspace;Lkotlinx/serialization/json/JsonElement;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1-beOAwYs ()Ljava/lang/String;
 	public final fun component10 ()Lcom/monkopedia/lsp/BooleanOr;
 	public final fun component11 ()Lcom/monkopedia/lsp/BooleanOr;
@@ -10541,7 +10541,7 @@ public final class com/monkopedia/lsp/ServerCapabilities {
 	public final fun component17 ()Lcom/monkopedia/lsp/BooleanOr;
 	public final fun component18 ()Lcom/monkopedia/lsp/BooleanOr;
 	public final fun component19 ()Lcom/monkopedia/lsp/BooleanOr;
-	public final fun component2 ()Lkotlinx/serialization/json/JsonElement;
+	public final fun component2 ()Lcom/monkopedia/lsp/ServerCapabilitiesTextDocumentSync;
 	public final fun component20 ()Lcom/monkopedia/lsp/BooleanOr;
 	public final fun component21 ()Lcom/monkopedia/lsp/DocumentOnTypeFormattingOptions;
 	public final fun component22 ()Lcom/monkopedia/lsp/BooleanOr;
@@ -10566,8 +10566,8 @@ public final class com/monkopedia/lsp/ServerCapabilities {
 	public final fun component7 ()Lcom/monkopedia/lsp/BooleanOr;
 	public final fun component8 ()Lcom/monkopedia/lsp/BooleanOr;
 	public final fun component9 ()Lcom/monkopedia/lsp/BooleanOr;
-	public final fun copy-ymNNQqo (Ljava/lang/String;Lkotlinx/serialization/json/JsonElement;Lcom/monkopedia/lsp/ServerCapabilitiesNotebookDocumentSync;Lcom/monkopedia/lsp/CompletionOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/SignatureHelpOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/CodeLensOptions;Lcom/monkopedia/lsp/DocumentLinkOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/DocumentOnTypeFormattingOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/ExecuteCommandOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/ServerCapabilitiesSemanticTokensProvider;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/ServerCapabilitiesDiagnosticProvider;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/ServerCapabilitiesWorkspace;Lkotlinx/serialization/json/JsonElement;)Lcom/monkopedia/lsp/ServerCapabilities;
-	public static synthetic fun copy-ymNNQqo$default (Lcom/monkopedia/lsp/ServerCapabilities;Ljava/lang/String;Lkotlinx/serialization/json/JsonElement;Lcom/monkopedia/lsp/ServerCapabilitiesNotebookDocumentSync;Lcom/monkopedia/lsp/CompletionOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/SignatureHelpOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/CodeLensOptions;Lcom/monkopedia/lsp/DocumentLinkOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/DocumentOnTypeFormattingOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/ExecuteCommandOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/ServerCapabilitiesSemanticTokensProvider;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/ServerCapabilitiesDiagnosticProvider;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/ServerCapabilitiesWorkspace;Lkotlinx/serialization/json/JsonElement;IILjava/lang/Object;)Lcom/monkopedia/lsp/ServerCapabilities;
+	public final fun copy-ymNNQqo (Ljava/lang/String;Lcom/monkopedia/lsp/ServerCapabilitiesTextDocumentSync;Lcom/monkopedia/lsp/ServerCapabilitiesNotebookDocumentSync;Lcom/monkopedia/lsp/CompletionOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/SignatureHelpOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/CodeLensOptions;Lcom/monkopedia/lsp/DocumentLinkOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/DocumentOnTypeFormattingOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/ExecuteCommandOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/ServerCapabilitiesSemanticTokensProvider;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/ServerCapabilitiesDiagnosticProvider;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/ServerCapabilitiesWorkspace;Lkotlinx/serialization/json/JsonElement;)Lcom/monkopedia/lsp/ServerCapabilities;
+	public static synthetic fun copy-ymNNQqo$default (Lcom/monkopedia/lsp/ServerCapabilities;Ljava/lang/String;Lcom/monkopedia/lsp/ServerCapabilitiesTextDocumentSync;Lcom/monkopedia/lsp/ServerCapabilitiesNotebookDocumentSync;Lcom/monkopedia/lsp/CompletionOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/SignatureHelpOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/CodeLensOptions;Lcom/monkopedia/lsp/DocumentLinkOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/DocumentOnTypeFormattingOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/ExecuteCommandOptions;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/ServerCapabilitiesSemanticTokensProvider;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/ServerCapabilitiesDiagnosticProvider;Lcom/monkopedia/lsp/BooleanOr;Lcom/monkopedia/lsp/ServerCapabilitiesWorkspace;Lkotlinx/serialization/json/JsonElement;IILjava/lang/Object;)Lcom/monkopedia/lsp/ServerCapabilities;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getCallHierarchyProvider ()Lcom/monkopedia/lsp/BooleanOr;
 	public final fun getCodeActionProvider ()Lcom/monkopedia/lsp/BooleanOr;
@@ -10600,7 +10600,7 @@ public final class com/monkopedia/lsp/ServerCapabilities {
 	public final fun getSelectionRangeProvider ()Lcom/monkopedia/lsp/BooleanOr;
 	public final fun getSemanticTokensProvider ()Lcom/monkopedia/lsp/ServerCapabilitiesSemanticTokensProvider;
 	public final fun getSignatureHelpProvider ()Lcom/monkopedia/lsp/SignatureHelpOptions;
-	public final fun getTextDocumentSync ()Lkotlinx/serialization/json/JsonElement;
+	public final fun getTextDocumentSync ()Lcom/monkopedia/lsp/ServerCapabilitiesTextDocumentSync;
 	public final fun getTypeDefinitionProvider ()Lcom/monkopedia/lsp/BooleanOr;
 	public final fun getTypeHierarchyProvider ()Lcom/monkopedia/lsp/BooleanOr;
 	public final fun getWorkspace ()Lcom/monkopedia/lsp/ServerCapabilitiesWorkspace;
@@ -10778,6 +10778,18 @@ public final class com/monkopedia/lsp/ServerCapabilitiesSemanticTokensProvider$C
 
 public final class com/monkopedia/lsp/ServerCapabilitiesSemanticTokensProviderSerializer : kotlinx/serialization/json/JsonContentPolymorphicSerializer {
 	public static final field INSTANCE Lcom/monkopedia/lsp/ServerCapabilitiesSemanticTokensProviderSerializer;
+}
+
+public abstract interface class com/monkopedia/lsp/ServerCapabilitiesTextDocumentSync {
+	public static final field Companion Lcom/monkopedia/lsp/ServerCapabilitiesTextDocumentSync$Companion;
+}
+
+public final class com/monkopedia/lsp/ServerCapabilitiesTextDocumentSync$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/monkopedia/lsp/ServerCapabilitiesTextDocumentSyncSerializer : kotlinx/serialization/json/JsonContentPolymorphicSerializer {
+	public static final field INSTANCE Lcom/monkopedia/lsp/ServerCapabilitiesTextDocumentSyncSerializer;
 }
 
 public abstract interface class com/monkopedia/lsp/ServerCapabilitiesTypeDefinitionProviderOptions {
@@ -12247,7 +12259,7 @@ public final class com/monkopedia/lsp/TextDocumentSyncClientCapabilities$Compani
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class com/monkopedia/lsp/TextDocumentSyncKind {
+public final class com/monkopedia/lsp/TextDocumentSyncKind : com/monkopedia/lsp/ServerCapabilitiesTextDocumentSync {
 	public static final field Companion Lcom/monkopedia/lsp/TextDocumentSyncKind$Companion;
 	public static final synthetic fun box-impl (I)Lcom/monkopedia/lsp/TextDocumentSyncKind;
 	public static fun constructor-impl (I)I
@@ -12280,7 +12292,7 @@ public final class com/monkopedia/lsp/TextDocumentSyncKind$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class com/monkopedia/lsp/TextDocumentSyncOptions {
+public final class com/monkopedia/lsp/TextDocumentSyncOptions : com/monkopedia/lsp/ServerCapabilitiesTextDocumentSync {
 	public static final field Companion Lcom/monkopedia/lsp/TextDocumentSyncOptions$Companion;
 	public synthetic fun <init> (Ljava/lang/Boolean;Lcom/monkopedia/lsp/TextDocumentSyncKind;Ljava/lang/Boolean;Ljava/lang/Boolean;Lcom/monkopedia/lsp/BooleanOr;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (Ljava/lang/Boolean;Lcom/monkopedia/lsp/TextDocumentSyncKind;Ljava/lang/Boolean;Ljava/lang/Boolean;Lcom/monkopedia/lsp/BooleanOr;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -13549,14 +13561,14 @@ public final class com/monkopedia/lsp/WorkspaceFoldersInitializeParams$Companion
 public final class com/monkopedia/lsp/WorkspaceFoldersServerCapabilities {
 	public static final field Companion Lcom/monkopedia/lsp/WorkspaceFoldersServerCapabilities$Companion;
 	public fun <init> ()V
-	public fun <init> (Ljava/lang/Boolean;Lkotlinx/serialization/json/JsonElement;)V
-	public synthetic fun <init> (Ljava/lang/Boolean;Lkotlinx/serialization/json/JsonElement;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/Boolean;Lcom/monkopedia/lsp/BooleanOr;)V
+	public synthetic fun <init> (Ljava/lang/Boolean;Lcom/monkopedia/lsp/BooleanOr;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/Boolean;
-	public final fun component2 ()Lkotlinx/serialization/json/JsonElement;
-	public final fun copy (Ljava/lang/Boolean;Lkotlinx/serialization/json/JsonElement;)Lcom/monkopedia/lsp/WorkspaceFoldersServerCapabilities;
-	public static synthetic fun copy$default (Lcom/monkopedia/lsp/WorkspaceFoldersServerCapabilities;Ljava/lang/Boolean;Lkotlinx/serialization/json/JsonElement;ILjava/lang/Object;)Lcom/monkopedia/lsp/WorkspaceFoldersServerCapabilities;
+	public final fun component2 ()Lcom/monkopedia/lsp/BooleanOr;
+	public final fun copy (Ljava/lang/Boolean;Lcom/monkopedia/lsp/BooleanOr;)Lcom/monkopedia/lsp/WorkspaceFoldersServerCapabilities;
+	public static synthetic fun copy$default (Lcom/monkopedia/lsp/WorkspaceFoldersServerCapabilities;Ljava/lang/Boolean;Lcom/monkopedia/lsp/BooleanOr;ILjava/lang/Object;)Lcom/monkopedia/lsp/WorkspaceFoldersServerCapabilities;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getChangeNotifications ()Lkotlinx/serialization/json/JsonElement;
+	public final fun getChangeNotifications ()Lcom/monkopedia/lsp/BooleanOr;
 	public final fun getSupported ()Ljava/lang/Boolean;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;

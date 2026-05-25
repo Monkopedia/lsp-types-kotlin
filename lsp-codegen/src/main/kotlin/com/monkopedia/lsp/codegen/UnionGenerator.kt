@@ -34,6 +34,9 @@ class UnionGenerator(private val resolver: TypeResolver) {
     /** Map from concrete struct name to list of sealed interfaces it implements. */
     val structureInterfaces = mutableMapOf<String, MutableList<String>>()
 
+    /** Map from enum name to list of sealed interfaces it implements (STRUCT_OR_ENUM). */
+    val enumInterfaces = mutableMapOf<String, MutableList<String>>()
+
     /**
      * Resolve a union to its Kotlin type string and register any necessary
      * sealed interfaces / branch classes.
@@ -91,9 +94,19 @@ class UnionGenerator(private val resolver: TypeResolver) {
                 }
             }
 
+            UnionCategory.STRUCT_OR_ENUM -> {
+                val name = topLevelAliasName ?: contextName.ifEmpty { "" }
+                if (name.isEmpty()) {
+                    "JsonElement"
+                } else {
+                    emitStructOrEnumSealed(name, cls.nonNullItems)
+                    name
+                }
+            }
+
             UnionCategory.STRING_OR -> {
                 val other = cls.nonNullItems
-                    .firstOrNull { it !is LspType.Base || it.name != "string" }
+                    .firstOrNull { !isStringLike(it) }
                     ?: return "JsonElement"
                 // Use a suffix so an inline literal in the other branch doesn't collide
                 // with the parent alias/context name (would create a recursive typealias).
@@ -131,11 +144,12 @@ class UnionGenerator(private val resolver: TypeResolver) {
         val nonBoolean = cls.nonNullItems
             .filter { !(it is LspType.Base && it.name == "boolean") }
 
-        // Single-options case: BooleanOr<HoverOptions>
+        // Single-options case: BooleanOr<HoverOptions>, or BooleanOr<String> for
+        // a base-type branch (e.g. `boolean | string`).
         if (nonBoolean.size == 1) {
             val onlyType = nonBoolean[0]
-            if (onlyType is LspType.Reference) {
-                return "BooleanOr<${onlyType.name}>"
+            if (onlyType is LspType.Reference || onlyType is LspType.Base) {
+                return "BooleanOr<${resolver.resolve(onlyType, contextName)}>"
             }
             // Inline literal/empty object — use JsonElement as the option type.
             return "BooleanOr<JsonElement>"
@@ -356,6 +370,52 @@ class UnionGenerator(private val resolver: TypeResolver) {
                                 "\"Unknown $name variant: \$obj\")"
                         )
                     }
+                    line("}")
+                }
+                line("}")
+            }
+            line("}")
+        }
+        emittedSealedInterfaces[name] = w.toString()
+    }
+
+    /**
+     * Emit a sealed interface for a `struct | enum` union (e.g.
+     * `TextDocumentSyncOptions | TextDocumentSyncKind`). The struct implements it
+     * via [structureInterfaces]; the enum (a `@Serializable` enum/value class)
+     * implements it via [enumInterfaces]. Discrimination is by JSON shape — an
+     * object decodes as the struct, anything else (an int/string primitive) as
+     * the enum.
+     */
+    private fun emitStructOrEnumSealed(name: String, branches: List<LspType>) {
+        if (name in emittedSealedInterfaces) return
+        val refs = branches.filterIsInstance<LspType.Reference>()
+        val structRef = refs.firstOrNull { resolver.isStructure(it.name) } ?: return
+        val enumRef = refs.firstOrNull { resolver.isEnum(it.name) } ?: return
+
+        structureInterfaces.getOrPut(structRef.name) { mutableListOf() }.add(name)
+        enumInterfaces.getOrPut(enumRef.name) { mutableListOf() }.add(name)
+
+        val cast = "as DeserializationStrategy<$name>"
+        val w = CodeWriter()
+        w.line("/**")
+        w.line(" * Sealed interface for the LSP union: ${structRef.name} | ${enumRef.name}.")
+        w.line(" */")
+        w.line("@Serializable(with = ${name}Serializer::class)")
+        w.line("sealed interface $name")
+        w.line()
+        w.line("object ${name}Serializer :")
+        w.indent {
+            line("JsonContentPolymorphicSerializer<$name>($name::class) {")
+            indent {
+                line("override fun selectDeserializer(")
+                indent { line("element: JsonElement") }
+                line("): DeserializationStrategy<$name> {")
+                indent {
+                    line("return if (element is JsonObject) {")
+                    indent { line("${structRef.name}.serializer() $cast") }
+                    line("} else {")
+                    indent { line("${enumRef.name}.serializer() $cast") }
                     line("}")
                 }
                 line("}")

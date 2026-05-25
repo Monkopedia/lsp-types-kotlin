@@ -91,7 +91,7 @@ private fun runGeneration(args: Array<String>) {
     preClassifyUnions(model, resolver, unionGen)
 
     val structGen = StructureGenerator(resolver, unionGen.structureInterfaces)
-    val enumGen = EnumGenerator(resolver)
+    val enumGen = EnumGenerator(resolver, unionGen.enumInterfaces)
     val aliasGen = TypeAliasGenerator(resolver)
     // Group structures by namespace prefix for per-file organization.
     // Structures starting with _ are internal helpers, group with their parent.
@@ -263,6 +263,7 @@ private fun runGeneration(args: Array<String>) {
                         "kotlinx.serialization.Serializable",
                         "kotlinx.serialization.json.JsonContentPolymorphicSerializer",
                         "kotlinx.serialization.json.JsonElement",
+                        "kotlinx.serialization.json.JsonObject",
                         "kotlinx.serialization.json.JsonPrimitive",
                         "kotlinx.serialization.json.contentOrNull",
                         "kotlinx.serialization.json.jsonObject"
@@ -289,6 +290,7 @@ private fun preClassifyUnions(model: MetaModel, resolver: TypeResolver, unionGen
                 if (cls.category == UnionCategory.NAMED_REFERENCES ||
                     cls.category == UnionCategory.LITERAL_UNION ||
                     cls.category == UnionCategory.MIXED_REF_LITERAL ||
+                    cls.category == UnionCategory.STRUCT_OR_ENUM ||
                     cls.category == UnionCategory.BOOLEAN_OR_OPTIONS
                 ) {
                     unionGen.resolveUnion(type, contextName, topLevelAliasName)

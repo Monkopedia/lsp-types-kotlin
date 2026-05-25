@@ -16,7 +16,8 @@ public final class com/monkopedia/lsp/codegen/CodeWriterKt {
 }
 
 public final class com/monkopedia/lsp/codegen/EnumGenerator {
-	public fun <init> (Lcom/monkopedia/lsp/codegen/TypeResolver;)V
+	public fun <init> (Lcom/monkopedia/lsp/codegen/TypeResolver;Ljava/util/Map;)V
+	public synthetic fun <init> (Lcom/monkopedia/lsp/codegen/TypeResolver;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun generate (Lcom/monkopedia/lsp/codegen/Enumeration;)Ljava/lang/String;
 }
 
@@ -720,6 +721,7 @@ public final class com/monkopedia/lsp/codegen/UnionCategory : java/lang/Enum {
 	public static final field MIXED_REF_LITERAL Lcom/monkopedia/lsp/codegen/UnionCategory;
 	public static final field NAMED_REFERENCES Lcom/monkopedia/lsp/codegen/UnionCategory;
 	public static final field STRING_OR Lcom/monkopedia/lsp/codegen/UnionCategory;
+	public static final field STRUCT_OR_ENUM Lcom/monkopedia/lsp/codegen/UnionCategory;
 	public static final field T_OR_ARRAY_T Lcom/monkopedia/lsp/codegen/UnionCategory;
 	public static final field T_OR_NULL Lcom/monkopedia/lsp/codegen/UnionCategory;
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
@@ -750,6 +752,7 @@ public final class com/monkopedia/lsp/codegen/UnionClassifierKt {
 public final class com/monkopedia/lsp/codegen/UnionGenerator {
 	public fun <init> (Lcom/monkopedia/lsp/codegen/TypeResolver;)V
 	public final fun generateUnionsFile ()Ljava/lang/String;
+	public final fun getEnumInterfaces ()Ljava/util/Map;
 	public final fun getLiteralBranches ()Ljava/util/Map;
 	public final fun getStructureInterfaces ()Ljava/util/Map;
 	public final fun resolveUnion (Lcom/monkopedia/lsp/codegen/LspType$Or;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;

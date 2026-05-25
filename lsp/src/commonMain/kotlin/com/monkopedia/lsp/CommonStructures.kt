@@ -1824,7 +1824,7 @@ data class ServerCapabilities(
      * defining each notification or for backwards compatibility the
      * TextDocumentSyncKind number.
      */
-    val textDocumentSync: JsonElement? = null,
+    val textDocumentSync: ServerCapabilitiesTextDocumentSync? = null,
     /**
      * Defines how notebook documents are synced.
      *
@@ -2440,7 +2440,7 @@ data class ParameterInformation(
      * *Note*: a label of type string should be a substring of its containing signature label.
      * Its intended use case is to highlight the parameter label part in the `SignatureInformation.label`.
      */
-    val label: JsonElement,
+    val label: StringOr<List<UInt>>,
     /**
      * The human-readable doc-comment of this parameter. Will be shown
      * in the UI but can be omitted.
@@ -2476,7 +2476,7 @@ data class RelativePattern(
      * A workspace folder or a base URI to which this pattern will be matched
      * against relatively.
      */
-    val baseUri: JsonElement,
+    val baseUri: StringOr<WorkspaceFolder>,
     /**
      * The actual glob pattern;
      */
