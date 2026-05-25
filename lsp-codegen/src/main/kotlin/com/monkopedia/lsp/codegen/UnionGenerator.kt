@@ -254,52 +254,102 @@ class UnionGenerator(private val resolver: TypeResolver) {
         }
         val cast = "as DeserializationStrategy<$sealedName>"
 
-        // Try kind-discriminator first (most reliable when branches use string literals).
-        val kindMap = branches.mapNotNull { (name, props) ->
-            val kindProp = props.firstOrNull { it.name == "kind" }
-            val kindType = kindProp?.type
-            val kindValue = (kindType as? LspType.StringLiteral)?.value
-            kindValue?.let { name to it }
+        data class Info(
+            val name: String,
+            val kindValue: String?,
+            val required: Set<String>,
+            val all: Set<String>
+        )
+        val infos = branches.map { (name, props) ->
+            val kindType = props.firstOrNull { it.name == "kind" }?.type
+            Info(
+                name = name,
+                kindValue = (kindType as? LspType.StringLiteral)?.value,
+                required = props.filter { !it.optional }.map { it.name }.toSet(),
+                all = props.map { it.name }.toSet()
+            )
         }
-        if (kindMap.size == branches.size && kindMap.isNotEmpty()) {
-            for ((name, kindValue) in kindMap) {
+
+        // Fast path: every branch carries a distinct `kind` string-literal — the
+        // spec's intended discriminator (e.g. the DocumentDiagnosticReport family,
+        // "full" vs "unchanged"). Key on the kind VALUE for all branches.
+        if (infos.all { it.kindValue != null } &&
+            infos.mapNotNull { it.kindValue }.toSet().size == infos.size &&
+            infos.isNotEmpty()
+        ) {
+            for (info in infos) {
                 w.line(
-                    "(obj[\"kind\"] as? JsonPrimitive)" +
-                        "?.contentOrNull == \"$kindValue\" -> $name.serializer() $cast"
+                    "(obj[\"kind\"] as? JsonPrimitive)?.contentOrNull == " +
+                        "\"${info.kindValue}\" -> ${info.name}.serializer() $cast"
                 )
             }
             return
         }
 
-        // Fall back to unique-required-field discrimination.
-        // Compute each branch's discriminator and required-field count up front,
-        // then ORDER cases so that more-specific branches (those with a unique
-        // required field, or more required fields) come BEFORE less-specific ones.
-        // Without this, e.g. `DeclarationOptions | DeclarationRegistrationOptions`
-        // (where the latter extends the former) would always pick the parent.
-        data class Case(val name: String, val discriminator: String, val priority: Int)
-        val cases = branches.map { (name, props) ->
-            val required = props.filter { !it.optional }.map { it.name }.toSet()
-            val others = branches.filter { it.first != name }
-                .flatMap { it.second.filter { p -> !p.optional }.map { p -> p.name } }
-                .toSet()
-            val unique = required - others
+        // Initial discriminator (the long-standing strategy): a required field
+        // unique to this branch, else its first required field, else a catch-all.
+        // Branches whose required-field sets fully overlap collide here; those are
+        // resolved below. Non-colliding branches are left exactly as before.
+        class Case(var discriminator: String, var priority: Int)
+        val cases = infos.associateWithTo(LinkedHashMap()) { info ->
+            val otherRequired = infos.filter { it !== info }.flatMap { it.required }.toSet()
+            val unique = info.required - otherRequired
             when {
-                // Best: unique required field — highest priority.
                 unique.isNotEmpty() ->
-                    Case(name, "\"${unique.first()}\" in obj", priority = 100 + required.size)
+                    Case("\"${unique.first()}\" in obj", 100 + info.required.size)
 
-                // Some required field but not unique — medium priority.
-                required.isNotEmpty() ->
-                    Case(name, "\"${required.first()}\" in obj", priority = required.size)
+                info.required.isNotEmpty() ->
+                    Case("\"${info.required.first()}\" in obj", info.required.size)
 
-                // Nothing required — fallback, lowest priority.
-                else -> Case(name, "/* fallback */ obj.isNotEmpty()", priority = 0)
+                else -> Case("/* fallback */ obj.isNotEmpty()", 0)
             }
-        }.sortedByDescending { it.priority }
+        }
 
-        for (case in cases) {
-            w.line("${case.discriminator} -> ${case.name}.serializer() $cast")
+        // Resolve collisions: two branches keyed identically means one is
+        // unreachable. Intervene ONLY on the colliding branches.
+        cases.entries.groupBy { it.value.discriminator }
+            .filterValues { it.size > 1 }
+            .forEach { (_, entries) ->
+                val group = entries.map { it.key }
+                val kinds = group.mapNotNull { it.kindValue }
+                if (kinds.size == group.size && kinds.toSet().size == group.size) {
+                    // All branches carry distinct `kind` literals — discriminate on
+                    // the kind VALUE (e.g. CreateFile/RenameFile/DeleteFile).
+                    group.forEach { info ->
+                        cases.getValue(info).discriminator =
+                            "(obj[\"kind\"] as? JsonPrimitive)?.contentOrNull == \"${info.kindValue}\""
+                        cases.getValue(info).priority = 1000
+                    }
+                } else {
+                    // Subtype case: one branch extends another with extra (often
+                    // optional) fields (e.g. NotebookDocumentSyncRegistrationOptions
+                    // adds optional `id`). Key the larger branches on a field unique
+                    // within the group; leave the smallest as the catch-all.
+                    val ordered = group.sortedByDescending { it.all.size }
+                    for (info in ordered.dropLast(1)) {
+                        val othersInGroup = group.filter { it !== info }.flatMap { it.all }.toSet()
+                        val extra = (info.all - othersInGroup).firstOrNull()
+                        requireNotNull(extra) {
+                            "Cannot disambiguate union $sealedName branches " +
+                                "${group.map { it.name }} — no distinguishing field"
+                        }
+                        cases.getValue(info).discriminator = "\"$extra\" in obj"
+                        cases.getValue(info).priority = 200 + info.all.size
+                    }
+                }
+            }
+
+        // Guard: any remaining collision means a branch is still unreachable.
+        val remaining = cases.entries.groupBy {
+            it.value.discriminator
+        }.filterValues { it.size > 1 }
+        require(remaining.isEmpty()) {
+            "Union $sealedName has unreachable branches: " +
+                remaining.map { (cond, cs) -> "$cond <- ${cs.map { it.key.name }}" }
+        }
+
+        cases.entries.sortedByDescending { it.value.priority }.forEach { (info, case) ->
+            w.line("${case.discriminator} -> ${info.name}.serializer() $cast")
         }
     }
 
