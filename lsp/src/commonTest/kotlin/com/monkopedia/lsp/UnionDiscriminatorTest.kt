@@ -437,4 +437,81 @@ class UnionDiscriminatorTest {
         )
         assertIs<TextDocumentSyncOptions>(asOptions)
     }
+
+    // ---- WorkspaceEditDocumentChanges — kind-value + presence discrimination ----
+    // Regression: CreateFile/RenameFile/DeleteFile share a `kind` field and `uri`,
+    // so required-field presence collides; they must discriminate on the `kind`
+    // string value. TextDocumentEdit (no `kind`) discriminates on presence.
+
+    @Test
+    fun `WorkspaceEditDocumentChanges create branch`() {
+        val decoded = json.decodeFromString(
+            WorkspaceEditDocumentChangesSerializer,
+            """{"kind": "create", "uri": "file:///new.kt"}"""
+        )
+        assertIs<CreateFile>(decoded)
+        assertEquals("file:///new.kt", decoded.uri)
+    }
+
+    @Test
+    fun `WorkspaceEditDocumentChanges rename branch`() {
+        val decoded = json.decodeFromString(
+            WorkspaceEditDocumentChangesSerializer,
+            """{"kind": "rename", "oldUri": "file:///a.kt", "newUri": "file:///b.kt"}"""
+        )
+        assertIs<RenameFile>(decoded)
+        assertEquals("file:///b.kt", decoded.newUri)
+    }
+
+    @Test
+    fun `WorkspaceEditDocumentChanges delete branch`() {
+        val decoded = json.decodeFromString(
+            WorkspaceEditDocumentChangesSerializer,
+            """{"kind": "delete", "uri": "file:///gone.kt"}"""
+        )
+        assertIs<DeleteFile>(decoded)
+        assertEquals("file:///gone.kt", decoded.uri)
+    }
+
+    @Test
+    fun `WorkspaceEditDocumentChanges textDocumentEdit branch`() {
+        val decoded = json.decodeFromString(
+            WorkspaceEditDocumentChangesSerializer,
+            """{"textDocument": {"uri": "file:///a.kt", "version": 1}, "edits": []}"""
+        )
+        assertIs<TextDocumentEdit>(decoded)
+    }
+
+    @Test
+    fun `WorkspaceEditDocumentChanges delete round-trip preserves branch`() {
+        val original: WorkspaceEditDocumentChanges =
+            DeleteFile(kind = "delete", uri = "file:///gone.kt")
+        val encoded = json.encodeToString(WorkspaceEditDocumentChangesSerializer, original)
+        val decoded = json.decodeFromString(WorkspaceEditDocumentChangesSerializer, encoded)
+        assertIs<DeleteFile>(decoded)
+    }
+
+    // ---- ServerCapabilitiesNotebookDocumentSync — subtype-by-optional-field ----
+    // Regression: RegistrationOptions extends Options with only an optional `id`,
+    // so required-field presence collides; the subtype must be tried first via its
+    // distinguishing optional field.
+
+    @Test
+    fun `NotebookDocumentSync registration branch when id present`() {
+        val decoded = json.decodeFromString(
+            ServerCapabilitiesNotebookDocumentSyncSerializer,
+            """{"notebookSelector": [], "id": "reg-1"}"""
+        )
+        assertIs<NotebookDocumentSyncRegistrationOptions>(decoded)
+        assertEquals("reg-1", decoded.id)
+    }
+
+    @Test
+    fun `NotebookDocumentSync options branch when no id`() {
+        val decoded = json.decodeFromString(
+            ServerCapabilitiesNotebookDocumentSyncSerializer,
+            """{"notebookSelector": []}"""
+        )
+        assertIs<NotebookDocumentSyncOptions>(decoded)
+    }
 }

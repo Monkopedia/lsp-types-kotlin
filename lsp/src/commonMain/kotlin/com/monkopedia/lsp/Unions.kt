@@ -605,9 +605,9 @@ object ServerCapabilitiesNotebookDocumentSyncSerializer :
     ): DeserializationStrategy<ServerCapabilitiesNotebookDocumentSync> {
         val obj = element.jsonObject
         return when {
-            "notebookSelector" in obj -> NotebookDocumentSyncOptions.serializer() as DeserializationStrategy<ServerCapabilitiesNotebookDocumentSync>
+            "id" in obj -> NotebookDocumentSyncRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesNotebookDocumentSync>
 
-            "notebookSelector" in obj -> NotebookDocumentSyncRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesNotebookDocumentSync>
+            "notebookSelector" in obj -> NotebookDocumentSyncOptions.serializer() as DeserializationStrategy<ServerCapabilitiesNotebookDocumentSync>
 
             else -> throw SerializationException(
                 "Unknown ServerCapabilitiesNotebookDocumentSync variant: $obj"
@@ -904,13 +904,13 @@ object WorkspaceEditDocumentChangesSerializer :
     ): DeserializationStrategy<WorkspaceEditDocumentChanges> {
         val obj = element.jsonObject
         return when {
+            (obj["kind"] as? JsonPrimitive)?.contentOrNull == "create" -> CreateFile.serializer() as DeserializationStrategy<WorkspaceEditDocumentChanges>
+
+            (obj["kind"] as? JsonPrimitive)?.contentOrNull == "delete" -> DeleteFile.serializer() as DeserializationStrategy<WorkspaceEditDocumentChanges>
+
             "oldUri" in obj -> RenameFile.serializer() as DeserializationStrategy<WorkspaceEditDocumentChanges>
 
             "textDocument" in obj -> TextDocumentEdit.serializer() as DeserializationStrategy<WorkspaceEditDocumentChanges>
-
-            "kind" in obj -> CreateFile.serializer() as DeserializationStrategy<WorkspaceEditDocumentChanges>
-
-            "kind" in obj -> DeleteFile.serializer() as DeserializationStrategy<WorkspaceEditDocumentChanges>
 
             else -> throw SerializationException(
                 "Unknown WorkspaceEditDocumentChanges variant: $obj"
