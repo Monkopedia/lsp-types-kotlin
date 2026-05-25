@@ -220,6 +220,18 @@ private fun runGeneration(args: Array<String>) {
             appendLine(fileHeader(LSP_PACKAGE, imports = defaultImports))
             appendLine(serviceGen.generateDefaultClient())
         }
+        writeFile(servicesPackageDir, "LifecycleTrackingLanguageServer.kt") {
+            appendLine(
+                fileHeader(
+                    LSP_PACKAGE,
+                    imports = listOf(
+                        "com.monkopedia.lsp.ksrpc.LifecycleState",
+                        "kotlinx.serialization.json.JsonElement"
+                    )
+                )
+            )
+            appendLine(serviceGen.generateLifecycleTrackingServer())
+        }
         println("Generated services in ${servicesPackageDir.absolutePath}")
     }
 

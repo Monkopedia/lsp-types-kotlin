@@ -23,6 +23,7 @@ import com.monkopedia.ksrpc.jsonrpc.asJsonRpcConnection
 import com.monkopedia.ksrpc.ksrpcEnvironment
 import com.monkopedia.lsp.KsrpcLanguageClient
 import com.monkopedia.lsp.KsrpcLanguageServer
+import com.monkopedia.lsp.LifecycleTrackingLanguageServer
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.ByteWriteChannel
 import kotlinx.serialization.json.Json
@@ -114,3 +115,16 @@ suspend fun SingleChannelConnection<String>.connectAsLspServer(
     }
     return client
 }
+
+/**
+ * Like [connectAsLspServer], but advances [lifecycle] automatically as the client
+ * drives the connection: to [LifecycleState.Phase.INITIALIZED] on the `initialized`
+ * notification, [LifecycleState.Phase.SHUTTING_DOWN] on `shutdown`, and
+ * [LifecycleState.Phase.EXITED] on `exit`. The server impl no longer has to drive
+ * the phase machine by hand; observe it via [LifecycleState.phases] /
+ * [LifecycleState.awaitInitialized].
+ */
+suspend fun SingleChannelConnection<String>.connectAsLspServer(
+    server: KsrpcLanguageServer,
+    lifecycle: LifecycleState
+): KsrpcLanguageClient = connectAsLspServer(LifecycleTrackingLanguageServer(server, lifecycle))
