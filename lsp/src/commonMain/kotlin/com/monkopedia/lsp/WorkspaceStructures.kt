@@ -325,7 +325,7 @@ data class WorkspaceFoldersServerCapabilities(
      * side. The ID can be used to unregister for these events
      * using the `client/unregisterCapability` request.
      */
-    val changeNotifications: JsonElement? = null
+    val changeNotifications: BooleanOr<String>? = null
 )
 
 /**

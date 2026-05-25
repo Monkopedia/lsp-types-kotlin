@@ -368,4 +368,73 @@ class UnionDiscriminatorTest {
         )
         assertTrue(asFilter.notebook is StringOr.Value)
     }
+
+    // ---- #19: boolean|base, string|tuple, struct|enum ----
+
+    @Test
+    fun `changeNotifications is BooleanOr of String - boolean and string`() {
+        val asBool = json.decodeFromString<WorkspaceFoldersServerCapabilities>(
+            """{"changeNotifications": true}"""
+        )
+        val b = asBool.changeNotifications
+        assertTrue(b is BooleanOr.BooleanValue)
+        assertEquals(true, b.value)
+
+        val asString = json.decodeFromString<WorkspaceFoldersServerCapabilities>(
+            """{"changeNotifications": "reg-id-1"}"""
+        )
+        val s = asString.changeNotifications
+        assertTrue(s is BooleanOr.Value)
+        assertEquals("reg-id-1", s.value)
+    }
+
+    @Test
+    fun `baseUri is StringOr of WorkspaceFolder - uri and object`() {
+        val asUri = json.decodeFromString<RelativePattern>(
+            """{"baseUri": "file:///root", "pattern": "*.kt"}"""
+        )
+        val u = asUri.baseUri
+        assertTrue(u is StringOr.StringValue)
+        assertEquals("file:///root", u.value)
+
+        val asFolder = json.decodeFromString<RelativePattern>(
+            """{"baseUri": {"uri": "file:///root", "name": "root"}, "pattern": "*.kt"}"""
+        )
+        val f = asFolder.baseUri
+        assertTrue(f is StringOr.Value)
+        assertEquals("root", f.value.name)
+    }
+
+    @Test
+    fun `ParameterInformation label is StringOr offsets - string and tuple`() {
+        val asString = json.decodeFromString<ParameterInformation>(
+            """{"label": "param"}"""
+        )
+        val s = asString.label
+        assertTrue(s is StringOr.StringValue)
+        assertEquals("param", s.value)
+
+        val asOffsets = json.decodeFromString<ParameterInformation>(
+            """{"label": [4, 9]}"""
+        )
+        val o = asOffsets.label
+        assertTrue(o is StringOr.Value)
+        assertEquals(listOf(4u, 9u), o.value)
+    }
+
+    @Test
+    fun `textDocumentSync discriminates options object vs kind int`() {
+        val asKind = json.decodeFromString(
+            ServerCapabilitiesTextDocumentSyncSerializer,
+            "2"
+        )
+        assertIs<TextDocumentSyncKind>(asKind)
+        assertEquals(2u, asKind.value)
+
+        val asOptions = json.decodeFromString(
+            ServerCapabilitiesTextDocumentSyncSerializer,
+            """{"openClose": true, "change": 1}"""
+        )
+        assertIs<TextDocumentSyncOptions>(asOptions)
+    }
 }

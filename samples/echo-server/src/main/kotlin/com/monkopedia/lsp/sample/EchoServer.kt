@@ -35,7 +35,6 @@ import com.monkopedia.lsp.ksrpc.stdInLspConnection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonPrimitive
 
 /**
  * Minimal LSP server demo. Reads from stdin and writes to stdout — connect to
@@ -62,7 +61,7 @@ fun main(): Unit = runBlocking(Dispatchers.IO) {
             state.transitionTo(LifecycleState.Phase.INITIALIZED)
             return InitializeResult(
                 capabilities = ServerCapabilities(
-                    textDocumentSync = JsonPrimitive(TextDocumentSyncKind.FULL.value.toInt()),
+                    textDocumentSync = TextDocumentSyncKind.FULL,
                     hoverProvider = com.monkopedia.lsp.BooleanOr.BooleanValue(true)
                 ),
                 serverInfo = InitializeResultServerInfo(

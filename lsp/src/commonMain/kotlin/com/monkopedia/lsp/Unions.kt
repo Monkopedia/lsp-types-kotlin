@@ -17,6 +17,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.JsonContentPolymorphicSerializer
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
@@ -630,6 +631,25 @@ object ServerCapabilitiesSemanticTokensProviderSerializer :
                 "Unknown ServerCapabilitiesSemanticTokensProvider variant: $obj"
             )
         }
+    }
+}
+
+/**
+ * Sealed interface for the LSP union: TextDocumentSyncOptions | TextDocumentSyncKind.
+ */
+@Serializable(with = ServerCapabilitiesTextDocumentSyncSerializer::class)
+sealed interface ServerCapabilitiesTextDocumentSync
+
+object ServerCapabilitiesTextDocumentSyncSerializer :
+    JsonContentPolymorphicSerializer<ServerCapabilitiesTextDocumentSync>(
+        ServerCapabilitiesTextDocumentSync::class
+    ) {
+    override fun selectDeserializer(
+        element: JsonElement
+    ): DeserializationStrategy<ServerCapabilitiesTextDocumentSync> = if (element is JsonObject) {
+        TextDocumentSyncOptions.serializer() as DeserializationStrategy<ServerCapabilitiesTextDocumentSync>
+    } else {
+        TextDocumentSyncKind.serializer() as DeserializationStrategy<ServerCapabilitiesTextDocumentSync>
     }
 }
 

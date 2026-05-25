@@ -24,7 +24,15 @@ import kotlinx.serialization.json.jsonPrimitive
  * Integer/uinteger enums or enums with supportsCustomValues →
  *   @Serializable value class wrapping the raw type, with companion constants.
  */
-class EnumGenerator(private val resolver: TypeResolver) {
+class EnumGenerator(
+    private val resolver: TypeResolver,
+    private val enumInterfaces: Map<String, List<String>> = emptyMap()
+) {
+
+    /** ` : Iface1, Iface2` if this enum implements any STRUCT_OR_ENUM sealed interfaces. */
+    private fun supertypeClause(name: String): String =
+        enumInterfaces[name]?.takeIf { it.isNotEmpty() }
+            ?.let { " : ${it.joinToString(", ")}" } ?: ""
 
     fun generate(enum: Enumeration): String {
         val w = CodeWriter()
@@ -41,7 +49,7 @@ class EnumGenerator(private val resolver: TypeResolver) {
     private fun generateEnumClass(w: CodeWriter, enum: Enumeration) {
         w.kdoc(enum.documentation, enum.since)
         w.line("@Serializable")
-        w.block("enum class ${enum.name}") {
+        w.block("enum class ${enum.name}${supertypeClause(enum.name)}") {
             enum.values.forEachIndexed { i, v ->
                 val comma = if (i < enum.values.lastIndex) "," else ","
                 val wireValue = v.value.jsonPrimitive.content
@@ -66,7 +74,7 @@ class EnumGenerator(private val resolver: TypeResolver) {
         w.kdoc(enum.documentation, enum.since)
         w.line("@Serializable")
         w.line("@JvmInline")
-        w.block("value class ${enum.name}(val value: $kotlinType)") {
+        w.block("value class ${enum.name}(val value: $kotlinType)${supertypeClause(enum.name)}") {
             w.block("companion object") {
                 for (v in enum.values) {
                     kdoc(v.documentation, v.since)

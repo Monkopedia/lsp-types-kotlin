@@ -37,6 +37,9 @@ enum class UnionCategory {
     /** `Ref | Literal | ...` (a mix of struct refs and inline literals) — sealed interface. */
     MIXED_REF_LITERAL,
 
+    /** `StructRef | EnumRef` (object | int/string-enum) — sealed interface; both branches implement it. */
+    STRUCT_OR_ENUM,
+
     /** `string | T` — generate `StringOr<T>`. */
     STRING_OR,
 
@@ -71,6 +74,9 @@ fun classifyUnion(type: LspType.Or, resolver: TypeResolver? = null): UnionClassi
     fun isStructRef(t: LspType): Boolean =
         t is LspType.Reference && (resolver == null || resolver.isStructure(t.name))
 
+    fun isEnumRef(t: LspType): Boolean =
+        t is LspType.Reference && resolver != null && resolver.isEnum(t.name)
+
     // The non-string branch of a `string | X` union. Beyond a structure ref or
     // inline literal, this also accepts an array (`string | T[]`) and a non-enum
     // alias reference (e.g. NotebookDocumentFilter, itself a union alias) — an enum
@@ -81,6 +87,8 @@ fun classifyUnion(type: LspType.Or, resolver: TypeResolver? = null): UnionClassi
         t is LspType.Literal -> true
 
         t is LspType.Array -> true
+
+        t is LspType.Tuple -> true
 
         t is LspType.Reference ->
             resolver != null && resolver.isAlias(t.name) && !resolver.isEnum(t.name)
@@ -96,6 +104,7 @@ fun classifyUnion(type: LspType.Or, resolver: TypeResolver? = null): UnionClassi
         nonNull.all { isStructRef(it) } -> UnionCategory.NAMED_REFERENCES
         isAllLiterals(nonNull) -> UnionCategory.LITERAL_UNION
         isRefLiteralMix(nonNull, ::isStructRef) -> UnionCategory.MIXED_REF_LITERAL
+        isStructOrEnum(nonNull, ::isStructRef, ::isEnumRef) -> UnionCategory.STRUCT_OR_ENUM
         isIntOrString(nonNull) -> UnionCategory.INT_OR_STRING
         isStringPlusOther(nonNull, ::isStringOrOther) -> UnionCategory.STRING_OR
         else -> UnionCategory.KEEP_JSON_ELEMENT
@@ -108,8 +117,10 @@ private fun isBoolPlusObjects(items: List<LspType>, isStructRef: (LspType) -> Bo
     val booleanCount = items.count { it is LspType.Base && it.name == "boolean" }
     if (booleanCount != 1) return false
     val others = items.filter { !(it is LspType.Base && it.name == "boolean") }
-    // The other items must all be struct references or literals (i.e., object-shaped).
-    return others.isNotEmpty() && others.all { isStructRef(it) || it is LspType.Literal }
+    // The other items must all be struct references, literals, or base types
+    // (e.g. `boolean | string` → BooleanOr<String>).
+    return others.isNotEmpty() &&
+        others.all { isStructRef(it) || it is LspType.Literal || it is LspType.Base }
 }
 
 private fun isTOrArrayT(items: List<LspType>): Boolean {
@@ -137,6 +148,16 @@ private fun isRefLiteralMix(items: List<LspType>, isStructRef: (LspType) -> Bool
     return allRefOrLiteral && hasRef && hasLiteral
 }
 
+/** `StructRef | EnumRef` — an object branch and an enum branch (e.g. options | kind). */
+private fun isStructOrEnum(
+    items: List<LspType>,
+    isStructRef: (LspType) -> Boolean,
+    isEnumRef: (LspType) -> Boolean
+): Boolean {
+    if (items.size != 2) return false
+    return items.count { isStructRef(it) } == 1 && items.count { isEnumRef(it) } == 1
+}
+
 private fun isAllLiterals(items: List<LspType>): Boolean = items.all { it is LspType.Literal }
 
 private fun isIntOrString(items: List<LspType>): Boolean {
@@ -146,9 +167,13 @@ private fun isIntOrString(items: List<LspType>): Boolean {
         baseNames == setOf("uinteger", "string")
 }
 
+/** A wire-string base type — `string`, or the URI aliases that serialize as strings. */
+internal fun isStringLike(t: LspType): Boolean =
+    t is LspType.Base && t.name in setOf("string", "URI", "DocumentUri")
+
 private fun isStringPlusOther(items: List<LspType>, isOther: (LspType) -> Boolean): Boolean {
     if (items.size != 2) return false
-    val hasString = items.any { it is LspType.Base && it.name == "string" }
-    val other = items.firstOrNull { !(it is LspType.Base && it.name == "string") } ?: return false
+    val hasString = items.any { isStringLike(it) }
+    val other = items.firstOrNull { !isStringLike(it) } ?: return false
     return hasString && isOther(other)
 }

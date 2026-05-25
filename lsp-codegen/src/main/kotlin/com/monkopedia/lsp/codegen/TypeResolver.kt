@@ -74,7 +74,14 @@ class TypeResolver(private val model: MetaModel) {
 
         is LspType.StringLiteral -> "String"
 
-        is LspType.Tuple -> "JsonArray"
+        is LspType.Tuple -> resolveTuple(type, context)
+    }
+
+    private fun resolveTuple(type: LspType.Tuple, context: String): String {
+        // A uniform tuple (e.g. `[uinteger, uinteger]`) maps to List<T>; a mixed
+        // tuple has no clean typed shape, so keep it as a raw JsonArray.
+        val elementTypes = type.items.map { resolveInner(it, context) }.toSet()
+        return if (elementTypes.size == 1) "List<${elementTypes.first()}>" else "JsonArray"
     }
 
     private fun resolveBase(name: String): String = when (name) {
