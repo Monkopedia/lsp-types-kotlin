@@ -104,7 +104,8 @@ class ServiceGenerator(private val resolver: TypeResolver, private val model: Me
     fun generateDefaultServer(): String = generateDefaultClass(
         name = "DefaultLanguageServer",
         interfaceName = "KsrpcLanguageServer",
-        doc = "Default [KsrpcLanguageServer] where every method throws NotImplementedError.\n" +
+        doc = "Default [KsrpcLanguageServer]: unimplemented requests throw " +
+            "NotImplementedError; notifications are no-ops.\n" +
             "Subclass and override only what you need.",
         requests = serverRequests,
         notifications = serverNotifications
@@ -113,7 +114,8 @@ class ServiceGenerator(private val resolver: TypeResolver, private val model: Me
     fun generateDefaultClient(): String = generateDefaultClass(
         name = "DefaultLanguageClient",
         interfaceName = "KsrpcLanguageClient",
-        doc = "Default [KsrpcLanguageClient] where every method throws NotImplementedError.\n" +
+        doc = "Default [KsrpcLanguageClient]: unimplemented requests throw " +
+            "NotImplementedError; notifications are no-ops.\n" +
             "Subclass and override only what you need.",
         requests = clientRequests,
         notifications = clientNotifications
@@ -251,14 +253,17 @@ class ServiceGenerator(private val resolver: TypeResolver, private val model: Me
     }
 
     private fun generateDefaultNotificationImpl(w: CodeWriter, notif: Notification) {
+        // Notifications are fire-and-forget with no response channel — a default
+        // that threw would crash the receive loop on any notification the subclass
+        // didn't override. Default to a no-op; override to handle.
         emitMethodSignature(
             w,
             notif.method,
             null,
             notif.params,
             prefix = "override suspend fun "
-        ) { _, methodName ->
-            w.line("    throw NotImplementedError(\"$methodName not implemented\")")
+        ) { _, _ ->
+            w.line("    // No-op by default; override to handle this notification.")
         }
     }
 
