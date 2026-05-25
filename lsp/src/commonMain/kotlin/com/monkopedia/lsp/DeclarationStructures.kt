@@ -46,7 +46,7 @@ data class DeclarationRegistrationOptions(
      * A document selector to identify the scope of the registration. If set to null
      * the document selector provided on the client side will be used.
      */
-    val documentSelector: DocumentSelector?,
+    val documentSelector: DocumentSelector? = null,
     /**
      * The id used to register the request. The id can be used to deregister
      * the request again. See also Registration#id.

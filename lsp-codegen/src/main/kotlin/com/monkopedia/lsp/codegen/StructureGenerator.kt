@@ -94,8 +94,13 @@ class StructureGenerator(
                     ""
                 }
                 kdoc(prop.documentation, prop.since)
+                // Every nullable property defaults to null — whether the spec marks
+                // it optional or "required but nullable" (e.g. InitializeParams.
+                // processId / rootUri). Lets callers omit it instead of writing
+                // `field = null`. Property order is left as-is (reordering would
+                // churn every constructor signature for no gain over named args).
                 val default = when {
-                    prop.optional -> " = null"
+                    isNullable -> " = null"
                     structuredDefault != null -> " = $structuredDefault"
                     else -> ""
                 }
