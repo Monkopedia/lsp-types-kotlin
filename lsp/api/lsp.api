@@ -145,6 +145,8 @@ public final class com/monkopedia/lsp/BooleanOr$BooleanValue : com/monkopedia/ls
 }
 
 public final class com/monkopedia/lsp/BooleanOr$Companion {
+	public final fun invoke (Z)Lcom/monkopedia/lsp/BooleanOr;
+	public final fun of (Ljava/lang/Object;)Lcom/monkopedia/lsp/BooleanOr;
 	public final fun serializer (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
 }
 
@@ -7005,6 +7007,8 @@ public abstract interface class com/monkopedia/lsp/IntOrString {
 }
 
 public final class com/monkopedia/lsp/IntOrString$Companion {
+	public final fun invoke (I)Lcom/monkopedia/lsp/IntOrString;
+	public final fun invoke (Ljava/lang/String;)Lcom/monkopedia/lsp/IntOrString;
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
@@ -11516,7 +11520,9 @@ public abstract interface class com/monkopedia/lsp/SingleOrArray {
 }
 
 public final class com/monkopedia/lsp/SingleOrArray$Companion {
+	public final fun multiple (Ljava/util/List;)Lcom/monkopedia/lsp/SingleOrArray;
 	public final fun serializer (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
+	public final fun single (Ljava/lang/Object;)Lcom/monkopedia/lsp/SingleOrArray;
 }
 
 public final class com/monkopedia/lsp/SingleOrArray$Multiple : com/monkopedia/lsp/SingleOrArray {
@@ -11590,6 +11596,8 @@ public abstract interface class com/monkopedia/lsp/StringOr {
 }
 
 public final class com/monkopedia/lsp/StringOr$Companion {
+	public final fun invoke (Ljava/lang/String;)Lcom/monkopedia/lsp/StringOr;
+	public final fun of (Ljava/lang/Object;)Lcom/monkopedia/lsp/StringOr;
 	public final fun serializer (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
 }
 

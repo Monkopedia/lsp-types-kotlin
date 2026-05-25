@@ -52,6 +52,14 @@ sealed interface BooleanOr<out T> {
     @JvmInline value class BooleanValue(val value: Boolean) : BooleanOr<Nothing>
 
     @JvmInline value class Value<out T>(val value: T) : BooleanOr<T>
+
+    public companion object {
+        /** Wrap a plain boolean, e.g. `BooleanOr(true)`. */
+        public operator fun invoke(value: Boolean): BooleanOr<Nothing> = BooleanValue(value)
+
+        /** Wrap an options object, e.g. `BooleanOr.of(HoverOptions(...))`. */
+        public fun <T> of(value: T): BooleanOr<T> = Value(value)
+    }
 }
 
 class BooleanOrSerializer<T>(private val tSerializer: KSerializer<T>) : KSerializer<BooleanOr<T>> {
@@ -96,6 +104,14 @@ sealed interface SingleOrArray<out T> {
     @JvmInline value class Single<out T>(val value: T) : SingleOrArray<T>
 
     @JvmInline value class Multiple<out T>(val value: List<T>) : SingleOrArray<T>
+
+    public companion object {
+        /** Wrap a single value, e.g. `SingleOrArray.single(location)`. */
+        public fun <T> single(value: T): SingleOrArray<T> = Single(value)
+
+        /** Wrap a list of values, e.g. `SingleOrArray.multiple(locations)`. */
+        public fun <T> multiple(values: List<T>): SingleOrArray<T> = Multiple(values)
+    }
 }
 
 class SingleOrArraySerializer<T>(private val tSerializer: KSerializer<T>) :
@@ -144,6 +160,14 @@ sealed interface StringOr<out T> {
     @JvmInline value class StringValue(val value: String) : StringOr<Nothing>
 
     @JvmInline value class Value<out T>(val value: T) : StringOr<T>
+
+    public companion object {
+        /** Wrap a plain string, e.g. `StringOr("plain text")`. */
+        public operator fun invoke(value: String): StringOr<Nothing> = StringValue(value)
+
+        /** Wrap a structured value, e.g. `StringOr.of(MarkupContent(...))`. */
+        public fun <T> of(value: T): StringOr<T> = Value(value)
+    }
 }
 
 class StringOrSerializer<T>(private val tSerializer: KSerializer<T>) : KSerializer<StringOr<T>> {
@@ -187,6 +211,14 @@ sealed interface IntOrString {
     @JvmInline value class IntValue(val value: Int) : IntOrString
 
     @JvmInline value class StringValue(val value: String) : IntOrString
+
+    public companion object {
+        /** Wrap an integer, e.g. `IntOrString(42)`. */
+        public operator fun invoke(value: Int): IntOrString = IntValue(value)
+
+        /** Wrap a string, e.g. `IntOrString("token-1")`. */
+        public operator fun invoke(value: String): IntOrString = StringValue(value)
+    }
 }
 
 object IntOrStringSerializer : KSerializer<IntOrString> {
