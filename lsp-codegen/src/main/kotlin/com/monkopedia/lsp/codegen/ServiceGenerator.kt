@@ -121,6 +121,72 @@ class ServiceGenerator(private val resolver: TypeResolver, private val model: Me
         notifications = clientNotifications
     )
 
+    /**
+     * A `KsrpcLanguageServer` decorator that delegates every call to a wrapped
+     * server while advancing a [LifecycleState] on the lifecycle methods. Plain
+     * (un-annotated) overrides — like `DefaultLanguageServer` — so it satisfies the
+     * `@KsService` interface without re-declaring `@KsMethod` (which the ksrpc FIR
+     * plugin only permits on the interface itself).
+     */
+    fun generateLifecycleTrackingServer(): String {
+        val w = CodeWriter()
+        w.kdoc(
+            "Wraps a [KsrpcLanguageServer], delegating every method while advancing\n" +
+                "[com.monkopedia.lsp.ksrpc.LifecycleState] on `initialized` / `shutdown` /\n" +
+                "`exit`. Used by `connectAsLspServer(server, lifecycle)`."
+        )
+        val header = "internal class LifecycleTrackingLanguageServer(" +
+            "private val delegate: KsrpcLanguageServer, " +
+            "private val lifecycle: LifecycleState) : KsrpcLanguageServer"
+        w.block(header) {
+            for (req in serverRequests) {
+                line()
+                generateTrackingImpl(this, req.method, req.result, req.params)
+            }
+            for (notif in serverNotifications) {
+                line()
+                generateTrackingImpl(this, notif.method, null, notif.params)
+            }
+        }
+        return w.toString()
+    }
+
+    private fun generateTrackingImpl(
+        w: CodeWriter,
+        method: String,
+        result: LspType?,
+        params: LspType?
+    ) {
+        val arg = if (params != null) "params" else ""
+        emitMethodSignature(w, method, result, params, prefix = "override suspend fun ") {
+                _,
+                name
+            ->
+            when (name) {
+                "initialized" -> {
+                    w.line("    delegate.initialized($arg)")
+                    w.line("    lifecycle.advanceTo(LifecycleState.Phase.INITIALIZED)")
+                }
+
+                "shutdown" -> {
+                    w.line("    val result = delegate.shutdown()")
+                    w.line("    lifecycle.advanceTo(LifecycleState.Phase.SHUTTING_DOWN)")
+                    w.line("    return result")
+                }
+
+                "exit" -> {
+                    w.line("    delegate.exit()")
+                    w.line("    lifecycle.advanceTo(LifecycleState.Phase.EXITED)")
+                }
+
+                else -> {
+                    val call = "delegate.$name($arg)"
+                    if (result != null) w.line("    return $call") else w.line("    $call")
+                }
+            }
+        }
+    }
+
     // ---- Implementation ----
 
     private fun generateCleanInterface(

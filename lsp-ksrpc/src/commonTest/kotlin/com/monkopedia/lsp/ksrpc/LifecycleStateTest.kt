@@ -15,11 +15,16 @@
  */
 package com.monkopedia.lsp.ksrpc
 
+import com.monkopedia.lsp.DefaultLanguageServer
+import com.monkopedia.lsp.InitializedParams
+import com.monkopedia.lsp.LifecycleTrackingLanguageServer
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.runTest
 
 class LifecycleStateTest {
 
@@ -87,5 +92,47 @@ class LifecycleStateTest {
         assertFailsWith<IllegalStateException> {
             state.transitionTo(LifecycleState.Phase.INITIALIZED)
         }
+    }
+
+    @Test
+    fun `advanceTo ignores illegal transitions without throwing`() {
+        val state = LifecycleState()
+        assertFalse(state.advanceTo(LifecycleState.Phase.SHUTTING_DOWN))
+        assertEquals(LifecycleState.Phase.INITIALIZING, state.phase)
+        assertTrue(state.advanceTo(LifecycleState.Phase.INITIALIZED))
+        assertEquals(LifecycleState.Phase.INITIALIZED, state.phase)
+        // Re-applying the same phase is not a legal forward transition: a no-op.
+        assertFalse(state.advanceTo(LifecycleState.Phase.INITIALIZED))
+    }
+
+    @Test
+    fun `awaitInitialized suspends until INITIALIZED`() = runTest {
+        val state = LifecycleState()
+        var resumed = false
+        val waiter = launch {
+            state.awaitInitialized()
+            resumed = true
+        }
+        assertFalse(resumed)
+        state.transitionTo(LifecycleState.Phase.INITIALIZED)
+        waiter.join()
+        assertTrue(resumed)
+    }
+
+    @Test
+    fun `tracking wrapper advances lifecycle on lifecycle calls`() = runTest {
+        val lifecycle = LifecycleState()
+        val delegate = object : DefaultLanguageServer() {
+            override suspend fun shutdown(): Nothing? = null
+        }
+        val server = LifecycleTrackingLanguageServer(delegate, lifecycle)
+
+        assertEquals(LifecycleState.Phase.INITIALIZING, lifecycle.phase)
+        server.initialized(InitializedParams())
+        assertEquals(LifecycleState.Phase.INITIALIZED, lifecycle.phase)
+        server.shutdown()
+        assertEquals(LifecycleState.Phase.SHUTTING_DOWN, lifecycle.phase)
+        server.exit()
+        assertEquals(LifecycleState.Phase.EXITED, lifecycle.phase)
     }
 }

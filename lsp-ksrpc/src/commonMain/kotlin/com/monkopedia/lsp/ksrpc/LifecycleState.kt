@@ -15,6 +15,11 @@
  */
 package com.monkopedia.lsp.ksrpc
 
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+
 /**
  * Tracks the LSP connection lifecycle as defined by the spec:
  *
@@ -26,13 +31,26 @@ package com.monkopedia.lsp.ksrpc
  * 4. **Exited** — `exit` notification received. Connection should be closed.
  *
  * Use [allowsMethod] before dispatching incoming requests/notifications, and
- * [transitionTo] to advance the state when lifecycle events occur.
+ * [transitionTo]/[advanceTo] to advance the state when lifecycle events occur.
+ * Collect [phases] (or suspend on [awaitInitialized]) to react to phase changes.
  */
 class LifecycleState {
 
-    @kotlin.concurrent.Volatile
-    var phase: Phase = Phase.INITIALIZING
-        private set
+    private val _phase = MutableStateFlow(Phase.INITIALIZING)
+
+    /** The current lifecycle phase. */
+    val phase: Phase get() = _phase.value
+
+    /** The phase as an observable stream; replays the current value on collection. */
+    val phases: StateFlow<Phase> get() = _phase.asStateFlow()
+
+    /** Suspends until the lifecycle reaches [target] (returns immediately if already there). */
+    suspend fun awaitPhase(target: Phase) {
+        _phase.first { it == target }
+    }
+
+    /** Suspends until the connection is [Phase.INITIALIZED]. */
+    suspend fun awaitInitialized(): Unit = awaitPhase(Phase.INITIALIZED)
 
     /**
      * Returns `true` if the given method is allowed in the current state.
@@ -59,7 +77,19 @@ class LifecycleState {
         if (!isLegalTransition(current, next)) {
             error("Illegal LSP lifecycle transition: $current → $next")
         }
-        phase = next
+        _phase.value = next
+    }
+
+    /**
+     * Advance the state if the transition is legal, returning `true` if it was
+     * applied. Unlike [transitionTo], a no-op or out-of-order event is ignored
+     * rather than throwing — suited to driving the state from observed lifecycle
+     * calls that may arrive more than once.
+     */
+    fun advanceTo(next: Phase): Boolean {
+        if (!isLegalTransition(phase, next)) return false
+        _phase.value = next
+        return true
     }
 
     enum class Phase {
