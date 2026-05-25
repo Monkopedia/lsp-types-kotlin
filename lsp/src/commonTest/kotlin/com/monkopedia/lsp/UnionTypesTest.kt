@@ -17,6 +17,7 @@ package com.monkopedia.lsp
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 import kotlin.test.assertTrue
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.serializer
@@ -159,5 +160,33 @@ class UnionTypesTest {
         assertEquals("99", json.encodeToString(IntOrStringSerializer, intVal))
         val strVal: IntOrString = IntOrString.StringValue("abc")
         assertEquals("\"abc\"", json.encodeToString(IntOrStringSerializer, strVal))
+    }
+
+    // ---- Companion factories ----
+
+    @Test
+    fun `companion factories build the expected branches`() {
+        assertIs<BooleanOr.BooleanValue>(BooleanOr(true))
+        assertEquals(true, (BooleanOr(true) as BooleanOr.BooleanValue).value)
+        assertIs<BooleanOr.Value<HoverOptions>>(BooleanOr.of(HoverOptions(workDoneProgress = true)))
+
+        assertIs<SingleOrArray.Single<String>>(SingleOrArray.single("x"))
+        assertIs<SingleOrArray.Multiple<String>>(SingleOrArray.multiple(listOf("x", "y")))
+
+        assertIs<StringOr.StringValue>(StringOr("plain"))
+        assertIs<StringOr.Value<HoverOptions>>(StringOr.of(HoverOptions()))
+
+        assertIs<IntOrString.IntValue>(IntOrString(7))
+        assertIs<IntOrString.StringValue>(IntOrString("tok"))
+    }
+
+    @Test
+    fun `factory-built unions round-trip`() {
+        val bool: BooleanOr<HoverOptions> = BooleanOr(true)
+        val encoded = json.encodeToString(BooleanOrSerializer(HoverOptions.serializer()), bool)
+        assertEquals("true", encoded)
+
+        val token: IntOrString = IntOrString("tok")
+        assertEquals("\"tok\"", json.encodeToString(IntOrStringSerializer, token))
     }
 }

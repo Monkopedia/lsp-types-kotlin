@@ -15,6 +15,7 @@
  */
 package com.monkopedia.lsp.sample
 
+import com.monkopedia.lsp.BooleanOr
 import com.monkopedia.lsp.DefaultLanguageServer
 import com.monkopedia.lsp.DidOpenTextDocumentParams
 import com.monkopedia.lsp.Hover
@@ -62,7 +63,7 @@ fun main(): Unit = runBlocking(Dispatchers.IO) {
             return InitializeResult(
                 capabilities = ServerCapabilities(
                     textDocumentSync = TextDocumentSyncKind.FULL,
-                    hoverProvider = com.monkopedia.lsp.BooleanOr.BooleanValue(true)
+                    hoverProvider = BooleanOr(true)
                 ),
                 serverInfo = InitializeResultServerInfo(
                     name = "echo-server",
