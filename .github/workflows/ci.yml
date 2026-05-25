@@ -65,12 +65,12 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
-      # On a macOS host the Apple targets are buildable (the Linux/mingw/
-      # androidNative targets are ignored via kotlin.native.ignoreDisabledTargets),
-      # so `build` is what actually compiles and link-tests macos/ios/watchos/tvos —
-      # coverage the ubuntu leg physically cannot provide.
-      - name: Build (Apple + common targets)
-        run: ./gradlew build
+      # The macOS leg only covers what ubuntu can't: the Apple klibs. `appleCheck`
+      # (defined in the library convention plugin) compiles every Apple target and
+      # runs the simulator/host tests, skipping the redundant JVM/JS/Wasm/ktlint/
+      # codegen work the ubuntu leg already does.
+      - name: Build + test Apple targets
+        run: ./gradlew :lsp:appleCheck :lsp-ksrpc:appleCheck
 
       - name: Upload test reports
         if: failure()
