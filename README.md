@@ -15,7 +15,7 @@ Two artifacts, deliberately split:
 
 ## Status
 
-Pre-1.0. The types and codegen are complete and tested against real-world JSON samples. The transport layer (`:lsp-ksrpc`) tracks ksrpc's 1.0 release.
+`1.0.0-RC3`. The types and codegen are complete and tested against real-world JSON samples, including lsp4j-driven wire-compatibility round-trips. Every union the spec models as a typeable shape is generated as a strict Kotlin type — the only fields left as `JsonElement` are the genuinely opaque `LSPAny` slots the protocol defines as free-form (`data`, `initializationOptions`, `experimental`, command `arguments`, etc.). The transport layer (`:lsp-ksrpc`) builds on ksrpc 1.0.0. Release candidates publish to Maven Central; a stable `1.0.0` is gated on downstream integration validation.
 
 ## Modules
 
@@ -29,7 +29,7 @@ lsp-types-kotlin/
 ## Using `:lsp`
 
 ```kotlin
-implementation("com.monkopedia.lsp:lsp:0.1.0-SNAPSHOT")
+implementation("com.monkopedia.lsp:lsp:1.0.0-RC3")
 ```
 
 Pure types and serialization. No transport. Use this if you have your own JSON-RPC plumbing and just need typed LSP messages.
@@ -55,8 +55,11 @@ LSP makes heavy use of TypeScript union types. The codegen maps each pattern to 
 | `string \| StructuredType` | `StringOr<T>` |
 | `integer \| string` | `IntOrString` |
 | `Ref \| Ref \| ...` (named refs) | sealed interface, branches implement it |
+| `Ref \| Literal \| ...` (refs + anon objects) | sealed interface, mixed branches |
 | `Literal \| Literal \| ...` (anon objects) | sealed interface + generated branch classes |
-| Mixed primitives / `LSPAny` | `JsonElement` |
+| `StructRef \| EnumRef` | sealed interface, both branches implement it |
+| `A \| X \| X[]` (e.g. `Hover.contents`) | sealed interface with `A`, `X`, `List<X>` branches |
+| Opaque `LSPAny` (`data`, `experimental`, ...) | `JsonElement` |
 
 So `ServerCapabilities.hoverProvider` is `BooleanOr<HoverOptions>?`; you pattern-match:
 
@@ -71,7 +74,7 @@ when (val provider = capabilities.hoverProvider) {
 ## Using `:lsp-ksrpc`
 
 ```kotlin
-implementation("com.monkopedia.lsp:lsp-ksrpc:0.1.0-SNAPSHOT")
+implementation("com.monkopedia.lsp:lsp-ksrpc:1.0.0-RC3")
 ```
 
 The `:lsp-ksrpc` artifact provides `KsrpcLanguageServer` / `KsrpcLanguageClient`
