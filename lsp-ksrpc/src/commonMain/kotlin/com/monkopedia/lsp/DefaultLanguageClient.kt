@@ -15,7 +15,7 @@ package com.monkopedia.lsp
 import kotlinx.serialization.json.JsonElement
 
 /**
- * Default [KsrpcLanguageClient] where every method throws NotImplementedError.
+ * Default [KsrpcLanguageClient]: unimplemented requests throw NotImplementedError; notifications are no-ops.
  * Subclass and override only what you need.
  */
 open class DefaultLanguageClient : KsrpcLanguageClient {
@@ -65,21 +65,27 @@ open class DefaultLanguageClient : KsrpcLanguageClient {
         params: ApplyWorkspaceEditParams
     ): ApplyWorkspaceEditResult = throw NotImplementedError("workspaceApplyEdit not implemented")
 
-    override suspend fun windowShowMessage(params: ShowMessageParams): Unit =
-        throw NotImplementedError("windowShowMessage not implemented")
+    override suspend fun windowShowMessage(params: ShowMessageParams) {
+        // No-op by default; override to handle this notification.
+    }
 
-    override suspend fun windowLogMessage(params: LogMessageParams): Unit =
-        throw NotImplementedError("windowLogMessage not implemented")
+    override suspend fun windowLogMessage(params: LogMessageParams) {
+        // No-op by default; override to handle this notification.
+    }
 
-    override suspend fun telemetryEvent(params: LSPAny): Unit =
-        throw NotImplementedError("telemetryEvent not implemented")
+    override suspend fun telemetryEvent(params: LSPAny) {
+        // No-op by default; override to handle this notification.
+    }
 
-    override suspend fun textDocumentPublishDiagnostics(params: PublishDiagnosticsParams): Unit =
-        throw NotImplementedError("textDocumentPublishDiagnostics not implemented")
+    override suspend fun textDocumentPublishDiagnostics(params: PublishDiagnosticsParams) {
+        // No-op by default; override to handle this notification.
+    }
 
-    override suspend fun logTrace(params: LogTraceParams): Unit =
-        throw NotImplementedError("logTrace not implemented")
+    override suspend fun logTrace(params: LogTraceParams) {
+        // No-op by default; override to handle this notification.
+    }
 
-    override suspend fun progress(params: ProgressParams): Unit =
-        throw NotImplementedError("progress not implemented")
+    override suspend fun progress(params: ProgressParams) {
+        // No-op by default; override to handle this notification.
+    }
 }

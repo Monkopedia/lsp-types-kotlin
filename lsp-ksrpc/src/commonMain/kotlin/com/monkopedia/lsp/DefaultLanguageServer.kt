@@ -15,7 +15,7 @@ package com.monkopedia.lsp
 import kotlinx.serialization.json.JsonElement
 
 /**
- * Default [KsrpcLanguageServer] where every method throws NotImplementedError.
+ * Default [KsrpcLanguageServer]: unimplemented requests throw NotImplementedError; notifications are no-ops.
  * Subclass and override only what you need.
  */
 open class DefaultLanguageServer : KsrpcLanguageServer {
@@ -216,62 +216,83 @@ open class DefaultLanguageServer : KsrpcLanguageServer {
 
     override suspend fun workspaceDidChangeWorkspaceFolders(
         params: DidChangeWorkspaceFoldersParams
-    ): Unit = throw NotImplementedError("workspaceDidChangeWorkspaceFolders not implemented")
+    ) {
+        // No-op by default; override to handle this notification.
+    }
 
-    override suspend fun windowWorkDoneProgressCancel(params: WorkDoneProgressCancelParams): Unit =
-        throw NotImplementedError("windowWorkDoneProgressCancel not implemented")
+    override suspend fun windowWorkDoneProgressCancel(params: WorkDoneProgressCancelParams) {
+        // No-op by default; override to handle this notification.
+    }
 
-    override suspend fun workspaceDidCreateFiles(params: CreateFilesParams): Unit =
-        throw NotImplementedError("workspaceDidCreateFiles not implemented")
+    override suspend fun workspaceDidCreateFiles(params: CreateFilesParams) {
+        // No-op by default; override to handle this notification.
+    }
 
-    override suspend fun workspaceDidRenameFiles(params: RenameFilesParams): Unit =
-        throw NotImplementedError("workspaceDidRenameFiles not implemented")
+    override suspend fun workspaceDidRenameFiles(params: RenameFilesParams) {
+        // No-op by default; override to handle this notification.
+    }
 
-    override suspend fun workspaceDidDeleteFiles(params: DeleteFilesParams): Unit =
-        throw NotImplementedError("workspaceDidDeleteFiles not implemented")
+    override suspend fun workspaceDidDeleteFiles(params: DeleteFilesParams) {
+        // No-op by default; override to handle this notification.
+    }
 
-    override suspend fun notebookDocumentDidOpen(params: DidOpenNotebookDocumentParams): Unit =
-        throw NotImplementedError("notebookDocumentDidOpen not implemented")
+    override suspend fun notebookDocumentDidOpen(params: DidOpenNotebookDocumentParams) {
+        // No-op by default; override to handle this notification.
+    }
 
-    override suspend fun notebookDocumentDidChange(params: DidChangeNotebookDocumentParams): Unit =
-        throw NotImplementedError("notebookDocumentDidChange not implemented")
+    override suspend fun notebookDocumentDidChange(params: DidChangeNotebookDocumentParams) {
+        // No-op by default; override to handle this notification.
+    }
 
-    override suspend fun notebookDocumentDidSave(params: DidSaveNotebookDocumentParams): Unit =
-        throw NotImplementedError("notebookDocumentDidSave not implemented")
+    override suspend fun notebookDocumentDidSave(params: DidSaveNotebookDocumentParams) {
+        // No-op by default; override to handle this notification.
+    }
 
-    override suspend fun notebookDocumentDidClose(params: DidCloseNotebookDocumentParams): Unit =
-        throw NotImplementedError("notebookDocumentDidClose not implemented")
+    override suspend fun notebookDocumentDidClose(params: DidCloseNotebookDocumentParams) {
+        // No-op by default; override to handle this notification.
+    }
 
-    override suspend fun initialized(params: InitializedParams): Unit =
-        throw NotImplementedError("initialized not implemented")
+    override suspend fun initialized(params: InitializedParams) {
+        // No-op by default; override to handle this notification.
+    }
 
-    override suspend fun exit(): Unit = throw NotImplementedError("exit not implemented")
+    override suspend fun exit() {
+        // No-op by default; override to handle this notification.
+    }
 
-    override suspend fun workspaceDidChangeConfiguration(
-        params: DidChangeConfigurationParams
-    ): Unit = throw NotImplementedError("workspaceDidChangeConfiguration not implemented")
+    override suspend fun workspaceDidChangeConfiguration(params: DidChangeConfigurationParams) {
+        // No-op by default; override to handle this notification.
+    }
 
-    override suspend fun textDocumentDidOpen(params: DidOpenTextDocumentParams): Unit =
-        throw NotImplementedError("textDocumentDidOpen not implemented")
+    override suspend fun textDocumentDidOpen(params: DidOpenTextDocumentParams) {
+        // No-op by default; override to handle this notification.
+    }
 
-    override suspend fun textDocumentDidChange(params: DidChangeTextDocumentParams): Unit =
-        throw NotImplementedError("textDocumentDidChange not implemented")
+    override suspend fun textDocumentDidChange(params: DidChangeTextDocumentParams) {
+        // No-op by default; override to handle this notification.
+    }
 
-    override suspend fun textDocumentDidClose(params: DidCloseTextDocumentParams): Unit =
-        throw NotImplementedError("textDocumentDidClose not implemented")
+    override suspend fun textDocumentDidClose(params: DidCloseTextDocumentParams) {
+        // No-op by default; override to handle this notification.
+    }
 
-    override suspend fun textDocumentDidSave(params: DidSaveTextDocumentParams): Unit =
-        throw NotImplementedError("textDocumentDidSave not implemented")
+    override suspend fun textDocumentDidSave(params: DidSaveTextDocumentParams) {
+        // No-op by default; override to handle this notification.
+    }
 
-    override suspend fun textDocumentWillSave(params: WillSaveTextDocumentParams): Unit =
-        throw NotImplementedError("textDocumentWillSave not implemented")
+    override suspend fun textDocumentWillSave(params: WillSaveTextDocumentParams) {
+        // No-op by default; override to handle this notification.
+    }
 
-    override suspend fun workspaceDidChangeWatchedFiles(params: DidChangeWatchedFilesParams): Unit =
-        throw NotImplementedError("workspaceDidChangeWatchedFiles not implemented")
+    override suspend fun workspaceDidChangeWatchedFiles(params: DidChangeWatchedFilesParams) {
+        // No-op by default; override to handle this notification.
+    }
 
-    override suspend fun setTrace(params: SetTraceParams): Unit =
-        throw NotImplementedError("setTrace not implemented")
+    override suspend fun setTrace(params: SetTraceParams) {
+        // No-op by default; override to handle this notification.
+    }
 
-    override suspend fun progress(params: ProgressParams): Unit =
-        throw NotImplementedError("progress not implemented")
+    override suspend fun progress(params: ProgressParams) {
+        // No-op by default; override to handle this notification.
+    }
 }
