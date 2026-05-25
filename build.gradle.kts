@@ -34,7 +34,9 @@ apiValidation {
     klib {
         enabled = false
     }
-    ignoredProjects += listOf("echo-server")
+    // echo-server is a sample; lsp-codegen is an internal build-time tool — neither
+    // is published, so neither needs binary-compatibility validation.
+    ignoredProjects += listOf("echo-server", "lsp-codegen")
 }
 
 allprojects {
