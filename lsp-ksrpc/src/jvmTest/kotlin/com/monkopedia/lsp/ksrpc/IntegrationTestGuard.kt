@@ -40,3 +40,28 @@ fun requireOrSkip(message: String, condition: Boolean) {
         assumeTrue(message, condition)
     }
 }
+
+/**
+ * Guards a real-server integration-test precondition (an external language
+ * server such as `clangd`, `pyright`, `gopls`, ... being on PATH).
+ *
+ * This is a **separate** gate from [requireOrSkip] on purpose. Real external
+ * servers aren't guaranteed to be installed everywhere (their CI install is
+ * tracked separately), so a missing server must NOT trip the
+ * `-Plsp.requireIntegrationTests` gate — otherwise per-PR CI, which only
+ * guarantees the in-repo inputs (echo-server build, clangd), would fail on the
+ * other servers. By default a missing server skips the test via [assumeTrue].
+ *
+ * When `-Plsp.requireRealServers=true` is passed — the dedicated real-server
+ * job does this — a missing server is a hard failure instead, so a skip can't
+ * silently pass as green where the server is guaranteed present.
+ */
+fun requireRealServerOrSkip(message: String, condition: Boolean) {
+    if (System.getProperty("lsp.requireRealServers") == "true") {
+        if (!condition) {
+            fail("Real-server precondition not met (-Plsp.requireRealServers): $message")
+        }
+    } else {
+        assumeTrue(message, condition)
+    }
+}
