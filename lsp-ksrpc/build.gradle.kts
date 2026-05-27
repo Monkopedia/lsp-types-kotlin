@@ -84,6 +84,21 @@ kotlin {
         val wasmJsMain by getting { dependsOn(jsonrpcMain) }
         val appleMain by getting { dependsOn(jsonrpcMain) }
         val linuxMain by getting { dependsOn(jsonrpcMain) }
+
+        // Shared native (linux + apple) test source set for the jsonrpc-transport
+        // smoke. It depends only on commonTest (for the fixtures); the jsonrpc
+        // connection helpers (`asLspConnection`, in jsonrpcMain) are already
+        // visible because every leaf test compilation that consumes this set
+        // (linuxX64Test, macos*Test) associates with a *Main that depends on
+        // jsonrpcMain (linuxMain / appleMain). Do NOT add an explicit
+        // dependsOn(jsonrpcMain) here: a test set depending on a main set links
+        // it twice and the native linker fails with "symbol already bound".
+        val nativeJsonrpcTest by creating {
+            dependsOn(commonTest.get())
+        }
+        val linuxX64Test by getting { dependsOn(nativeJsonrpcTest) }
+        val macosArm64Test by getting { dependsOn(nativeJsonrpcTest) }
+        val macosX64Test by getting { dependsOn(nativeJsonrpcTest) }
     }
 }
 
