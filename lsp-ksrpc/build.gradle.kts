@@ -99,4 +99,13 @@ tasks.named<org.gradle.api.tasks.testing.Test>("jvmTest") {
         "lsp.requireIntegrationTests",
         project.findProperty("lsp.requireIntegrationTests")?.toString() ?: "false"
     )
+    // Independent gate for the real-server client-role matrix (clangd, pyright,
+    // gopls, ...). These external servers aren't guaranteed installed everywhere,
+    // so they're held out of `requireIntegrationTests`: with this flag off they
+    // skip cleanly, and only the dedicated real-server job sets it to `true` to
+    // turn a missing server into a hard failure.
+    systemProperty(
+        "lsp.requireRealServers",
+        project.findProperty("lsp.requireRealServers")?.toString() ?: "false"
+    )
 }
