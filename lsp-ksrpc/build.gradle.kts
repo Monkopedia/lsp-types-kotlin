@@ -84,6 +84,20 @@ kotlin {
         val wasmJsMain by getting { dependsOn(jsonrpcMain) }
         val appleMain by getting { dependsOn(jsonrpcMain) }
         val linuxMain by getting { dependsOn(jsonrpcMain) }
+
+        // jsonrpcTest mirrors jsonrpcMain on the test side: it carries the
+        // conformance smoke test, which drives the commonTest fixtures over the
+        // in-memory jsonrpc transport (asLspConnection / connectAs*). Confined to
+        // the same target subset as jsonrpcMain so mingwX64Test (which lacks the
+        // transport) still only sees commonTest.
+        val jsonrpcTest by creating {
+            dependsOn(commonTest.get())
+        }
+        jvmTest.get().dependsOn(jsonrpcTest)
+        val jsTest by getting { dependsOn(jsonrpcTest) }
+        val wasmJsTest by getting { dependsOn(jsonrpcTest) }
+        val appleTest by getting { dependsOn(jsonrpcTest) }
+        val linuxTest by getting { dependsOn(jsonrpcTest) }
     }
 }
 
