@@ -108,6 +108,499 @@ class Lsp4jConformanceInteropTest {
         scope.cancel()
     }
 
+    /**
+     * Issue #65 — drive every remaining server method (the ones not exercised by
+     * the union-branch test above) via the real lsp4j client. For each method we
+     * issue one representative request or notification and assert that the
+     * round-trip succeeded.
+     *
+     * Notifications are asserted by polling the server-side fixture's recorded
+     * notification log (each notification handler in [ConformanceLanguageServer]
+     * records its arrival). The poll is bounded; if a notification never lands
+     * within [TIMEOUT_S], the test fails.
+     *
+     * Methods lsp4j cannot send via its proxy (notably `$/progress` from
+     * client → server, which lsp4j only exposes in the server → client
+     * direction) are documented inline below and covered by
+     * `TransportMatrixIntegrationTest` instead.
+     */
+    @Test
+    fun `real lsp4j client drives every remaining server method`() {
+        val clientToServerSink = PipedOutputStream()
+        val clientToServerSource = PipedInputStream(clientToServerSink, PIPE_BUFFER)
+        val serverToClientSink = PipedOutputStream()
+        val serverToClientSource = PipedInputStream(serverToClientSink, PIPE_BUFFER)
+        pipes += listOf(
+            clientToServerSink,
+            clientToServerSource,
+            serverToClientSink,
+            serverToClientSource
+        )
+
+        val fixture = ConformanceLanguageServer()
+        serverJob = scope.launch {
+            val connection = (clientToServerSource to serverToClientSink).asLspConnection()
+            connection.connectAsLspServer(fixture)
+        }
+
+        val client = RecordingClient()
+        val launcher = LSPLauncher.createClientLauncher(
+            client,
+            serverToClientSource,
+            clientToServerSink
+        )
+        val listening = launcher.startListening()
+        val server = launcher.remoteProxy
+
+        try {
+            server.initialize(InitializeParams()).get(TIMEOUT_S, TimeUnit.SECONDS)
+            server.initialized(InitializedParams())
+
+            val td = server.textDocumentService
+            val ws = server.workspaceService
+            val nb = server.notebookDocumentService
+
+            val docId = org.eclipse.lsp4j.TextDocumentIdentifier(
+                ConformanceLanguageServer.Uri.MAIN
+            )
+            val zero = org.eclipse.lsp4j.Position(0, 0)
+            val rng = org.eclipse.lsp4j.Range(
+                zero,
+                org.eclipse.lsp4j.Position(0, 4)
+            )
+
+            // --- text-document requests not in the union-branch test ---
+            assertNotNull(
+                td.signatureHelp(
+                    org.eclipse.lsp4j.SignatureHelpParams(docId, zero)
+                ).get(TIMEOUT_S, TimeUnit.SECONDS)
+            )
+            assertTrue(
+                td.documentHighlight(
+                    org.eclipse.lsp4j.DocumentHighlightParams(docId, zero)
+                ).get(TIMEOUT_S, TimeUnit.SECONDS).isNotEmpty()
+            )
+            val codeActions = td.codeAction(
+                org.eclipse.lsp4j.CodeActionParams(
+                    docId,
+                    rng,
+                    org.eclipse.lsp4j.CodeActionContext(emptyList())
+                )
+            ).get(TIMEOUT_S, TimeUnit.SECONDS)
+            assertTrue(codeActions.isNotEmpty())
+            val resolvedAction = td.resolveCodeAction(
+                org.eclipse.lsp4j.CodeAction("resolve me")
+            ).get(TIMEOUT_S, TimeUnit.SECONDS)
+            assertNotNull(resolvedAction)
+
+            val lenses = td.codeLens(org.eclipse.lsp4j.CodeLensParams(docId))
+                .get(TIMEOUT_S, TimeUnit.SECONDS)
+            assertTrue(lenses.isNotEmpty())
+            val lensIn = org.eclipse.lsp4j.CodeLens(rng)
+            val resolvedLens = td.resolveCodeLens(lensIn).get(TIMEOUT_S, TimeUnit.SECONDS)
+            assertNotNull(resolvedLens.command)
+
+            val links = td.documentLink(
+                org.eclipse.lsp4j.DocumentLinkParams(docId)
+            ).get(TIMEOUT_S, TimeUnit.SECONDS)
+            assertTrue(links.isNotEmpty())
+            val resolvedLink = td.documentLinkResolve(
+                org.eclipse.lsp4j.DocumentLink(rng)
+            ).get(TIMEOUT_S, TimeUnit.SECONDS)
+            assertNotNull(resolvedLink.tooltip)
+
+            assertTrue(
+                td.documentColor(
+                    org.eclipse.lsp4j.DocumentColorParams(docId)
+                ).get(TIMEOUT_S, TimeUnit.SECONDS).isNotEmpty()
+            )
+            assertTrue(
+                td.colorPresentation(
+                    org.eclipse.lsp4j.ColorPresentationParams(
+                        docId,
+                        org.eclipse.lsp4j.Color(1.0, 0.0, 0.0, 1.0),
+                        rng
+                    )
+                ).get(TIMEOUT_S, TimeUnit.SECONDS).isNotEmpty()
+            )
+
+            assertTrue(
+                td.selectionRange(
+                    org.eclipse.lsp4j.SelectionRangeParams(docId, listOf(zero))
+                ).get(TIMEOUT_S, TimeUnit.SECONDS).isNotEmpty()
+            )
+            assertTrue(
+                td.foldingRange(
+                    org.eclipse.lsp4j.FoldingRangeRequestParams(docId)
+                ).get(TIMEOUT_S, TimeUnit.SECONDS).isNotEmpty()
+            )
+
+            val fmtOpts = org.eclipse.lsp4j.FormattingOptions(4, true)
+            assertTrue(
+                td.formatting(
+                    org.eclipse.lsp4j.DocumentFormattingParams(docId, fmtOpts)
+                ).get(TIMEOUT_S, TimeUnit.SECONDS).isNotEmpty()
+            )
+            assertTrue(
+                td.rangeFormatting(
+                    org.eclipse.lsp4j.DocumentRangeFormattingParams(docId, fmtOpts, rng)
+                ).get(TIMEOUT_S, TimeUnit.SECONDS).isNotEmpty()
+            )
+            assertTrue(
+                td.rangesFormatting(
+                    org.eclipse.lsp4j.DocumentRangesFormattingParams(docId, fmtOpts, listOf(rng))
+                ).get(TIMEOUT_S, TimeUnit.SECONDS).isNotEmpty()
+            )
+            assertTrue(
+                td.onTypeFormatting(
+                    org.eclipse.lsp4j.DocumentOnTypeFormattingParams(
+                        docId,
+                        fmtOpts,
+                        zero,
+                        "}"
+                    )
+                ).get(TIMEOUT_S, TimeUnit.SECONDS).isNotEmpty()
+            )
+
+            assertNotNull(
+                td.rename(
+                    org.eclipse.lsp4j.RenameParams(docId, zero, "renamed")
+                ).get(TIMEOUT_S, TimeUnit.SECONDS).changes
+            )
+            assertNotNull(
+                td.prepareRename(
+                    org.eclipse.lsp4j.PrepareRenameParams(docId, zero)
+                ).get(TIMEOUT_S, TimeUnit.SECONDS)
+            )
+
+            assertTrue(
+                td.willSaveWaitUntil(
+                    org.eclipse.lsp4j.WillSaveTextDocumentParams(
+                        docId,
+                        org.eclipse.lsp4j.TextDocumentSaveReason.Manual
+                    )
+                ).get(TIMEOUT_S, TimeUnit.SECONDS).isNotEmpty()
+            )
+
+            val resolvedItem = td.resolveCompletionItem(
+                org.eclipse.lsp4j.CompletionItem("test")
+            ).get(TIMEOUT_S, TimeUnit.SECONDS)
+            assertEquals("resolved: test", resolvedItem.detail)
+
+            assertNotNull(
+                td.semanticTokensFull(
+                    org.eclipse.lsp4j.SemanticTokensParams(docId)
+                ).get(TIMEOUT_S, TimeUnit.SECONDS)
+            )
+            assertNotNull(
+                td.semanticTokensFullDelta(
+                    org.eclipse.lsp4j.SemanticTokensDeltaParams(docId, "prev-1")
+                ).get(TIMEOUT_S, TimeUnit.SECONDS)
+            )
+            assertNotNull(
+                td.semanticTokensRange(
+                    org.eclipse.lsp4j.SemanticTokensRangeParams(docId, rng)
+                ).get(TIMEOUT_S, TimeUnit.SECONDS)
+            )
+
+            val callItems = td.prepareCallHierarchy(
+                org.eclipse.lsp4j.CallHierarchyPrepareParams(docId, zero)
+            ).get(TIMEOUT_S, TimeUnit.SECONDS)
+            assertTrue(callItems.isNotEmpty())
+            assertTrue(
+                td.callHierarchyIncomingCalls(
+                    org.eclipse.lsp4j.CallHierarchyIncomingCallsParams(callItems.first())
+                ).get(TIMEOUT_S, TimeUnit.SECONDS).isNotEmpty()
+            )
+            assertTrue(
+                td.callHierarchyOutgoingCalls(
+                    org.eclipse.lsp4j.CallHierarchyOutgoingCallsParams(callItems.first())
+                ).get(TIMEOUT_S, TimeUnit.SECONDS).isNotEmpty()
+            )
+
+            val typeItems = td.prepareTypeHierarchy(
+                org.eclipse.lsp4j.TypeHierarchyPrepareParams(docId, zero)
+            ).get(TIMEOUT_S, TimeUnit.SECONDS)
+            assertTrue(typeItems.isNotEmpty())
+            assertTrue(
+                td.typeHierarchySupertypes(
+                    org.eclipse.lsp4j.TypeHierarchySupertypesParams(typeItems.first())
+                ).get(TIMEOUT_S, TimeUnit.SECONDS).isNotEmpty()
+            )
+            assertTrue(
+                td.typeHierarchySubtypes(
+                    org.eclipse.lsp4j.TypeHierarchySubtypesParams(typeItems.first())
+                ).get(TIMEOUT_S, TimeUnit.SECONDS).isNotEmpty()
+            )
+
+            assertNotNull(
+                td.linkedEditingRange(
+                    org.eclipse.lsp4j.LinkedEditingRangeParams(docId, zero)
+                ).get(TIMEOUT_S, TimeUnit.SECONDS)
+            )
+            assertTrue(
+                td.moniker(
+                    org.eclipse.lsp4j.MonikerParams(docId, zero)
+                ).get(TIMEOUT_S, TimeUnit.SECONDS).isNotEmpty()
+            )
+            assertTrue(
+                td.inlineValue(
+                    org.eclipse.lsp4j.InlineValueParams(
+                        docId,
+                        rng,
+                        org.eclipse.lsp4j.InlineValueContext(0, rng)
+                    )
+                ).get(TIMEOUT_S, TimeUnit.SECONDS).isNotEmpty()
+            )
+            assertNotNull(
+                td.inlineCompletion(
+                    org.eclipse.lsp4j.InlineCompletionParams(
+                        docId,
+                        zero,
+                        org.eclipse.lsp4j.InlineCompletionContext(
+                            org.eclipse.lsp4j.InlineCompletionTriggerKind.Invoked
+                        )
+                    )
+                ).get(TIMEOUT_S, TimeUnit.SECONDS)
+            )
+
+            val hints = td.inlayHint(
+                org.eclipse.lsp4j.InlayHintParams(docId, rng)
+            ).get(TIMEOUT_S, TimeUnit.SECONDS)
+            assertTrue(hints.isNotEmpty())
+            val resolvedHint = td.resolveInlayHint(hints.first())
+                .get(TIMEOUT_S, TimeUnit.SECONDS)
+            assertNotNull(resolvedHint.tooltip)
+
+            assertNotNull(
+                td.diagnostic(
+                    org.eclipse.lsp4j.DocumentDiagnosticParams(docId)
+                ).get(TIMEOUT_S, TimeUnit.SECONDS)
+            )
+
+            // --- workspace requests ---
+            assertNotNull(
+                ws.symbol(org.eclipse.lsp4j.WorkspaceSymbolParams("q"))
+                    .get(TIMEOUT_S, TimeUnit.SECONDS)
+            )
+            val wsSym = org.eclipse.lsp4j.WorkspaceSymbol(
+                "x",
+                org.eclipse.lsp4j.SymbolKind.Function,
+                org.eclipse.lsp4j.jsonrpc.messages.Either.forLeft(
+                    org.eclipse.lsp4j.Location(ConformanceLanguageServer.Uri.MAIN, rng)
+                )
+            )
+            val resolvedWsSym = ws.resolveWorkspaceSymbol(wsSym).get(TIMEOUT_S, TimeUnit.SECONDS)
+            assertEquals("resolved", resolvedWsSym.containerName)
+            assertNotNull(
+                ws.executeCommand(
+                    org.eclipse.lsp4j.ExecuteCommandParams("do.thing", emptyList())
+                ).get(TIMEOUT_S, TimeUnit.SECONDS)
+            )
+            assertNotNull(
+                ws.diagnostic(
+                    org.eclipse.lsp4j.WorkspaceDiagnosticParams(emptyList())
+                ).get(TIMEOUT_S, TimeUnit.SECONDS)
+            )
+            assertNotNull(
+                ws.willCreateFiles(
+                    org.eclipse.lsp4j.CreateFilesParams(
+                        listOf(
+                            org.eclipse.lsp4j.FileCreate(ConformanceLanguageServer.Uri.MAIN)
+                        )
+                    )
+                ).get(TIMEOUT_S, TimeUnit.SECONDS)
+            )
+            assertNotNull(
+                ws.willRenameFiles(
+                    org.eclipse.lsp4j.RenameFilesParams(
+                        listOf(
+                            org.eclipse.lsp4j.FileRename(
+                                ConformanceLanguageServer.Uri.MAIN,
+                                "${ConformanceLanguageServer.Uri.MAIN}.new"
+                            )
+                        )
+                    )
+                ).get(TIMEOUT_S, TimeUnit.SECONDS)
+            )
+            assertNotNull(
+                ws.willDeleteFiles(
+                    org.eclipse.lsp4j.DeleteFilesParams(
+                        listOf(
+                            org.eclipse.lsp4j.FileDelete(ConformanceLanguageServer.Uri.MAIN)
+                        )
+                    )
+                ).get(TIMEOUT_S, TimeUnit.SECONDS)
+            )
+
+            // --- text-document notifications ---
+            td.didOpen(
+                Lsp4jDidOpenTextDocumentParams(
+                    TextDocumentItem(
+                        ConformanceLanguageServer.Uri.MAIN,
+                        "kotlin",
+                        1,
+                        "fun x() {}"
+                    )
+                )
+            )
+            td.didChange(
+                org.eclipse.lsp4j.DidChangeTextDocumentParams(
+                    org.eclipse.lsp4j.VersionedTextDocumentIdentifier(
+                        ConformanceLanguageServer.Uri.MAIN,
+                        2
+                    ),
+                    listOf(org.eclipse.lsp4j.TextDocumentContentChangeEvent("y"))
+                )
+            )
+            td.didSave(org.eclipse.lsp4j.DidSaveTextDocumentParams(docId, "y"))
+            td.willSave(
+                org.eclipse.lsp4j.WillSaveTextDocumentParams(
+                    docId,
+                    org.eclipse.lsp4j.TextDocumentSaveReason.Manual
+                )
+            )
+            td.didClose(org.eclipse.lsp4j.DidCloseTextDocumentParams(docId))
+
+            // --- workspace notifications ---
+            ws.didChangeConfiguration(
+                org.eclipse.lsp4j.DidChangeConfigurationParams("settings-value")
+            )
+            ws.didChangeWatchedFiles(
+                org.eclipse.lsp4j.DidChangeWatchedFilesParams(
+                    listOf(
+                        org.eclipse.lsp4j.FileEvent(
+                            ConformanceLanguageServer.Uri.MAIN,
+                            org.eclipse.lsp4j.FileChangeType.Changed
+                        )
+                    )
+                )
+            )
+            ws.didChangeWorkspaceFolders(
+                org.eclipse.lsp4j.DidChangeWorkspaceFoldersParams(
+                    org.eclipse.lsp4j.WorkspaceFoldersChangeEvent(
+                        listOf(
+                            org.eclipse.lsp4j.WorkspaceFolder(
+                                ConformanceLanguageServer.Uri.MAIN,
+                                "root"
+                            )
+                        ),
+                        emptyList()
+                    )
+                )
+            )
+            ws.didCreateFiles(
+                org.eclipse.lsp4j.CreateFilesParams(
+                    listOf(org.eclipse.lsp4j.FileCreate(ConformanceLanguageServer.Uri.MAIN))
+                )
+            )
+            ws.didRenameFiles(
+                org.eclipse.lsp4j.RenameFilesParams(
+                    listOf(
+                        org.eclipse.lsp4j.FileRename(
+                            ConformanceLanguageServer.Uri.MAIN,
+                            "${ConformanceLanguageServer.Uri.MAIN}.new"
+                        )
+                    )
+                )
+            )
+            ws.didDeleteFiles(
+                org.eclipse.lsp4j.DeleteFilesParams(
+                    listOf(org.eclipse.lsp4j.FileDelete(ConformanceLanguageServer.Uri.MAIN))
+                )
+            )
+
+            // --- notebook notifications ---
+            val notebookUri = "${ConformanceLanguageServer.Uri.MAIN}.ipynb"
+            val cellDoc = "${ConformanceLanguageServer.Uri.MAIN}#cell0"
+            nb.didOpen(
+                org.eclipse.lsp4j.DidOpenNotebookDocumentParams(
+                    org.eclipse.lsp4j.NotebookDocument(
+                        notebookUri,
+                        "kotlin",
+                        1,
+                        listOf(
+                            org.eclipse.lsp4j.NotebookCell(
+                                org.eclipse.lsp4j.NotebookCellKind.Code,
+                                cellDoc
+                            )
+                        )
+                    ),
+                    emptyList()
+                )
+            )
+            nb.didChange(
+                org.eclipse.lsp4j.DidChangeNotebookDocumentParams(
+                    org.eclipse.lsp4j.VersionedNotebookDocumentIdentifier(2, notebookUri),
+                    org.eclipse.lsp4j.NotebookDocumentChangeEvent()
+                )
+            )
+            nb.didSave(
+                org.eclipse.lsp4j.DidSaveNotebookDocumentParams(
+                    org.eclipse.lsp4j.NotebookDocumentIdentifier(notebookUri)
+                )
+            )
+            nb.didClose(
+                org.eclipse.lsp4j.DidCloseNotebookDocumentParams(
+                    org.eclipse.lsp4j.NotebookDocumentIdentifier(notebookUri),
+                    emptyList()
+                )
+            )
+
+            // --- $-methods ---
+            server.setTrace(org.eclipse.lsp4j.SetTraceParams("verbose"))
+            server.cancelProgress(
+                org.eclipse.lsp4j.WorkDoneProgressCancelParams(
+                    org.eclipse.lsp4j.jsonrpc.messages.Either.forLeft<String, Int>("p1")
+                )
+            )
+
+            // Issue a barrier request and then poll for notification delivery.
+            server.shutdown().get(TIMEOUT_S, TimeUnit.SECONDS)
+
+            val expectedNotifications = setOf(
+                "initialized",
+                "textDocument/didOpen",
+                "textDocument/didChange",
+                "textDocument/didSave",
+                "textDocument/willSave",
+                "textDocument/didClose",
+                "workspace/didChangeConfiguration",
+                "workspace/didChangeWatchedFiles",
+                "workspace/didChangeWorkspaceFolders",
+                "workspace/didCreateFiles",
+                "workspace/didRenameFiles",
+                "workspace/didDeleteFiles",
+                "notebookDocument/didOpen",
+                "notebookDocument/didChange",
+                "notebookDocument/didSave",
+                "notebookDocument/didClose",
+                "\$/setTrace",
+                "window/workDoneProgress/cancel"
+                // lsp4j does NOT expose `$/progress` from client → server in its
+                // LanguageServer interface (it's only a server → client push), so
+                // we omit it here. It is covered by TransportMatrixIntegrationTest.
+            )
+            val deadline = System.currentTimeMillis() + TIMEOUT_S * 1000
+            var seen: Set<String>
+            do {
+                seen = kotlinx.coroutines.runBlocking {
+                    fixture.snapshotNotifications().map { it.method }.toSet()
+                }
+                if ((expectedNotifications - seen).isEmpty()) break
+                Thread.sleep(50)
+            } while (System.currentTimeMillis() < deadline)
+            val missing = expectedNotifications - seen
+            assertTrue(
+                missing.isEmpty(),
+                "Expected fixture to record every notification; missing=$missing"
+            )
+            server.exit()
+        } finally {
+            listening.cancel(true)
+        }
+    }
+
     @Test
     fun `real lsp4j client parses every union branch our server emits`() {
         // clientToServer: lsp4j writes requests here, our server reads them.

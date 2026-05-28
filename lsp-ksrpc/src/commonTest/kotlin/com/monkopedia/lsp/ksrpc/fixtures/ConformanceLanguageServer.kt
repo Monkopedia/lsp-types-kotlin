@@ -17,10 +17,20 @@ package com.monkopedia.lsp.ksrpc.fixtures
 
 import com.monkopedia.lsp.ApplyWorkspaceEditParams
 import com.monkopedia.lsp.BooleanOr
+import com.monkopedia.lsp.CallHierarchyIncomingCall
+import com.monkopedia.lsp.CallHierarchyIncomingCallsParams
+import com.monkopedia.lsp.CallHierarchyItem
+import com.monkopedia.lsp.CallHierarchyOutgoingCall
+import com.monkopedia.lsp.CallHierarchyOutgoingCallsParams
+import com.monkopedia.lsp.CallHierarchyPrepareParams
 import com.monkopedia.lsp.CodeAction
 import com.monkopedia.lsp.CodeActionParams
 import com.monkopedia.lsp.CodeLens
 import com.monkopedia.lsp.CodeLensParams
+import com.monkopedia.lsp.Color
+import com.monkopedia.lsp.ColorInformation
+import com.monkopedia.lsp.ColorPresentation
+import com.monkopedia.lsp.ColorPresentationParams
 import com.monkopedia.lsp.Command
 import com.monkopedia.lsp.CompletionItem
 import com.monkopedia.lsp.CompletionItemKind
@@ -29,6 +39,7 @@ import com.monkopedia.lsp.CompletionOptions
 import com.monkopedia.lsp.CompletionParams
 import com.monkopedia.lsp.ConfigurationItem
 import com.monkopedia.lsp.ConfigurationParams
+import com.monkopedia.lsp.CreateFilesParams
 import com.monkopedia.lsp.Declaration
 import com.monkopedia.lsp.DeclarationLink
 import com.monkopedia.lsp.DeclarationParams
@@ -36,13 +47,34 @@ import com.monkopedia.lsp.DefaultLanguageServer
 import com.monkopedia.lsp.Definition
 import com.monkopedia.lsp.DefinitionLink
 import com.monkopedia.lsp.DefinitionParams
+import com.monkopedia.lsp.DeleteFilesParams
+import com.monkopedia.lsp.Diagnostic
+import com.monkopedia.lsp.DidChangeConfigurationParams
+import com.monkopedia.lsp.DidChangeNotebookDocumentParams
+import com.monkopedia.lsp.DidChangeTextDocumentParams
+import com.monkopedia.lsp.DidChangeWatchedFilesParams
+import com.monkopedia.lsp.DidChangeWorkspaceFoldersParams
+import com.monkopedia.lsp.DidCloseNotebookDocumentParams
+import com.monkopedia.lsp.DidCloseTextDocumentParams
+import com.monkopedia.lsp.DidOpenNotebookDocumentParams
 import com.monkopedia.lsp.DidOpenTextDocumentParams
+import com.monkopedia.lsp.DidSaveNotebookDocumentParams
+import com.monkopedia.lsp.DidSaveTextDocumentParams
+import com.monkopedia.lsp.DocumentColorParams
+import com.monkopedia.lsp.DocumentDiagnosticParams
+import com.monkopedia.lsp.DocumentDiagnosticReport
 import com.monkopedia.lsp.DocumentFormattingParams
 import com.monkopedia.lsp.DocumentHighlight
 import com.monkopedia.lsp.DocumentHighlightKind
 import com.monkopedia.lsp.DocumentHighlightParams
+import com.monkopedia.lsp.DocumentLink
+import com.monkopedia.lsp.DocumentLinkParams
+import com.monkopedia.lsp.DocumentOnTypeFormattingParams
+import com.monkopedia.lsp.DocumentRangeFormattingParams
+import com.monkopedia.lsp.DocumentRangesFormattingParams
 import com.monkopedia.lsp.DocumentSymbol
 import com.monkopedia.lsp.DocumentSymbolParams
+import com.monkopedia.lsp.ExecuteCommandParams
 import com.monkopedia.lsp.FoldingRange
 import com.monkopedia.lsp.FoldingRangeKind
 import com.monkopedia.lsp.FoldingRangeParams
@@ -53,26 +85,49 @@ import com.monkopedia.lsp.ImplementationParams
 import com.monkopedia.lsp.InitializeParams
 import com.monkopedia.lsp.InitializeResult
 import com.monkopedia.lsp.InitializeResultServerInfo
+import com.monkopedia.lsp.InitializedParams
 import com.monkopedia.lsp.InlayHint
 import com.monkopedia.lsp.InlayHintParams
+import com.monkopedia.lsp.InlineCompletionItem
+import com.monkopedia.lsp.InlineCompletionList
+import com.monkopedia.lsp.InlineCompletionParams
+import com.monkopedia.lsp.InlineValue
+import com.monkopedia.lsp.InlineValueParams
+import com.monkopedia.lsp.InlineValueText
 import com.monkopedia.lsp.IntOrString
 import com.monkopedia.lsp.KsrpcLanguageClient
+import com.monkopedia.lsp.LSPAny
+import com.monkopedia.lsp.LinkedEditingRangeParams
+import com.monkopedia.lsp.LinkedEditingRanges
 import com.monkopedia.lsp.Location
 import com.monkopedia.lsp.LocationLink
 import com.monkopedia.lsp.LogMessageParams
 import com.monkopedia.lsp.LogTraceParams
 import com.monkopedia.lsp.MessageActionItem
 import com.monkopedia.lsp.MessageType
+import com.monkopedia.lsp.Moniker
+import com.monkopedia.lsp.MonikerKind
+import com.monkopedia.lsp.MonikerParams
 import com.monkopedia.lsp.Position
+import com.monkopedia.lsp.PrepareRenameParams
+import com.monkopedia.lsp.PrepareRenameResult
+import com.monkopedia.lsp.PrepareRenameResultRange
 import com.monkopedia.lsp.ProgressParams
 import com.monkopedia.lsp.Range
 import com.monkopedia.lsp.ReferenceParams
 import com.monkopedia.lsp.Registration
 import com.monkopedia.lsp.RegistrationParams
+import com.monkopedia.lsp.RelatedFullDocumentDiagnosticReport
+import com.monkopedia.lsp.RenameFilesParams
 import com.monkopedia.lsp.RenameParams
+import com.monkopedia.lsp.SelectionRange
+import com.monkopedia.lsp.SelectionRangeParams
 import com.monkopedia.lsp.SemanticTokens
+import com.monkopedia.lsp.SemanticTokensDeltaParams
 import com.monkopedia.lsp.SemanticTokensParams
+import com.monkopedia.lsp.SemanticTokensRangeParams
 import com.monkopedia.lsp.ServerCapabilities
+import com.monkopedia.lsp.SetTraceParams
 import com.monkopedia.lsp.ShowDocumentParams
 import com.monkopedia.lsp.ShowMessageParams
 import com.monkopedia.lsp.ShowMessageRequestParams
@@ -88,17 +143,33 @@ import com.monkopedia.lsp.TextDocumentDeclarationResult
 import com.monkopedia.lsp.TextDocumentDefinitionResult
 import com.monkopedia.lsp.TextDocumentDocumentSymbolResult
 import com.monkopedia.lsp.TextDocumentImplementationResult
+import com.monkopedia.lsp.TextDocumentInlineCompletionResult
+import com.monkopedia.lsp.TextDocumentSemanticTokensFullDeltaResult
 import com.monkopedia.lsp.TextDocumentTypeDefinitionResult
 import com.monkopedia.lsp.TextEdit
 import com.monkopedia.lsp.TypeDefinitionParams
+import com.monkopedia.lsp.TypeHierarchyItem
+import com.monkopedia.lsp.TypeHierarchyPrepareParams
+import com.monkopedia.lsp.TypeHierarchySubtypesParams
+import com.monkopedia.lsp.TypeHierarchySupertypesParams
+import com.monkopedia.lsp.UniquenessLevel
 import com.monkopedia.lsp.Unregistration
 import com.monkopedia.lsp.UnregistrationParams
+import com.monkopedia.lsp.WillSaveTextDocumentParams
+import com.monkopedia.lsp.WorkDoneProgressCancelParams
 import com.monkopedia.lsp.WorkDoneProgressCreateParams
+import com.monkopedia.lsp.WorkspaceDiagnosticParams
+import com.monkopedia.lsp.WorkspaceDiagnosticReport
 import com.monkopedia.lsp.WorkspaceEdit
+import com.monkopedia.lsp.WorkspaceFullDocumentDiagnosticReport
+import com.monkopedia.lsp.WorkspaceSymbol
+import com.monkopedia.lsp.WorkspaceSymbolParams
 import com.monkopedia.lsp.markdown
 import com.monkopedia.lsp.string
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -165,6 +236,13 @@ import kotlinx.serialization.json.put
  * Use the [Uri] / [Lines] constants below from tests so the contract stays in
  * one place.
  *
+ * ## Notification recording (issue #65)
+ *
+ * For full wire-coverage every notification handler also records its receipt
+ * into [notificationsBuffer]. Tests can drain [drainNotifications] or observe
+ * via [notificationFlow] to assert that a notification arrived. The key is the
+ * LSP method name (e.g. `textDocument/didChange`).
+ *
  * ## Server → client trigger surface (issue #64)
  *
  * To exercise the *client*-side wire surface — methods the server calls back on
@@ -176,6 +254,40 @@ import kotlinx.serialization.json.put
  * tests can either snapshot the list or suspend on the flow.
  */
 open class ConformanceLanguageServer : DefaultLanguageServer() {
+
+    /**
+     * Receipt of a notification on the server side. [method] is the LSP method
+     * name (e.g. `textDocument/didChange`); [paramsSummary] is a short
+     * deterministic stringification of the params used for asserting that the
+     * payload survived the round-trip.
+     */
+    data class NotificationReceipt(val method: String, val paramsSummary: String)
+
+    private val notificationMutex = Mutex()
+    private val notificationsBuffer = mutableListOf<NotificationReceipt>()
+
+    /** Hot flow of notification receipts; tests may collect this in parallel. */
+    val notificationFlow: MutableSharedFlow<NotificationReceipt> =
+        MutableSharedFlow(extraBufferCapacity = 256)
+
+    /** Drain and return all notification receipts seen so far. */
+    suspend fun drainNotifications(): List<NotificationReceipt> = notificationMutex.withLock {
+        val snapshot = notificationsBuffer.toList()
+        notificationsBuffer.clear()
+        snapshot
+    }
+
+    /** Snapshot the current notification log without clearing. */
+    suspend fun snapshotNotifications(): List<NotificationReceipt> = notificationMutex.withLock {
+        notificationsBuffer.toList()
+    }
+
+    private suspend fun record(method: String, paramsSummary: String) {
+        notificationMutex.withLock {
+            notificationsBuffer += NotificationReceipt(method, paramsSummary)
+        }
+        notificationFlow.tryEmit(NotificationReceipt(method, paramsSummary))
+    }
 
     /** Well-known document URIs the fixture recognises. */
     object Uri {
@@ -521,6 +633,384 @@ open class ConformanceLanguageServer : DefaultLanguageServer() {
         )
     )
 
+    override suspend fun inlayHintResolve(params: InlayHint): InlayHint = params.copy(
+        tooltip = StringOr.StringValue("resolved tooltip")
+    )
+
+    override suspend fun textDocumentDocumentColor(
+        params: DocumentColorParams
+    ): List<ColorInformation> = listOf(
+        ColorInformation(
+            range = range(0),
+            color = Color(red = 1.0, green = 0.0, blue = 0.0, alpha = 1.0)
+        )
+    )
+
+    override suspend fun textDocumentColorPresentation(
+        params: ColorPresentationParams
+    ): List<ColorPresentation> = listOf(
+        ColorPresentation(label = "red")
+    )
+
+    override suspend fun textDocumentSelectionRange(
+        params: SelectionRangeParams
+    ): List<SelectionRange> = listOf(
+        SelectionRange(range = range(0), parent = SelectionRange(range = range(0)))
+    )
+
+    override suspend fun textDocumentDocumentLink(params: DocumentLinkParams): List<DocumentLink> =
+        listOf(
+            DocumentLink(range = range(0), target = "https://example.com/conformance")
+        )
+
+    override suspend fun documentLinkResolve(params: DocumentLink): DocumentLink = params.copy(
+        tooltip = "resolved link tooltip"
+    )
+
+    override suspend fun textDocumentRangeFormatting(
+        params: DocumentRangeFormattingParams
+    ): List<TextEdit> = listOf(TextEdit(range = range(0), newText = "range-formatted\n"))
+
+    override suspend fun textDocumentRangesFormatting(
+        params: DocumentRangesFormattingParams
+    ): List<TextEdit> = listOf(TextEdit(range = range(0), newText = "ranges-formatted\n"))
+
+    override suspend fun textDocumentOnTypeFormatting(
+        params: DocumentOnTypeFormattingParams
+    ): List<TextEdit> = listOf(TextEdit(range = range(0), newText = "on-type-formatted\n"))
+
+    override suspend fun textDocumentPrepareRename(
+        params: PrepareRenameParams
+    ): PrepareRenameResult = PrepareRenameResultRange(
+        range = range(params.position.line.toInt()),
+        placeholder = "newName"
+    )
+
+    override suspend fun textDocumentWillSaveWaitUntil(
+        params: WillSaveTextDocumentParams
+    ): List<TextEdit> = listOf(TextEdit(range = range(0), newText = "// pre-save\n"))
+
+    override suspend fun completionItemResolve(params: CompletionItem): CompletionItem =
+        params.copy(detail = "resolved: ${params.label}")
+
+    override suspend fun codeActionResolve(params: CodeAction): CodeAction =
+        params.copy(isPreferred = true)
+
+    override suspend fun codeLensResolve(params: CodeLens): CodeLens = params.copy(
+        command = Command(title = "Resolved lens", command = "conformance.lens.resolved")
+    )
+
+    override suspend fun textDocumentSemanticTokensFullDelta(
+        params: SemanticTokensDeltaParams
+    ): TextDocumentSemanticTokensFullDeltaResult = SemanticTokens(
+        resultId = "conformance-delta-${params.previousResultId}",
+        data = listOf(0u, 0u, 4u, 0u, 0u)
+    )
+
+    override suspend fun textDocumentSemanticTokensRange(
+        params: SemanticTokensRangeParams
+    ): SemanticTokens = SemanticTokens(
+        resultId = "conformance-range",
+        data = listOf(0u, 0u, 4u, 0u, 0u)
+    )
+
+    override suspend fun textDocumentLinkedEditingRange(
+        params: LinkedEditingRangeParams
+    ): LinkedEditingRanges = LinkedEditingRanges(
+        ranges = listOf(range(0), range(1)),
+        wordPattern = "[a-zA-Z_][a-zA-Z0-9_]*"
+    )
+
+    override suspend fun textDocumentMoniker(params: MonikerParams): List<Moniker> = listOf(
+        Moniker(
+            scheme = "tsc",
+            identifier = "conformance#symbol",
+            unique = UniquenessLevel.SCHEME,
+            kind = MonikerKind.LOCAL
+        )
+    )
+
+    override suspend fun textDocumentInlineValue(params: InlineValueParams): List<InlineValue> =
+        listOf(InlineValueText(range = range(0), text = "42"))
+
+    override suspend fun textDocumentInlineCompletion(
+        params: InlineCompletionParams
+    ): TextDocumentInlineCompletionResult =
+        TextDocumentInlineCompletionResult.InlineCompletionListValue(
+            InlineCompletionList(
+                items = listOf(
+                    InlineCompletionItem(
+                        insertText = StringOr.StringValue("inline-completion")
+                    )
+                )
+            )
+        )
+
+    override suspend fun textDocumentDiagnostic(
+        params: DocumentDiagnosticParams
+    ): DocumentDiagnosticReport = RelatedFullDocumentDiagnosticReport(
+        kind = "full",
+        resultId = "conformance-doc-diag",
+        items = listOf(
+            Diagnostic(range = range(0), message = "canned doc diagnostic")
+        )
+    )
+
+    override suspend fun workspaceDiagnostic(
+        params: WorkspaceDiagnosticParams
+    ): WorkspaceDiagnosticReport = WorkspaceDiagnosticReport(
+        items = listOf(
+            WorkspaceFullDocumentDiagnosticReport(
+                kind = "full",
+                resultId = "conformance-ws-diag",
+                items = listOf(
+                    Diagnostic(range = range(0), message = "canned workspace diagnostic")
+                ),
+                uri = Uri.MAIN,
+                version = 1
+            )
+        )
+    )
+
+    // ---- Call hierarchy ----
+
+    override suspend fun textDocumentPrepareCallHierarchy(
+        params: CallHierarchyPrepareParams
+    ): List<CallHierarchyItem> = listOf(callHierarchyItem("preparedCall"))
+
+    override suspend fun callHierarchyIncomingCalls(
+        params: CallHierarchyIncomingCallsParams
+    ): List<CallHierarchyIncomingCall> = listOf(
+        CallHierarchyIncomingCall(
+            from = callHierarchyItem("incomingCaller"),
+            fromRanges = listOf(range(0))
+        )
+    )
+
+    override suspend fun callHierarchyOutgoingCalls(
+        params: CallHierarchyOutgoingCallsParams
+    ): List<CallHierarchyOutgoingCall> = listOf(
+        CallHierarchyOutgoingCall(
+            to = callHierarchyItem("outgoingCallee"),
+            fromRanges = listOf(range(0))
+        )
+    )
+
+    // ---- Type hierarchy ----
+
+    override suspend fun textDocumentPrepareTypeHierarchy(
+        params: TypeHierarchyPrepareParams
+    ): List<TypeHierarchyItem> = listOf(typeHierarchyItem("preparedType"))
+
+    override suspend fun typeHierarchySupertypes(
+        params: TypeHierarchySupertypesParams
+    ): List<TypeHierarchyItem> = listOf(typeHierarchyItem("Supertype"))
+
+    override suspend fun typeHierarchySubtypes(
+        params: TypeHierarchySubtypesParams
+    ): List<TypeHierarchyItem> = listOf(typeHierarchyItem("Subtype"))
+
+    // ---- Workspace operations ----
+
+    override suspend fun workspaceSymbol(params: WorkspaceSymbolParams): LSPAny {
+        // workspace/symbol's result is a JsonElement union (SymbolInformation[] |
+        // WorkspaceSymbol[]). Emit a SymbolInformation[] for simplicity — lsp4j
+        // accepts it.
+        return kotlinx.serialization.json.buildJsonArray {
+            add(
+                buildJsonObject {
+                    put("name", JsonPrimitive("ws:${params.query}"))
+                    put("kind", JsonPrimitive(SymbolKind.FUNCTION.value.toInt()))
+                    put(
+                        "location",
+                        buildJsonObject {
+                            put("uri", JsonPrimitive(Uri.MAIN))
+                            put(
+                                "range",
+                                buildJsonObject {
+                                    put(
+                                        "start",
+                                        buildJsonObject {
+                                            put("line", JsonPrimitive(0))
+                                            put("character", JsonPrimitive(0))
+                                        }
+                                    )
+                                    put(
+                                        "end",
+                                        buildJsonObject {
+                                            put("line", JsonPrimitive(0))
+                                            put("character", JsonPrimitive(4))
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    )
+                }
+            )
+        }
+    }
+
+    override suspend fun workspaceSymbolResolve(params: WorkspaceSymbol): WorkspaceSymbol =
+        params.copy(containerName = "resolved")
+
+    override suspend fun workspaceExecuteCommand(params: ExecuteCommandParams): LSPAny =
+        buildJsonObject {
+            put("command", JsonPrimitive(params.command))
+            put("status", JsonPrimitive("ok"))
+        }
+
+    override suspend fun workspaceWillCreateFiles(params: CreateFilesParams): WorkspaceEdit =
+        WorkspaceEdit(
+            changes = mapOf(
+                Uri.MAIN to listOf(TextEdit(range = range(0), newText = "// will-create\n"))
+            )
+        )
+
+    override suspend fun workspaceWillRenameFiles(params: RenameFilesParams): WorkspaceEdit =
+        WorkspaceEdit(
+            changes = mapOf(
+                Uri.MAIN to listOf(TextEdit(range = range(0), newText = "// will-rename\n"))
+            )
+        )
+
+    override suspend fun workspaceWillDeleteFiles(params: DeleteFilesParams): WorkspaceEdit =
+        WorkspaceEdit(
+            changes = mapOf(
+                Uri.MAIN to listOf(TextEdit(range = range(0), newText = "// will-delete\n"))
+            )
+        )
+
+    private fun callHierarchyItem(name: String): CallHierarchyItem = CallHierarchyItem(
+        name = name,
+        kind = SymbolKind.FUNCTION,
+        uri = Uri.MAIN,
+        range = range(0),
+        selectionRange = range(0)
+    )
+
+    private fun typeHierarchyItem(name: String): TypeHierarchyItem = TypeHierarchyItem(
+        name = name,
+        kind = SymbolKind.CLASS,
+        uri = Uri.MAIN,
+        range = range(0),
+        selectionRange = range(0)
+    )
+
+    // endregion
+
+    // region notifications — record receipt for assertion
+
+    override suspend fun initialized(params: InitializedParams) {
+        record("initialized", "")
+    }
+
+    override suspend fun exit() {
+        record("exit", "")
+    }
+
+    override suspend fun setTrace(params: SetTraceParams) {
+        record("\$/setTrace", params.value.name)
+    }
+
+    override suspend fun progress(params: ProgressParams) {
+        record("\$/progress", "token=${params.token}")
+    }
+
+    override suspend fun windowWorkDoneProgressCancel(params: WorkDoneProgressCancelParams) {
+        record("window/workDoneProgress/cancel", "token=${params.token}")
+    }
+
+    /**
+     * Records the notification receipt and, when the opened URI matches a well-known
+     * [Triggers] URI, fires the corresponding server → client sequence so wire tests
+     * can exercise the full client surface (issue #64). Subclasses are free to
+     * override and call `super.textDocumentDidOpen(...)` to keep this behaviour, or
+     * replace it.
+     */
+    override suspend fun textDocumentDidOpen(params: DidOpenTextDocumentParams) {
+        record("textDocument/didOpen", "uri=${params.textDocument.uri}")
+        if (params.textDocument.uri == Triggers.ALL) {
+            emitAllClientTriggers()
+        }
+    }
+
+    override suspend fun textDocumentDidChange(params: DidChangeTextDocumentParams) {
+        record("textDocument/didChange", "uri=${params.textDocument.uri}")
+    }
+
+    override suspend fun textDocumentDidClose(params: DidCloseTextDocumentParams) {
+        record("textDocument/didClose", "uri=${params.textDocument.uri}")
+    }
+
+    override suspend fun textDocumentDidSave(params: DidSaveTextDocumentParams) {
+        record("textDocument/didSave", "uri=${params.textDocument.uri}")
+    }
+
+    override suspend fun textDocumentWillSave(params: WillSaveTextDocumentParams) {
+        record("textDocument/willSave", "uri=${params.textDocument.uri}")
+    }
+
+    override suspend fun workspaceDidChangeConfiguration(params: DidChangeConfigurationParams) {
+        record("workspace/didChangeConfiguration", params.settings.toString().take(64))
+    }
+
+    override suspend fun workspaceDidChangeWatchedFiles(params: DidChangeWatchedFilesParams) {
+        record(
+            "workspace/didChangeWatchedFiles",
+            "changes=${params.changes.size}"
+        )
+    }
+
+    override suspend fun workspaceDidChangeWorkspaceFolders(
+        params: DidChangeWorkspaceFoldersParams
+    ) {
+        record(
+            "workspace/didChangeWorkspaceFolders",
+            "added=${params.event.added.size},removed=${params.event.removed.size}"
+        )
+    }
+
+    override suspend fun workspaceDidCreateFiles(params: CreateFilesParams) {
+        record("workspace/didCreateFiles", "files=${params.files.size}")
+    }
+
+    override suspend fun workspaceDidRenameFiles(params: RenameFilesParams) {
+        record("workspace/didRenameFiles", "files=${params.files.size}")
+    }
+
+    override suspend fun workspaceDidDeleteFiles(params: DeleteFilesParams) {
+        record("workspace/didDeleteFiles", "files=${params.files.size}")
+    }
+
+    override suspend fun notebookDocumentDidOpen(params: DidOpenNotebookDocumentParams) {
+        record(
+            "notebookDocument/didOpen",
+            "uri=${params.notebookDocument.uri}"
+        )
+    }
+
+    override suspend fun notebookDocumentDidChange(params: DidChangeNotebookDocumentParams) {
+        record(
+            "notebookDocument/didChange",
+            "uri=${params.notebookDocument.uri}"
+        )
+    }
+
+    override suspend fun notebookDocumentDidSave(params: DidSaveNotebookDocumentParams) {
+        record(
+            "notebookDocument/didSave",
+            "uri=${params.notebookDocument.uri}"
+        )
+    }
+
+    override suspend fun notebookDocumentDidClose(params: DidCloseNotebookDocumentParams) {
+        record(
+            "notebookDocument/didClose",
+            "uri=${params.notebookDocument.uri}"
+        )
+    }
+
     // endregion
 
     // region branch-construction helpers
@@ -548,18 +1038,6 @@ open class ConformanceLanguageServer : DefaultLanguageServer() {
     // region server -> client trigger surface (issue #64)
 
     /**
-     * On `textDocument/didOpen`, if the opened URI matches a well-known [Triggers]
-     * URI, fire the corresponding server → client sequence so wire tests can
-     * exercise the full client surface. Subclasses are free to override and call
-     * `super.textDocumentDidOpen(...)` to keep this behaviour, or replace it.
-     */
-    override suspend fun textDocumentDidOpen(params: DidOpenTextDocumentParams) {
-        if (params.textDocument.uri == Triggers.ALL) {
-            emitAllClientTriggers()
-        }
-    }
-
-    /**
      * Issue one call against every server-initiated client method the fixture can
      * exercise over the wire, in the order documented by [ClientMethods.ALL]. Each
      * successful issue appends the method name to [issuedClientCalls] and emits on
@@ -578,11 +1056,11 @@ open class ConformanceLanguageServer : DefaultLanguageServer() {
                 )
             )
         )
-        record(ClientMethods.WORKSPACE_CONFIGURATION)
+        recordClientCall(ClientMethods.WORKSPACE_CONFIGURATION)
 
         // workspace/workspaceFolders (request)
         c.workspaceWorkspaceFolders()
-        record(ClientMethods.WORKSPACE_WORKSPACE_FOLDERS)
+        recordClientCall(ClientMethods.WORKSPACE_WORKSPACE_FOLDERS)
 
         // workspace/applyEdit (request)
         c.workspaceApplyEdit(
@@ -597,7 +1075,7 @@ open class ConformanceLanguageServer : DefaultLanguageServer() {
                 )
             )
         )
-        record(ClientMethods.WORKSPACE_APPLY_EDIT)
+        recordClientCall(ClientMethods.WORKSPACE_APPLY_EDIT)
 
         // window/showMessageRequest (request)
         c.windowShowMessageRequest(
@@ -610,13 +1088,13 @@ open class ConformanceLanguageServer : DefaultLanguageServer() {
                 )
             )
         )
-        record(ClientMethods.WINDOW_SHOW_MESSAGE_REQUEST)
+        recordClientCall(ClientMethods.WINDOW_SHOW_MESSAGE_REQUEST)
 
         // window/showDocument (request)
         c.windowShowDocument(
             ShowDocumentParams(uri = Uri.MAIN, takeFocus = true)
         )
-        record(ClientMethods.WINDOW_SHOW_DOCUMENT)
+        recordClientCall(ClientMethods.WINDOW_SHOW_DOCUMENT)
 
         // client/registerCapability + client/unregisterCapability (requests)
         c.clientRegisterCapability(
@@ -629,7 +1107,7 @@ open class ConformanceLanguageServer : DefaultLanguageServer() {
                 )
             )
         )
-        record(ClientMethods.CLIENT_REGISTER_CAPABILITY)
+        recordClientCall(ClientMethods.CLIENT_REGISTER_CAPABILITY)
 
         c.clientUnregisterCapability(
             UnregistrationParams(
@@ -641,7 +1119,7 @@ open class ConformanceLanguageServer : DefaultLanguageServer() {
                 )
             )
         )
-        record(ClientMethods.CLIENT_UNREGISTER_CAPABILITY)
+        recordClientCall(ClientMethods.CLIENT_UNREGISTER_CAPABILITY)
 
         // window/workDoneProgress/create + $/progress
         c.windowWorkDoneProgressCreate(
@@ -649,7 +1127,7 @@ open class ConformanceLanguageServer : DefaultLanguageServer() {
                 token = IntOrString.StringValue(TRIGGER_PROGRESS_TOKEN)
             )
         )
-        record(ClientMethods.WINDOW_WORK_DONE_PROGRESS_CREATE)
+        recordClientCall(ClientMethods.WINDOW_WORK_DONE_PROGRESS_CREATE)
 
         // Encode the WorkDoneProgressBegin value as a portable JsonElement: this
         // file lives in commonTest and runs on mingwX64 too, which does not have
@@ -666,49 +1144,49 @@ open class ConformanceLanguageServer : DefaultLanguageServer() {
                 value = begin
             )
         )
-        record(ClientMethods.PROGRESS)
+        recordClientCall(ClientMethods.PROGRESS)
 
         // workspace/*/refresh family (requests with empty params)
         c.workspaceCodeLensRefresh()
-        record(ClientMethods.WORKSPACE_CODE_LENS_REFRESH)
+        recordClientCall(ClientMethods.WORKSPACE_CODE_LENS_REFRESH)
 
         c.workspaceSemanticTokensRefresh()
-        record(ClientMethods.WORKSPACE_SEMANTIC_TOKENS_REFRESH)
+        recordClientCall(ClientMethods.WORKSPACE_SEMANTIC_TOKENS_REFRESH)
 
         c.workspaceInlayHintRefresh()
-        record(ClientMethods.WORKSPACE_INLAY_HINT_REFRESH)
+        recordClientCall(ClientMethods.WORKSPACE_INLAY_HINT_REFRESH)
 
         c.workspaceInlineValueRefresh()
-        record(ClientMethods.WORKSPACE_INLINE_VALUE_REFRESH)
+        recordClientCall(ClientMethods.WORKSPACE_INLINE_VALUE_REFRESH)
 
         c.workspaceDiagnosticRefresh()
-        record(ClientMethods.WORKSPACE_DIAGNOSTIC_REFRESH)
+        recordClientCall(ClientMethods.WORKSPACE_DIAGNOSTIC_REFRESH)
 
         c.workspaceFoldingRangeRefresh()
-        record(ClientMethods.WORKSPACE_FOLDING_RANGE_REFRESH)
+        recordClientCall(ClientMethods.WORKSPACE_FOLDING_RANGE_REFRESH)
 
         // telemetry/event + $/logTrace (notifications)
         c.telemetryEvent(JsonPrimitive("conformance-telemetry"))
-        record(ClientMethods.TELEMETRY_EVENT)
+        recordClientCall(ClientMethods.TELEMETRY_EVENT)
 
         c.logTrace(
             LogTraceParams(message = "conformance trace", verbose = "verbose detail")
         )
-        record(ClientMethods.LOG_TRACE)
+        recordClientCall(ClientMethods.LOG_TRACE)
 
         // window/showMessage + window/logMessage (notifications)
         c.windowShowMessage(
             ShowMessageParams(type = MessageType.INFO, message = "conformance show")
         )
-        record(ClientMethods.WINDOW_SHOW_MESSAGE)
+        recordClientCall(ClientMethods.WINDOW_SHOW_MESSAGE)
 
         c.windowLogMessage(
             LogMessageParams(type = MessageType.LOG, message = "conformance log")
         )
-        record(ClientMethods.WINDOW_LOG_MESSAGE)
+        recordClientCall(ClientMethods.WINDOW_LOG_MESSAGE)
     }
 
-    private suspend fun record(method: String) {
+    private suspend fun recordClientCall(method: String) {
         _issuedClientCalls += method
         _issuedClientCallsFlow.emit(method)
     }

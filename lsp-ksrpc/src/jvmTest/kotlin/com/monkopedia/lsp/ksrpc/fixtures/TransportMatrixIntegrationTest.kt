@@ -17,23 +17,111 @@ package com.monkopedia.lsp.ksrpc.fixtures
 
 import com.monkopedia.ksrpc.serialized
 import com.monkopedia.ksrpc.toStub
+import com.monkopedia.lsp.CallHierarchyIncomingCallsParams
+import com.monkopedia.lsp.CallHierarchyOutgoingCallsParams
+import com.monkopedia.lsp.CallHierarchyPrepareParams
 import com.monkopedia.lsp.ClientCapabilities
+import com.monkopedia.lsp.CodeAction
+import com.monkopedia.lsp.CodeActionContext
+import com.monkopedia.lsp.CodeActionParams
+import com.monkopedia.lsp.CodeLens
+import com.monkopedia.lsp.CodeLensParams
+import com.monkopedia.lsp.Color
+import com.monkopedia.lsp.ColorPresentationParams
+import com.monkopedia.lsp.CompletionItem
 import com.monkopedia.lsp.CompletionParams
+import com.monkopedia.lsp.CreateFilesParams
+import com.monkopedia.lsp.DeclarationParams
 import com.monkopedia.lsp.DefinitionParams
+import com.monkopedia.lsp.DeleteFilesParams
+import com.monkopedia.lsp.DidChangeConfigurationParams
+import com.monkopedia.lsp.DidChangeNotebookDocumentParams
+import com.monkopedia.lsp.DidChangeTextDocumentParams
+import com.monkopedia.lsp.DidChangeWatchedFilesParams
+import com.monkopedia.lsp.DidChangeWorkspaceFoldersParams
+import com.monkopedia.lsp.DidCloseNotebookDocumentParams
+import com.monkopedia.lsp.DidCloseTextDocumentParams
+import com.monkopedia.lsp.DidOpenNotebookDocumentParams
 import com.monkopedia.lsp.DidOpenTextDocumentParams
+import com.monkopedia.lsp.DidSaveNotebookDocumentParams
+import com.monkopedia.lsp.DidSaveTextDocumentParams
+import com.monkopedia.lsp.DocumentColorParams
+import com.monkopedia.lsp.DocumentDiagnosticParams
+import com.monkopedia.lsp.DocumentFormattingParams
+import com.monkopedia.lsp.DocumentHighlightParams
+import com.monkopedia.lsp.DocumentLink
+import com.monkopedia.lsp.DocumentLinkParams
+import com.monkopedia.lsp.DocumentOnTypeFormattingParams
+import com.monkopedia.lsp.DocumentRangeFormattingParams
+import com.monkopedia.lsp.DocumentRangesFormattingParams
 import com.monkopedia.lsp.DocumentSymbolParams
+import com.monkopedia.lsp.ExecuteCommandParams
+import com.monkopedia.lsp.FileChangeType
+import com.monkopedia.lsp.FileCreate
+import com.monkopedia.lsp.FileDelete
+import com.monkopedia.lsp.FileEvent
+import com.monkopedia.lsp.FileRename
+import com.monkopedia.lsp.FoldingRangeParams
+import com.monkopedia.lsp.FormattingOptions
 import com.monkopedia.lsp.HoverContents
 import com.monkopedia.lsp.HoverParams
+import com.monkopedia.lsp.ImplementationParams
 import com.monkopedia.lsp.InitializeParams
 import com.monkopedia.lsp.InitializedParams
+import com.monkopedia.lsp.InlayHint
+import com.monkopedia.lsp.InlayHintParams
+import com.monkopedia.lsp.InlineCompletionContext
+import com.monkopedia.lsp.InlineCompletionParams
+import com.monkopedia.lsp.InlineCompletionTriggerKind
+import com.monkopedia.lsp.InlineValueContext
+import com.monkopedia.lsp.InlineValueParams
+import com.monkopedia.lsp.IntOrString
 import com.monkopedia.lsp.KsrpcLanguageServer
+import com.monkopedia.lsp.LinkedEditingRangeParams
+import com.monkopedia.lsp.MonikerParams
+import com.monkopedia.lsp.NotebookCell
+import com.monkopedia.lsp.NotebookCellKind
+import com.monkopedia.lsp.NotebookDocument
+import com.monkopedia.lsp.NotebookDocumentIdentifier
 import com.monkopedia.lsp.Position
+import com.monkopedia.lsp.PrepareRenameParams
+import com.monkopedia.lsp.ProgressParams
+import com.monkopedia.lsp.Range
+import com.monkopedia.lsp.ReferenceContext
+import com.monkopedia.lsp.ReferenceParams
+import com.monkopedia.lsp.RenameFilesParams
+import com.monkopedia.lsp.RenameParams
+import com.monkopedia.lsp.SelectionRangeParams
+import com.monkopedia.lsp.SemanticTokensDeltaParams
+import com.monkopedia.lsp.SemanticTokensParams
+import com.monkopedia.lsp.SemanticTokensRangeParams
+import com.monkopedia.lsp.SetTraceParams
+import com.monkopedia.lsp.SignatureHelpParams
 import com.monkopedia.lsp.SingleOrArray
+import com.monkopedia.lsp.StringOr
+import com.monkopedia.lsp.SymbolKind
 import com.monkopedia.lsp.TextDocumentCompletionResult
+import com.monkopedia.lsp.TextDocumentContentChangeEvent
 import com.monkopedia.lsp.TextDocumentDefinitionResult
 import com.monkopedia.lsp.TextDocumentDocumentSymbolResult
 import com.monkopedia.lsp.TextDocumentIdentifier
 import com.monkopedia.lsp.TextDocumentItem
+import com.monkopedia.lsp.TextDocumentSaveReason
+import com.monkopedia.lsp.TraceValues
+import com.monkopedia.lsp.TypeDefinitionParams
+import com.monkopedia.lsp.TypeHierarchyItem
+import com.monkopedia.lsp.TypeHierarchyPrepareParams
+import com.monkopedia.lsp.TypeHierarchySubtypesParams
+import com.monkopedia.lsp.TypeHierarchySupertypesParams
+import com.monkopedia.lsp.VersionedNotebookDocumentIdentifier
+import com.monkopedia.lsp.VersionedTextDocumentIdentifier
+import com.monkopedia.lsp.WillSaveTextDocumentParams
+import com.monkopedia.lsp.WorkDoneProgressCancelParams
+import com.monkopedia.lsp.WorkspaceDiagnosticParams
+import com.monkopedia.lsp.WorkspaceFolder
+import com.monkopedia.lsp.WorkspaceFoldersChangeEvent
+import com.monkopedia.lsp.WorkspaceSymbol
+import com.monkopedia.lsp.WorkspaceSymbolParams
 import com.monkopedia.lsp.ksrpc.asLspConnection
 import com.monkopedia.lsp.ksrpc.connectAsLspClient
 import com.monkopedia.lsp.ksrpc.connectAsLspServer
@@ -60,6 +148,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
+import kotlinx.serialization.json.JsonPrimitive
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
@@ -116,11 +205,32 @@ class TransportMatrixIntegrationTest(
         }
 
     /**
-     * Server → client surface: open the [ConformanceLanguageServer.Triggers.ALL]
-     * URI to drive the fixture's `emitAllClientTriggers`. Assert that every method
-     * the fixture issues appears on the local [ConformanceLanguageClient]'s
-     * recording lists (i.e. the wire actually carried it). Skipped for transports
-     * that do not carry server-initiated traffic (the in-process ksrpc relay).
+     * Issue #65 — drive every server method (request + notification) through the
+     * ksrpc stub on each transport, asserting that each request returns the
+     * fixture's canned response and that each notification is recorded on the
+     * fixture side.
+     *
+     * Lifecycle is run once; we then issue one representative call per remaining
+     * method. Notifications are sent, the test waits a bounded window via
+     * `withTimeout` for the fixture's notification log to contain the expected
+     * methods.
+     */
+    @org.junit.Test
+    fun `every server method round-trips via the ksrpc stub`() = runBlocking(Dispatchers.IO) {
+        transport.withSessionAndFixture { remote, fixture ->
+            withTimeout(TIMEOUT_MS) {
+                AllMethodsDriver(remote, fixture).runAll()
+            }
+        }
+    }
+
+    /**
+     * Server → client surface (issue #64): open the
+     * [ConformanceLanguageServer.Triggers.ALL] URI to drive the fixture's
+     * `emitAllClientTriggers`. Assert that every method the fixture issues appears
+     * on the local [ConformanceLanguageClient]'s recording lists (i.e. the wire
+     * actually carried it). Skipped for transports that do not carry
+     * server-initiated traffic (the in-process ksrpc relay).
      */
     @org.junit.Test
     fun `every server-initiated client call round-trips over the wire`() =
@@ -406,7 +516,18 @@ class TransportMatrixIntegrationTest(
  * [ConformanceLanguageClient] (so the test can read what the client recorded).
  */
 sealed interface Transport {
-    suspend fun withSession(block: suspend (KsrpcLanguageServer) -> Unit)
+    suspend fun withSession(block: suspend (KsrpcLanguageServer) -> Unit) =
+        withSessionAndFixture { remote, _ -> block(remote) }
+
+    /**
+     * Like [withSession] but also hands the test the live fixture instance, so
+     * notifications recorded on the server side can be asserted. Implementations
+     * MUST stand up the fixture in the same process; for relay/stdio transports
+     * that share the same JVM this is just a direct reference.
+     */
+    suspend fun withSessionAndFixture(
+        block: suspend (KsrpcLanguageServer, ConformanceLanguageServer) -> Unit
+    )
 
     /**
      * Whether this transport supports the server → client trigger test
@@ -442,25 +563,27 @@ class DuplexSession(
  * orders. Mirrors [InMemoryLspIntegrationTest].
  */
 private object InMemoryTransport : Transport {
-    override suspend fun withSession(block: suspend (KsrpcLanguageServer) -> Unit) =
-        withContext(Dispatchers.IO) {
-            val clientToServer = ByteChannel(autoFlush = true)
-            val serverToClient = ByteChannel(autoFlush = true)
-            val server = standaloneServerScope()
-            server.launch {
-                val conn = (clientToServer to serverToClient).asLspConnection()
-                conn.connectAsLspServer(ConformanceLanguageServer())
-            }
-            try {
-                val conn = (serverToClient to clientToServer).asLspConnection()
-                val remote = conn.connectAsLspClient(ConformanceLanguageClient())
-                block(remote)
-            } finally {
-                clientToServer.close()
-                serverToClient.close()
-                server.boundedCancel()
-            }
+    override suspend fun withSessionAndFixture(
+        block: suspend (KsrpcLanguageServer, ConformanceLanguageServer) -> Unit
+    ) = withContext(Dispatchers.IO) {
+        val clientToServer = ByteChannel(autoFlush = true)
+        val serverToClient = ByteChannel(autoFlush = true)
+        val fixture = ConformanceLanguageServer()
+        val server = standaloneServerScope()
+        server.launch {
+            val conn = (clientToServer to serverToClient).asLspConnection()
+            conn.connectAsLspServer(fixture)
         }
+        try {
+            val conn = (serverToClient to clientToServer).asLspConnection()
+            val remote = conn.connectAsLspClient(ConformanceLanguageClient())
+            block(remote, fixture)
+        } finally {
+            clientToServer.close()
+            serverToClient.close()
+            server.boundedCancel()
+        }
+    }
 
     override suspend fun withDuplexSession(block: suspend (DuplexSession) -> Unit): Unit =
         withContext(Dispatchers.IO) {
@@ -495,8 +618,9 @@ private object InMemoryTransport : Transport {
  * carried over real OS sockets.
  */
 private object TcpTransport : Transport {
-    override suspend fun withSession(block: suspend (KsrpcLanguageServer) -> Unit) =
-        runTcpSession { remote, _, _ -> block(remote) }
+    override suspend fun withSessionAndFixture(
+        block: suspend (KsrpcLanguageServer, ConformanceLanguageServer) -> Unit
+    ) = runTcpSession { remote, fixture, _ -> block(remote, fixture) }
 
     override suspend fun withDuplexSession(block: suspend (DuplexSession) -> Unit): Unit =
         runTcpSession { remote, serverFixture, clientFixture ->
@@ -551,8 +675,9 @@ private object TcpTransport : Transport {
  * the in-process vs true-process distinction.
  */
 private object StdioPipeTransport : Transport {
-    override suspend fun withSession(block: suspend (KsrpcLanguageServer) -> Unit) =
-        runStdioSession { remote, _, _ -> block(remote) }
+    override suspend fun withSessionAndFixture(
+        block: suspend (KsrpcLanguageServer, ConformanceLanguageServer) -> Unit
+    ) = runStdioSession { remote, fixture, _ -> block(remote, fixture) }
 
     override suspend fun withDuplexSession(block: suspend (DuplexSession) -> Unit): Unit =
         runStdioSession { remote, serverFixture, clientFixture ->
@@ -566,11 +691,15 @@ private object StdioPipeTransport : Transport {
             ConformanceLanguageClient
         ) -> Unit
     ): Unit = withContext(Dispatchers.IO) {
-        // client -> server pipe
-        val serverIn = PipedInputStream(1 shl 16)
+        // client -> server pipe — 1 MiB buffer; the all-methods test sends
+        // dozens of notifications/requests in quick succession and would
+        // otherwise risk filling the smaller 64 KiB buffer (the stdio writer
+        // blocks once the pipe buffer is full and the reader hasn't caught up,
+        // which can deadlock the run loop).
+        val serverIn = PipedInputStream(1 shl 20)
         val clientOut = PipedOutputStream(serverIn)
         // server -> client pipe
-        val clientIn = PipedInputStream(1 shl 16)
+        val clientIn = PipedInputStream(1 shl 20)
         val serverOut = PipedOutputStream(clientIn)
 
         val serverFixture = ConformanceLanguageServer()
@@ -608,14 +737,16 @@ private object RelayTransport : Transport {
      */
     override val supportsServerInitiated: Boolean = false
 
-    override suspend fun withSession(block: suspend (KsrpcLanguageServer) -> Unit) {
+    override suspend fun withSessionAndFixture(
+        block: suspend (KsrpcLanguageServer, ConformanceLanguageServer) -> Unit
+    ) {
         withContext(Dispatchers.IO) {
             val env = lspKsrpcEnvironment()
-            val serialized =
-                ConformanceLanguageServer().serialized<KsrpcLanguageServer, String>(env)
+            val fixture = ConformanceLanguageServer()
+            val serialized = fixture.serialized<KsrpcLanguageServer, String>(env)
             val remote = serialized.toStub<KsrpcLanguageServer, String>()
             try {
-                block(remote)
+                block(remote, fixture)
             } finally {
                 runCatching {
                     withTimeout(TransportMatrixIntegrationTest.TEARDOWN_MS) { serialized.close() }
@@ -646,5 +777,441 @@ private suspend fun CoroutineScope.boundedCancel() {
     job?.cancel()
     runCatching {
         withTimeout(TransportMatrixIntegrationTest.TEARDOWN_MS) { job?.join() }
+    }
+}
+
+/**
+ * Drives every server method (request + notification) exactly once via the
+ * provided remote stub. Used by [TransportMatrixIntegrationTest] to verify the
+ * wire path of all 73 server-side methods for issue #65. Each invocation is
+ * tightly scoped: requests verify a non-null/expected canned response; the
+ * fixture's notification log is the ground truth for notifications.
+ */
+private class AllMethodsDriver(
+    private val remote: KsrpcLanguageServer,
+    private val fixture: ConformanceLanguageServer
+) {
+    private val uri = ConformanceLanguageServer.Uri.MAIN
+    private val doc = TextDocumentIdentifier(uri)
+    private fun pos(line: Int = 0) = Position(line = line.toUInt(), character = 0u)
+    private fun rng() = Range(start = pos(0), end = pos(0).copy(character = 4u))
+
+    suspend fun runAll() {
+        // --- lifecycle ---
+        val init = remote.initialize(
+            InitializeParams(
+                capabilities = ClientCapabilities(),
+                processId = 1,
+                rootUri = "file:///conformance"
+            )
+        )
+        assertNotNull(init.capabilities.hoverProvider)
+        remote.initialized(com.monkopedia.lsp.InitializedParams())
+
+        // --- text-document requests (already covered by smoke; still call for completeness) ---
+        remote.textDocumentHover(HoverParams(textDocument = doc, position = pos(0)))
+        remote.textDocumentDefinition(
+            DefinitionParams(textDocument = doc, position = pos(0))
+        )
+        remote.textDocumentDeclaration(
+            DeclarationParams(textDocument = doc, position = pos(0))
+        )
+        remote.textDocumentTypeDefinition(
+            TypeDefinitionParams(textDocument = doc, position = pos(0))
+        )
+        remote.textDocumentImplementation(
+            ImplementationParams(textDocument = doc, position = pos(0))
+        )
+        remote.textDocumentReferences(
+            ReferenceParams(
+                textDocument = doc,
+                position = pos(0),
+                context = ReferenceContext(includeDeclaration = true)
+            )
+        )
+        remote.textDocumentDocumentSymbol(DocumentSymbolParams(textDocument = doc))
+        remote.textDocumentCompletion(
+            CompletionParams(textDocument = doc, position = pos(0))
+        )
+
+        // --- newly-covered text-document requests ---
+        assertNotNull(
+            remote.textDocumentSignatureHelp(
+                SignatureHelpParams(textDocument = doc, position = pos(0))
+            )
+        )
+        assertTrue(
+            remote.textDocumentDocumentHighlight(
+                DocumentHighlightParams(textDocument = doc, position = pos(0))
+            ).isNotEmpty()
+        )
+        assertTrue(
+            remote.textDocumentCodeAction(
+                CodeActionParams(
+                    textDocument = doc,
+                    range = rng(),
+                    context = CodeActionContext(diagnostics = emptyList())
+                )
+            ).isNotEmpty()
+        )
+        val resolvedAction = remote.codeActionResolve(CodeAction(title = "resolve me"))
+        assertEquals(true, resolvedAction.isPreferred)
+
+        val codeLens = remote.textDocumentCodeLens(CodeLensParams(textDocument = doc)).first()
+        val resolvedLens = remote.codeLensResolve(codeLens.copy(command = null))
+        assertNotNull(resolvedLens.command)
+
+        assertTrue(
+            remote.textDocumentDocumentLink(DocumentLinkParams(textDocument = doc)).isNotEmpty()
+        )
+        val resolvedLink = remote.documentLinkResolve(DocumentLink(range = rng()))
+        assertEquals("resolved link tooltip", resolvedLink.tooltip)
+
+        assertTrue(
+            remote.textDocumentDocumentColor(DocumentColorParams(textDocument = doc)).isNotEmpty()
+        )
+        assertTrue(
+            remote.textDocumentColorPresentation(
+                ColorPresentationParams(
+                    textDocument = doc,
+                    color = Color(red = 1.0, green = 0.0, blue = 0.0, alpha = 1.0),
+                    range = rng()
+                )
+            ).isNotEmpty()
+        )
+
+        assertTrue(
+            remote.textDocumentSelectionRange(
+                SelectionRangeParams(textDocument = doc, positions = listOf(pos(0)))
+            ).isNotEmpty()
+        )
+
+        assertTrue(
+            remote.textDocumentFoldingRange(FoldingRangeParams(textDocument = doc)).isNotEmpty()
+        )
+
+        // formatting family
+        val fmtOptions = FormattingOptions(tabSize = 4u, insertSpaces = true)
+        assertTrue(
+            remote.textDocumentFormatting(
+                DocumentFormattingParams(textDocument = doc, options = fmtOptions)
+            ).isNotEmpty()
+        )
+        assertTrue(
+            remote.textDocumentRangeFormatting(
+                DocumentRangeFormattingParams(
+                    textDocument = doc,
+                    range = rng(),
+                    options = fmtOptions
+                )
+            ).isNotEmpty()
+        )
+        assertTrue(
+            remote.textDocumentRangesFormatting(
+                DocumentRangesFormattingParams(
+                    textDocument = doc,
+                    ranges = listOf(rng()),
+                    options = fmtOptions
+                )
+            ).isNotEmpty()
+        )
+        assertTrue(
+            remote.textDocumentOnTypeFormatting(
+                DocumentOnTypeFormattingParams(
+                    textDocument = doc,
+                    position = pos(0),
+                    ch = "}",
+                    options = fmtOptions
+                )
+            ).isNotEmpty()
+        )
+
+        // rename
+        val renameEdit = remote.textDocumentRename(
+            RenameParams(textDocument = doc, position = pos(0), newName = "renamed")
+        )
+        assertNotNull(renameEdit.changes)
+        val prepRename = remote.textDocumentPrepareRename(
+            PrepareRenameParams(textDocument = doc, position = pos(0))
+        )
+        assertNotNull(prepRename)
+
+        // willSaveWaitUntil — request, not notification
+        assertTrue(
+            remote.textDocumentWillSaveWaitUntil(
+                WillSaveTextDocumentParams(
+                    textDocument = doc,
+                    reason = TextDocumentSaveReason.MANUAL
+                )
+            ).isNotEmpty()
+        )
+
+        // completion item resolve
+        val resolvedItem = remote.completionItemResolve(CompletionItem(label = "test"))
+        assertEquals("resolved: test", resolvedItem.detail)
+
+        // semantic tokens
+        assertNotNull(
+            remote.textDocumentSemanticTokensFull(SemanticTokensParams(textDocument = doc))
+        )
+        assertNotNull(
+            remote.textDocumentSemanticTokensFullDelta(
+                SemanticTokensDeltaParams(textDocument = doc, previousResultId = "prev-1")
+            )
+        )
+        assertNotNull(
+            remote.textDocumentSemanticTokensRange(
+                SemanticTokensRangeParams(textDocument = doc, range = rng())
+            )
+        )
+
+        // call hierarchy
+        val callItem = remote.textDocumentPrepareCallHierarchy(
+            CallHierarchyPrepareParams(textDocument = doc, position = pos(0))
+        ).first()
+        assertTrue(
+            remote.callHierarchyIncomingCalls(
+                CallHierarchyIncomingCallsParams(item = callItem)
+            ).isNotEmpty()
+        )
+        assertTrue(
+            remote.callHierarchyOutgoingCalls(
+                CallHierarchyOutgoingCallsParams(item = callItem)
+            ).isNotEmpty()
+        )
+
+        // type hierarchy
+        val typeItem = remote.textDocumentPrepareTypeHierarchy(
+            TypeHierarchyPrepareParams(textDocument = doc, position = pos(0))
+        ).first()
+        assertTrue(
+            remote.typeHierarchySupertypes(
+                TypeHierarchySupertypesParams(item = typeItem)
+            ).isNotEmpty()
+        )
+        assertTrue(
+            remote.typeHierarchySubtypes(
+                TypeHierarchySubtypesParams(item = typeItem)
+            ).isNotEmpty()
+        )
+
+        // linked editing, moniker, inline value, inline completion
+        assertNotNull(
+            remote.textDocumentLinkedEditingRange(
+                LinkedEditingRangeParams(textDocument = doc, position = pos(0))
+            )
+        )
+        assertTrue(
+            remote.textDocumentMoniker(
+                MonikerParams(textDocument = doc, position = pos(0))
+            ).isNotEmpty()
+        )
+        assertTrue(
+            remote.textDocumentInlineValue(
+                InlineValueParams(
+                    textDocument = doc,
+                    range = rng(),
+                    context = InlineValueContext(
+                        frameId = 0,
+                        stoppedLocation = rng()
+                    )
+                )
+            ).isNotEmpty()
+        )
+        assertNotNull(
+            remote.textDocumentInlineCompletion(
+                InlineCompletionParams(
+                    textDocument = doc,
+                    position = pos(0),
+                    context = InlineCompletionContext(
+                        triggerKind = InlineCompletionTriggerKind.INVOKED
+                    )
+                )
+            )
+        )
+
+        // inlayHint + resolve
+        val hint = remote.textDocumentInlayHint(
+            InlayHintParams(textDocument = doc, range = rng())
+        ).first()
+        val resolvedHint = remote.inlayHintResolve(hint)
+        assertNotNull(resolvedHint.tooltip)
+
+        // diagnostic family
+        assertNotNull(
+            remote.textDocumentDiagnostic(DocumentDiagnosticParams(textDocument = doc))
+        )
+        val wsDiag = remote.workspaceDiagnostic(
+            WorkspaceDiagnosticParams(previousResultIds = emptyList())
+        )
+        assertTrue(wsDiag.items.isNotEmpty())
+
+        // workspace symbol + resolve + executeCommand
+        assertNotNull(remote.workspaceSymbol(WorkspaceSymbolParams(query = "q")))
+        val wsSym = WorkspaceSymbol(
+            name = "x",
+            kind = SymbolKind.FUNCTION,
+            location = com.monkopedia.lsp.Location(uri = uri, range = rng())
+        )
+        assertEquals("resolved", remote.workspaceSymbolResolve(wsSym).containerName)
+        assertNotNull(
+            remote.workspaceExecuteCommand(ExecuteCommandParams(command = "do.thing"))
+        )
+
+        // will/create/rename/delete file requests
+        assertNotNull(
+            remote.workspaceWillCreateFiles(CreateFilesParams(files = listOf(FileCreate(uri))))
+        )
+        assertNotNull(
+            remote.workspaceWillRenameFiles(
+                RenameFilesParams(files = listOf(FileRename(oldUri = uri, newUri = "$uri.new")))
+            )
+        )
+        assertNotNull(
+            remote.workspaceWillDeleteFiles(DeleteFilesParams(files = listOf(FileDelete(uri))))
+        )
+
+        // --- notifications (server records receipt) ---
+        // textDocument lifecycle
+        remote.textDocumentDidOpen(
+            DidOpenTextDocumentParams(
+                TextDocumentItem(uri = uri, languageId = "kotlin", version = 1, text = "x")
+            )
+        )
+        remote.textDocumentDidChange(
+            DidChangeTextDocumentParams(
+                textDocument = VersionedTextDocumentIdentifier(uri = uri, version = 2),
+                contentChanges = listOf(
+                    com.monkopedia.lsp.TextDocumentContentChangeEventVariant(text = "y")
+                )
+            )
+        )
+        remote.textDocumentDidSave(DidSaveTextDocumentParams(textDocument = doc, text = "y"))
+        remote.textDocumentWillSave(
+            WillSaveTextDocumentParams(
+                textDocument = doc,
+                reason = TextDocumentSaveReason.MANUAL
+            )
+        )
+        remote.textDocumentDidClose(DidCloseTextDocumentParams(textDocument = doc))
+
+        // workspace
+        remote.workspaceDidChangeConfiguration(
+            DidChangeConfigurationParams(settings = JsonPrimitive("conf"))
+        )
+        remote.workspaceDidChangeWatchedFiles(
+            DidChangeWatchedFilesParams(
+                changes = listOf(FileEvent(uri = uri, type = FileChangeType.CHANGED))
+            )
+        )
+        remote.workspaceDidChangeWorkspaceFolders(
+            DidChangeWorkspaceFoldersParams(
+                event = WorkspaceFoldersChangeEvent(
+                    added = listOf(WorkspaceFolder(uri = uri, name = "root")),
+                    removed = emptyList()
+                )
+            )
+        )
+        remote.workspaceDidCreateFiles(CreateFilesParams(files = listOf(FileCreate(uri))))
+        remote.workspaceDidRenameFiles(
+            RenameFilesParams(files = listOf(FileRename(oldUri = uri, newUri = "$uri.new")))
+        )
+        remote.workspaceDidDeleteFiles(DeleteFilesParams(files = listOf(FileDelete(uri))))
+
+        // notebooks
+        val notebook = NotebookDocument(
+            uri = "$uri.ipynb",
+            notebookType = "kotlin",
+            version = 1,
+            cells = listOf(
+                NotebookCell(
+                    kind = NotebookCellKind.CODE,
+                    document = "$uri#cell0"
+                )
+            )
+        )
+        remote.notebookDocumentDidOpen(
+            DidOpenNotebookDocumentParams(
+                notebookDocument = notebook,
+                cellTextDocuments = emptyList()
+            )
+        )
+        remote.notebookDocumentDidChange(
+            DidChangeNotebookDocumentParams(
+                notebookDocument = VersionedNotebookDocumentIdentifier(
+                    uri = notebook.uri,
+                    version = 2
+                )
+            )
+        )
+        remote.notebookDocumentDidSave(
+            DidSaveNotebookDocumentParams(
+                notebookDocument = NotebookDocumentIdentifier(uri = notebook.uri)
+            )
+        )
+        remote.notebookDocumentDidClose(
+            DidCloseNotebookDocumentParams(
+                notebookDocument = NotebookDocumentIdentifier(uri = notebook.uri),
+                cellTextDocuments = emptyList()
+            )
+        )
+
+        // $/setTrace, $/progress, window/workDoneProgress/cancel
+        remote.setTrace(SetTraceParams(value = TraceValues.VERBOSE))
+        remote.progress(
+            ProgressParams(
+                token = IntOrString.StringValue("p1"),
+                value = JsonPrimitive("ping")
+            )
+        )
+        remote.windowWorkDoneProgressCancel(
+            WorkDoneProgressCancelParams(token = IntOrString.StringValue("p1"))
+        )
+
+        // The notifications were sent fire-and-forget; we need to drain a
+        // *quiet period* on the wire before counting receipts, so that the
+        // server has had time to process them all. We then shut down cleanly
+        // (shutdown is a request, so the round-trip itself proves the server
+        // is caught up on everything previously queued).
+        val expected = setOf(
+            "initialized",
+            "textDocument/didOpen",
+            "textDocument/didChange",
+            "textDocument/didSave",
+            "textDocument/willSave",
+            "textDocument/didClose",
+            "workspace/didChangeConfiguration",
+            "workspace/didChangeWatchedFiles",
+            "workspace/didChangeWorkspaceFolders",
+            "workspace/didCreateFiles",
+            "workspace/didRenameFiles",
+            "workspace/didDeleteFiles",
+            "notebookDocument/didOpen",
+            "notebookDocument/didChange",
+            "notebookDocument/didSave",
+            "notebookDocument/didClose",
+            "\$/setTrace",
+            "\$/progress",
+            "window/workDoneProgress/cancel"
+        )
+
+        // shutdown is a *request*: by the time its response arrives, every
+        // previously-sent message has been dispatched on the wire. Some
+        // transports may still be draining the notification-handler queue on
+        // the server side though, so poll briefly for any stragglers.
+        assertEquals(null, remote.shutdown())
+        var seen = fixture.snapshotNotifications().map { it.method }.toSet()
+        val deadline = System.currentTimeMillis() + 5_000
+        while ((expected - seen).isNotEmpty() && System.currentTimeMillis() < deadline) {
+            kotlinx.coroutines.delay(50)
+            seen = fixture.snapshotNotifications().map { it.method }.toSet()
+        }
+        val missing = expected - seen
+        assertTrue(
+            missing.isEmpty(),
+            "Expected the fixture to have recorded every server-side notification " +
+                "after shutdown; missing=$missing, seen=$seen"
+        )
+        remote.exit()
     }
 }
