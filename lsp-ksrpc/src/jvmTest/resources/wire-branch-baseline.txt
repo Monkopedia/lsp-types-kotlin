@@ -1,0 +1,52 @@
+# Wire-branch-coverage baseline (issue #74).
+#
+# Edit by re-running ./gradlew :lsp-ksrpc:jvmTest -Plsp.requireIntegrationTests=true
+# and copying the per-branch coverage from the produced report at
+# lsp-ksrpc/build/reports/wire-branch-coverage.md. Each `branch:` line records a
+# union-subclass the suite MUST keep exercising; the test fails the build if any
+# drops out.
+#
+# The two `*-total:` lines anchor the introspected surface — removing a sealed
+# interface or branch from the lsp model without dropping it from this baseline
+# also fails the build, surfacing the gap right away rather than silently
+# shipping a tracker that no longer matches the model.
+
+union-total: 47
+branch-total: 101
+
+# ---- Observed branches (sorted) ----
+
+branch: com.monkopedia.lsp.BooleanOr.BooleanValue
+branch: com.monkopedia.lsp.CompletionItemTextEdit.TextEdit
+branch: com.monkopedia.lsp.CompletionListItemDefaultsEditRange.Range
+branch: com.monkopedia.lsp.DocumentDiagnosticReport.RelatedFullDocumentDiagnosticReport
+branch: com.monkopedia.lsp.HoverContents.MarkedStringArray
+branch: com.monkopedia.lsp.HoverContents.MarkedStringValue
+branch: com.monkopedia.lsp.HoverContents.MarkupContentValue
+branch: com.monkopedia.lsp.InlineValue.InlineValueText
+branch: com.monkopedia.lsp.IntOrString.StringValue
+branch: com.monkopedia.lsp.PrepareRenameResult.PrepareRenameResultRange
+branch: com.monkopedia.lsp.PrepareRenameResult.Range
+branch: com.monkopedia.lsp.SingleOrArray.Multiple
+branch: com.monkopedia.lsp.SingleOrArray.Single
+branch: com.monkopedia.lsp.StringOr.StringValue
+branch: com.monkopedia.lsp.TextDocumentCodeActionResult.CodeAction
+branch: com.monkopedia.lsp.TextDocumentCodeActionResult.Command
+branch: com.monkopedia.lsp.TextDocumentCompletionResult.CompletionItemArray
+branch: com.monkopedia.lsp.TextDocumentCompletionResult.CompletionListValue
+branch: com.monkopedia.lsp.TextDocumentContentChangeEvent.TextDocumentContentChangeEventVariant
+branch: com.monkopedia.lsp.TextDocumentDeclarationResult.DeclarationLinkArray
+branch: com.monkopedia.lsp.TextDocumentDeclarationResult.DeclarationValue
+branch: com.monkopedia.lsp.TextDocumentDefinitionResult.DefinitionLinkArray
+branch: com.monkopedia.lsp.TextDocumentDefinitionResult.DefinitionValue
+branch: com.monkopedia.lsp.TextDocumentDocumentSymbolResult.DocumentSymbolArray
+branch: com.monkopedia.lsp.TextDocumentDocumentSymbolResult.SymbolInformationArray
+branch: com.monkopedia.lsp.TextDocumentEditEdits.TextEdit
+branch: com.monkopedia.lsp.TextDocumentImplementationResult.DefinitionLinkArray
+branch: com.monkopedia.lsp.TextDocumentImplementationResult.DefinitionValue
+branch: com.monkopedia.lsp.TextDocumentInlineCompletionResult.InlineCompletionListValue
+branch: com.monkopedia.lsp.TextDocumentSemanticTokensFullDeltaResult.SemanticTokens
+branch: com.monkopedia.lsp.TextDocumentTypeDefinitionResult.DefinitionLinkArray
+branch: com.monkopedia.lsp.TextDocumentTypeDefinitionResult.DefinitionValue
+branch: com.monkopedia.lsp.WorkspaceDocumentDiagnosticReport.WorkspaceFullDocumentDiagnosticReport
+branch: com.monkopedia.lsp.WorkspaceSymbolLocation.Location

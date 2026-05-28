@@ -196,142 +196,155 @@ open class ConformanceLanguageClient : DefaultLanguageClient() {
     val logTraceFlow: SharedFlow<LogTraceParams> get() = _logTraceFlow
 
     override suspend fun windowShowMessage(params: ShowMessageParams) {
-        observe(LanguageClient.WINDOW_SHOW_MESSAGE)
+        observe(LanguageClient.WINDOW_SHOW_MESSAGE, params)
         _showMessages += params
         _showMessageFlow.emit(params)
     }
 
     override suspend fun windowLogMessage(params: LogMessageParams) {
-        observe(LanguageClient.WINDOW_LOG_MESSAGE)
+        observe(LanguageClient.WINDOW_LOG_MESSAGE, params)
         _logMessages += params
         _logMessageFlow.emit(params)
     }
 
     override suspend fun textDocumentPublishDiagnostics(params: PublishDiagnosticsParams) {
-        observe(LanguageClient.TEXT_DOCUMENT_PUBLISH_DIAGNOSTICS)
+        observe(LanguageClient.TEXT_DOCUMENT_PUBLISH_DIAGNOSTICS, params)
         _publishedDiagnostics += params
         _diagnosticsFlow.emit(params)
     }
 
     override suspend fun progress(params: ProgressParams) {
-        observe(LanguageClient.PROGRESS)
+        observe(LanguageClient.PROGRESS, params)
         _progressNotifications += params
         _progressFlow.emit(params)
     }
 
     override suspend fun telemetryEvent(params: LSPAny) {
-        observe(LanguageClient.TELEMETRY_EVENT)
+        observe(LanguageClient.TELEMETRY_EVENT, params)
         _telemetryEvents += params
         _telemetryEventFlow.emit(params)
     }
 
     override suspend fun logTrace(params: LogTraceParams) {
-        observe(LanguageClient.LOG_TRACE)
+        observe(LanguageClient.LOG_TRACE, params)
         _logTraces += params
         _logTraceFlow.emit(params)
     }
 
     override suspend fun workspaceConfiguration(params: ConfigurationParams): List<LSPAny> {
-        observe(LanguageClient.WORKSPACE_CONFIGURATION)
+        observe(LanguageClient.WORKSPACE_CONFIGURATION, params)
         _configurationRequests += params
         // Deterministic canned response: one JsonNull per requested item so the
         // shape (a list of LSPAny) round-trips and tests can count items.
-        return params.items.map { JsonNull }
+        return observeResult(params.items.map { JsonNull })
     }
 
     override suspend fun workspaceWorkspaceFolders(): List<WorkspaceFolder> {
         observe(LanguageClient.WORKSPACE_WORKSPACE_FOLDERS)
         _workspaceFoldersRequestCount += 1
-        return listOf(DEFAULT_FOLDER)
+        return observeResult(listOf(DEFAULT_FOLDER))
     }
 
     override suspend fun workspaceApplyEdit(
         params: ApplyWorkspaceEditParams
     ): ApplyWorkspaceEditResult {
-        observe(LanguageClient.WORKSPACE_APPLY_EDIT)
+        observe(LanguageClient.WORKSPACE_APPLY_EDIT, params)
         _applyEditRequests += params
-        return ApplyWorkspaceEditResult(applied = true)
+        return observeResult(ApplyWorkspaceEditResult(applied = true))
     }
 
     override suspend fun windowShowMessageRequest(
         params: ShowMessageRequestParams
     ): MessageActionItem {
-        observe(LanguageClient.WINDOW_SHOW_MESSAGE_REQUEST)
+        observe(LanguageClient.WINDOW_SHOW_MESSAGE_REQUEST, params)
         _showMessageRequests += params
-        return params.actions?.firstOrNull() ?: DEFAULT_MESSAGE_ACTION
+        return observeResult(params.actions?.firstOrNull() ?: DEFAULT_MESSAGE_ACTION)
     }
 
     override suspend fun windowShowDocument(params: ShowDocumentParams): ShowDocumentResult {
-        observe(LanguageClient.WINDOW_SHOW_DOCUMENT)
+        observe(LanguageClient.WINDOW_SHOW_DOCUMENT, params)
         _showDocumentRequests += params
-        return ShowDocumentResult(success = true)
+        return observeResult(ShowDocumentResult(success = true))
     }
 
     override suspend fun clientRegisterCapability(params: RegistrationParams): Nothing? {
-        observe(LanguageClient.CLIENT_REGISTER_CAPABILITY)
+        observe(LanguageClient.CLIENT_REGISTER_CAPABILITY, params)
         _registerCapabilityRequests += params
-        return null
+        return observeResult(null)
     }
 
     override suspend fun clientUnregisterCapability(params: UnregistrationParams): Nothing? {
-        observe(LanguageClient.CLIENT_UNREGISTER_CAPABILITY)
+        observe(LanguageClient.CLIENT_UNREGISTER_CAPABILITY, params)
         _unregisterCapabilityRequests += params
-        return null
+        return observeResult(null)
     }
 
     override suspend fun windowWorkDoneProgressCreate(
         params: WorkDoneProgressCreateParams
     ): Nothing? {
-        observe(LanguageClient.WINDOW_WORK_DONE_PROGRESS_CREATE)
+        observe(LanguageClient.WINDOW_WORK_DONE_PROGRESS_CREATE, params)
         _workDoneProgressCreateRequests += params
-        return null
+        return observeResult(null)
     }
 
     override suspend fun workspaceCodeLensRefresh(): Nothing? {
         observe(LanguageClient.WORKSPACE_CODE_LENS_REFRESH)
         _refreshCalls += "workspace/codeLens/refresh"
-        return null
+        return observeResult(null)
     }
 
     override suspend fun workspaceSemanticTokensRefresh(): Nothing? {
         observe(LanguageClient.WORKSPACE_SEMANTIC_TOKENS_REFRESH)
         _refreshCalls += "workspace/semanticTokens/refresh"
-        return null
+        return observeResult(null)
     }
 
     override suspend fun workspaceInlayHintRefresh(): Nothing? {
         observe(LanguageClient.WORKSPACE_INLAY_HINT_REFRESH)
         _refreshCalls += "workspace/inlayHint/refresh"
-        return null
+        return observeResult(null)
     }
 
     override suspend fun workspaceInlineValueRefresh(): Nothing? {
         observe(LanguageClient.WORKSPACE_INLINE_VALUE_REFRESH)
         _refreshCalls += "workspace/inlineValue/refresh"
-        return null
+        return observeResult(null)
     }
 
     override suspend fun workspaceDiagnosticRefresh(): Nothing? {
         observe(LanguageClient.WORKSPACE_DIAGNOSTIC_REFRESH)
         _refreshCalls += "workspace/diagnostic/refresh"
-        return null
+        return observeResult(null)
     }
 
     override suspend fun workspaceFoldingRangeRefresh(): Nothing? {
         observe(LanguageClient.WORKSPACE_FOLDING_RANGE_REFRESH)
         _refreshCalls += "workspace/foldingRange/refresh"
-        return null
+        return observeResult(null)
     }
 
     /**
-     * Wire-coverage observation hook (issue #66). Fires into the shared
+     * Wire-coverage observation hook (issues #66, #74). Fires into the shared
      * [ConformanceWireRecorder] so the JVM coverage tracker can record every
-     * client-side method that arrived over the wire. Defaults to a no-op on
+     * client-side method that arrived over the wire and the typed [params] /
+     * [result] values walked for union-branch coverage. Defaults to a no-op on
      * targets that haven't installed a recorder, keeping the fixture's public
      * contract unchanged.
      */
-    private fun observe(method: String) {
+    private fun observe(method: String, params: Any? = null) {
         ConformanceWireRecorder.observeClient(method)
+        if (params != null) ConformanceWireRecorder.observeValue(params)
+    }
+
+    /**
+     * Wire-coverage observation hook for handler return values (issue #74).
+     * Walks the typed result through [ConformanceWireRecorder.observeValue] so
+     * the JVM-side branch recorder can record every sealed-interface subclass
+     * appearing in the response, then returns the value unchanged.
+     */
+    private fun <T> observeResult(value: T): T {
+        ConformanceWireRecorder.observeValue(value)
+        return value
     }
 
     companion object {

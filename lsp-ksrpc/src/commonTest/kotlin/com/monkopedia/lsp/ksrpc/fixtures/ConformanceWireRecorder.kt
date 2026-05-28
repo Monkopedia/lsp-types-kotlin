@@ -16,7 +16,7 @@
 package com.monkopedia.lsp.ksrpc.fixtures
 
 /**
- * Coverage observation hook used by the conformance fixtures (#66).
+ * Coverage observation hook used by the conformance fixtures (#66, #74).
  *
  * The [ConformanceLanguageServer] and [ConformanceLanguageClient] fixtures call
  * [serverCallback] and [clientCallback] respectively from every method override
@@ -24,23 +24,33 @@ package com.monkopedia.lsp.ksrpc.fixtures
  * `"textDocument/hover"`). The callbacks default to no-ops so the fixtures'
  * public contract is unchanged for callers that do not opt in.
  *
- * The JVM wire-coverage tracker (`WireMethodRecorder`) assigns real callbacks
- * during its `@BeforeClass` / `@AfterClass` lifecycle to push observed methods
- * into the shared recorder. Other targets — common, native, JS — see the
- * defaults and pay no cost.
+ * For per-union-branch coverage (#74) the same fixtures pipe every typed param
+ * the fixture receives and every typed result the fixture returns through
+ * [valueCallback] so a JVM-side walker can record which sealed-interface
+ * subclasses were actually exercised over the wire. The default callback is a
+ * no-op so non-JVM targets pay nothing.
  *
- * The hook is intentionally a `var` of `(String) -> Unit` rather than a typed
- * recorder so the fixture file stays platform-agnostic.
+ * The JVM wire-coverage trackers (`WireMethodRecorder`, `WireBranchRecorder`)
+ * assign real callbacks during their `install()` calls to push observed methods
+ * and values into the shared recorders. Other targets — common, native, JS —
+ * see the defaults and pay no cost.
+ *
+ * The hooks are intentionally `var`s of plain function types rather than typed
+ * recorders so the fixture file stays platform-agnostic.
  */
 object ConformanceWireRecorder {
 
-    private val NOOP: (String) -> Unit = { _ -> }
+    private val NOOP_NAME: (String) -> Unit = { _ -> }
+    private val NOOP_VALUE: (Any?) -> Unit = { _ -> }
 
     @kotlin.concurrent.Volatile
-    var serverCallback: ((String) -> Unit) = NOOP
+    var serverCallback: ((String) -> Unit) = NOOP_NAME
 
     @kotlin.concurrent.Volatile
-    var clientCallback: ((String) -> Unit) = NOOP
+    var clientCallback: ((String) -> Unit) = NOOP_NAME
+
+    @kotlin.concurrent.Volatile
+    var valueCallback: ((Any?) -> Unit) = NOOP_VALUE
 
     /**
      * Fires from a [ConformanceLanguageServer] override after it has accepted a
@@ -58,9 +68,22 @@ object ConformanceWireRecorder {
         clientCallback(methodName)
     }
 
-    /** Reset both callbacks to no-ops. JVM tracker calls this on teardown. */
+    /**
+     * Fires from a [ConformanceLanguageServer] / [ConformanceLanguageClient]
+     * override with each typed value the fixture observed over the wire — both
+     * params received from the peer and results the fixture returns. The
+     * JVM-side branch recorder walks the value, notes every sealed-interface
+     * subclass it encounters and records it for the end-of-suite report. Tests
+     * should not call this directly.
+     */
+    fun observeValue(value: Any?) {
+        valueCallback(value)
+    }
+
+    /** Reset all callbacks to no-ops. JVM tracker calls this on teardown. */
     fun reset() {
-        serverCallback = NOOP
-        clientCallback = NOOP
+        serverCallback = NOOP_NAME
+        clientCallback = NOOP_NAME
+        valueCallback = NOOP_VALUE
     }
 }
