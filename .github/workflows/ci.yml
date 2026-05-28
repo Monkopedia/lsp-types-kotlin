@@ -53,12 +53,30 @@ jobs:
       - name: Test
         run: ./gradlew allTests -Plsp.requireIntegrationTests=true
 
+      # Kover instruments :lsp and aggregates JVM execution from
+      # :lsp-ksrpc:jvmTest (already run by the step above, so this is fast).
+      # `koverVerify` fails the build if line/branch coverage drops below the
+      # floor in `lsp/kover-baseline.txt`; the HTML/summary artifacts are
+      # uploaded below for reviewer drill-down.
+      - name: Kover (coverage + baseline gate)
+        run: ./gradlew koverVerify koverHtmlReport koverXmlReport koverSummary koverPublishLspHtml koverPublishLspXml -Plsp.requireIntegrationTests=true
+
       - name: Upload test reports
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: test-reports-ubuntu
           path: "**/build/reports/tests/"
+
+      # Always upload (success or failure): the HTML report lets reviewers
+      # see exactly which generated types/serializers aren't hit, and the
+      # summary.md is the artifact actually read in the PR review.
+      - name: Upload Kover report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kover-report-ubuntu
+          path: lsp/build/reports/kover/
 
   apple:
     name: Apple targets (macOS)
