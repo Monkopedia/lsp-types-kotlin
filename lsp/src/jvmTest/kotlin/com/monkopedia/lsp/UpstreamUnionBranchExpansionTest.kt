@@ -27,13 +27,12 @@ import kotlinx.serialization.json.Json
  * payload copied VERBATIM from an upstream LSP source; the citation comment on
  * each test names `repo:path#L<lines>`.
  *
- * The same payloads are also tested on the JVM via
- * `lsp-ksrpc/src/jvmTest/.../coverage/UpstreamBranchCoverageTest.kt`. That JVM
- * variant pipes each decoded value through the conformance wire-branch
- * recorder so the per-branch coverage tracker (#74) records the branch.
- * This common-side copy keeps the same payloads exercised across every KMP
- * target (JS, native, wasm…) and pulls each serializer's polymorphic-dispatch
- * branch through the :lsp Kover gate.
+ * The same payloads are also exercised through the wire-branch recorder via
+ * `lsp-ksrpc/src/jvmTest/.../coverage/UpstreamBranchCoverageTest.kt`. This
+ * JVM-only copy pulls each serializer's polymorphic-dispatch branch through
+ * the :lsp Kover gate — Kover instruments JVM compilation only, so there is no
+ * gain from running these on native/wasm/JS, and some test method names below
+ * contain characters (e.g. commas) that are illegal in native target binaries.
  */
 class UpstreamUnionBranchExpansionTest {
 
