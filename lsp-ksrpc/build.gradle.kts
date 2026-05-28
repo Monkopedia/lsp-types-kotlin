@@ -68,6 +68,10 @@ kotlin {
         }
         jvmTest.dependencies {
             implementation(libs.lsp4j)
+            // ktor-network gives the transport-matrix TCP test true non-blocking
+            // loopback sockets yielding ktor ByteReadChannel/ByteWriteChannel, the
+            // same channel type the LSP jsonrpc connection consumes. Test-only.
+            implementation(libs.ktor.network)
         }
         // jsonrpc wiring — only on targets ksrpc-jsonrpc supports, i.e. every
         // target except mingwX64. mingwX64Main is intentionally left attached to

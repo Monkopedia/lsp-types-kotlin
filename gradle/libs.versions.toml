@@ -9,6 +9,7 @@ ktlint = "12.1.2"
 vanniktech = "0.36.0"
 license = "0.16.1"
 lsp4j = "1.0.0"
+ktor = "3.4.1"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -22,6 +23,7 @@ ksrpc-sockets = { module = "com.monkopedia.ksrpc:ksrpc-sockets", version.ref = "
 dokka-base = { module = "org.jetbrains.dokka:dokka-base", version.ref = "dokka" }
 dokka-gradle = { module = "org.jetbrains.dokka:dokka-gradle-plugin", version.ref = "dokka" }
 lsp4j = { module = "org.eclipse.lsp4j:org.eclipse.lsp4j", version.ref = "lsp4j" }
+ktor-network = { module = "io.ktor:ktor-network", version.ref = "ktor" }
 
 [bundles]
 dokka = ["dokka-base", "dokka-gradle"]
