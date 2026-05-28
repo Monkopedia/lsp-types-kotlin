@@ -196,8 +196,13 @@ jobs:
       - name: Build
         run: ./gradlew build
 
-      - name: Test (hermetic + real servers)
-        run: ./gradlew allTests -Plsp.requireIntegrationTests=true -Plsp.requireRealServers=true
+      # `lsp.captureCorpus=true` makes RealServerClientRoleTest tee every observed
+      # LSP wire frame to `lsp-ksrpc/src/jvmTest/resources/captured/<server>/...`,
+      # so each nightly run refreshes the real-payload corpus that
+      # CapturedCorpusReplayTest decodes/round-trips. Capture is opt-in and is
+      # NEVER set on the per-PR / local path.
+      - name: Test (hermetic + real servers, capture corpus)
+        run: ./gradlew allTests -Plsp.requireIntegrationTests=true -Plsp.requireRealServers=true -Plsp.captureCorpus=true
 
       - name: Upload test reports
         if: failure()

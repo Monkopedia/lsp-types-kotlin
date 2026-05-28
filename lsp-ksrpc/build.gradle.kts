@@ -127,4 +127,14 @@ tasks.named<org.gradle.api.tasks.testing.Test>("jvmTest") {
         "lsp.requireRealServers",
         project.findProperty("lsp.requireRealServers")?.toString() ?: "false"
     )
+    // When set (the nightly real-server job does this), RealServerClientRoleTest
+    // tees every observed LSP wire frame to
+    // `src/jvmTest/resources/captured/<server>/<direction>/<method>__<seq>.json`
+    // so the portable replay test (CapturedCorpusReplayTest) has REAL third-party
+    // payloads to assert round-trip stability against. Default OFF — capture is
+    // opt-in and never the default for per-PR or local runs.
+    systemProperty(
+        "lsp.captureCorpus",
+        project.findProperty("lsp.captureCorpus")?.toString() ?: "false"
+    )
 }
