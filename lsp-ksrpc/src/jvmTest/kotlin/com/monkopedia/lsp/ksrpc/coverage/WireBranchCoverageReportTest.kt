@@ -143,7 +143,8 @@ class WireBranchCoverageReportTest {
             Lsp4jClientIntegrationTest::class.java,
             Lsp4jConformanceInteropTest::class.java,
             Lsp4jHostedServerInteropTest::class.java,
-            TransportMatrixIntegrationTest::class.java
+            TransportMatrixIntegrationTest::class.java,
+            UpstreamBranchCoverageTest::class.java
         )
     }
 }
