@@ -1,0 +1,17 @@
+# :lsp Kover coverage baseline
+#
+# Floor thresholds enforced by `:koverVerify` at the root project. Set to
+# floor(observed - 1pp) so normal noise (Kotlin compiler updates, harmless
+# refactors, codegen reshuffles) doesn't break the gate. The intent of this
+# file is one-way: raise the floor over time as gaps get filled, never lower
+# it. If a legitimate change forces you to consider lowering it, treat that
+# as a regression to investigate first — most "regressions" are a test that
+# stopped running, not the code getting worse.
+#
+# Re-measure with:
+#   JAVA_HOME=/usr/lib/jvm/java-21-openjdk \
+#     ./gradlew koverHtmlReport koverXmlReport koverSummary \
+#       -Plsp.requireIntegrationTests=true
+# The numbers below are integer percent (0..100).
+line-coverage-min: 55
+branch-coverage-min: 32
