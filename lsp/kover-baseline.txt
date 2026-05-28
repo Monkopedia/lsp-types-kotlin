@@ -13,5 +13,5 @@
 #     ./gradlew koverHtmlReport koverXmlReport koverSummary \
 #       -Plsp.requireIntegrationTests=true
 # The numbers below are integer percent (0..100).
-line-coverage-min: 55
-branch-coverage-min: 32
+line-coverage-min: 66
+branch-coverage-min: 40
