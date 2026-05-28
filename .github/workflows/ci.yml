@@ -5,11 +5,20 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  # Nightly real-server matrix runs on a schedule (and on demand), NOT on
+  # push/pull_request — so it never gates PRs. Off-peak, deliberately on a
+  # non-:00 minute to dodge the top-of-hour scheduling congestion on GitHub.
+  schedule:
+    - cron: "17 7 * * *"
+  workflow_dispatch:
 
 jobs:
   build:
     name: JVM / JS / Wasm / Linux (ubuntu)
     runs-on: ubuntu-latest
+    # Fast, hermetic per-PR leg. Skip on the nightly `schedule` trigger — the
+    # `nightly` job below covers that with the real-server matrix turned on.
+    if: github.event_name != 'schedule'
 
     steps:
       - uses: actions/checkout@v4
@@ -54,6 +63,7 @@ jobs:
   apple:
     name: Apple targets (macOS)
     runs-on: macos-latest
+    if: github.event_name != 'schedule'
 
     steps:
       - uses: actions/checkout@v4
@@ -77,4 +87,121 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-reports-macos
+          path: "**/build/reports/tests/"
+
+  nightly:
+    name: Nightly real-server matrix (ubuntu)
+    runs-on: ubuntu-latest
+    # Only the scheduled run and manual dispatch — never on push/pull_request,
+    # so this never gates a PR. It installs the external language servers that
+    # `RealServerClientRoleTest` drives, then runs `allTests` with BOTH gates on:
+    #   -Plsp.requireIntegrationTests=true  -> hermetic wire-compat tests hard-fail on skip
+    #   -Plsp.requireRealServers=true       -> real-server client-role tests hard-fail on skip
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+
+    # Pinned tool versions. Bumping any of these is a deliberate, reviewable change.
+    env:
+      CLANGD_PKG: "clangd-18"
+      PYRIGHT_VERSION: "1.1.391"
+      RUFF_VERSION: "0.8.4"
+      TS_LS_VERSION: "4.3.3"
+      TYPESCRIPT_VERSION: "5.7.2"
+      GOPLS_VERSION: "v0.16.2"
+      RUST_ANALYZER_VERSION: "2024-12-16"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      # --- External language servers ---------------------------------------
+      # Each install is best-effort: `continue-on-error` keeps one broken
+      # ecosystem from killing the whole nightly run. A server that fails to
+      # install simply isn't on PATH, and with `requireRealServers=true` its
+      # test will hard-fail loudly in the test step (visible, not silent) —
+      # which is exactly the signal we want from the nightly.
+
+      - name: Install clangd (C/C++)
+        continue-on-error: true
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y "$CLANGD_PKG"
+          # RealServerClientRoleTest invokes the bare `clangd` binary.
+          sudo ln -sf "/usr/bin/${CLANGD_PKG}" /usr/local/bin/clangd
+          clangd --version
+
+      - name: Setup Node (for npm-based servers)
+        continue-on-error: true
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install pyright (Python)
+        continue-on-error: true
+        run: |
+          npm install -g "pyright@${PYRIGHT_VERSION}"
+          pyright-langserver --version || true
+
+      - name: Install typescript-language-server (TypeScript)
+        continue-on-error: true
+        run: |
+          npm install -g "typescript@${TYPESCRIPT_VERSION}" "typescript-language-server@${TS_LS_VERSION}"
+          typescript-language-server --version || true
+
+      - name: Setup Go (for gopls)
+        continue-on-error: true
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
+
+      - name: Install gopls (Go)
+        continue-on-error: true
+        run: |
+          go install "golang.org/x/tools/gopls@${GOPLS_VERSION}"
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
+      - name: Setup Rust + rust-analyzer
+        continue-on-error: true
+        run: |
+          rustup toolchain install stable --profile minimal
+          rustup component add rust-analyzer || true
+          # rustup ships a `rust-analyzer` proxy; expose it on PATH explicitly.
+          mkdir -p "$HOME/.local/bin"
+          ln -sf "$(rustup which rust-analyzer)" "$HOME/.local/bin/rust-analyzer" || true
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Install ruff (Python, pinned)
+        continue-on-error: true
+        run: |
+          python3 -m pip install --user "ruff==${RUFF_VERSION}"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          ruff --version || true
+
+      - name: Report installed servers
+        run: |
+          echo "PATH=$PATH"
+          for bin in clangd pyright-langserver typescript-language-server gopls rust-analyzer ruff; do
+            if command -v "$bin" >/dev/null 2>&1; then
+              echo "FOUND: $bin -> $(command -v "$bin")"
+            else
+              echo "MISSING: $bin"
+            fi
+          done
+
+      - name: Build
+        run: ./gradlew build
+
+      - name: Test (hermetic + real servers)
+        run: ./gradlew allTests -Plsp.requireIntegrationTests=true -Plsp.requireRealServers=true
+
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports-nightly
           path: "**/build/reports/tests/"
