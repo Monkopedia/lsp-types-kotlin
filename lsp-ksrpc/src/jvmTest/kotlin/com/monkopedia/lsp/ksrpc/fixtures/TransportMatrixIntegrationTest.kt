@@ -67,6 +67,7 @@ import com.monkopedia.lsp.HoverContents
 import com.monkopedia.lsp.HoverParams
 import com.monkopedia.lsp.ImplementationParams
 import com.monkopedia.lsp.InitializeParams
+import com.monkopedia.lsp.InitializedParams
 import com.monkopedia.lsp.InlayHint
 import com.monkopedia.lsp.InlayHintParams
 import com.monkopedia.lsp.InlineCompletionContext
@@ -223,6 +224,140 @@ class TransportMatrixIntegrationTest(
         }
     }
 
+    /**
+     * Server → client surface (issue #64): open the
+     * [ConformanceLanguageServer.Triggers.ALL] URI to drive the fixture's
+     * `emitAllClientTriggers`. Assert that every method the fixture issues appears
+     * on the local [ConformanceLanguageClient]'s recording lists (i.e. the wire
+     * actually carried it). Skipped for transports that do not carry
+     * server-initiated traffic (the in-process ksrpc relay).
+     */
+    @org.junit.Test
+    fun `every server-initiated client call round-trips over the wire`() =
+        runBlocking(Dispatchers.IO) {
+            org.junit.Assume.assumeTrue(
+                "$transportName does not carry server-initiated client traffic",
+                transport.supportsServerInitiated
+            )
+            transport.withDuplexSession { session ->
+                withTimeout(TIMEOUT_MS) {
+                    assertServerInitiatedTriggers(session)
+                }
+            }
+        }
+
+    private suspend fun assertServerInitiatedTriggers(session: DuplexSession) {
+        val remote = session.remote
+        val server = session.serverFixture
+        val client = session.clientFixture
+
+        remote.initialize(
+            InitializeParams(
+                capabilities = ClientCapabilities(),
+                processId = 4242,
+                rootUri = "file:///conformance"
+            )
+        )
+        remote.initialized(InitializedParams())
+
+        // didOpen on the trigger URI drives emitAllClientTriggers.
+        remote.textDocumentDidOpen(
+            DidOpenTextDocumentParams(
+                textDocument = TextDocumentItem(
+                    uri = ConformanceLanguageServer.Triggers.ALL,
+                    languageId = "kotlin",
+                    version = 1,
+                    text = "// trigger"
+                )
+            )
+        )
+
+        // Wait for the server's own record to fill — every issued method.
+        val expected = ConformanceLanguageServer.ClientMethods.ALL.toSet()
+        val startNs = kotlin.time.TimeSource.Monotonic.markNow()
+        while (server.issuedClientCalls.toSet() != expected) {
+            if (startNs.elapsedNow().inWholeMilliseconds > TRIGGER_ASSERT_TIMEOUT_MS) {
+                kotlin.test.fail(
+                    "server did not issue all triggers in $TRIGGER_ASSERT_TIMEOUT_MS ms; " +
+                        "saw ${server.issuedClientCalls}"
+                )
+            }
+            kotlinx.coroutines.delay(50)
+        }
+        kotlin.test.assertEquals(
+            expected,
+            server.issuedClientCalls.toSet(),
+            "server fixture must record every issued server-initiated call"
+        )
+
+        // Client side: every method we expect must have arrived over the wire.
+        kotlin.test.assertEquals(
+            1,
+            client.configurationRequests.size,
+            "configuration request"
+        )
+        kotlin.test.assertEquals(
+            1,
+            client.workspaceFoldersRequestCount,
+            "workspaceFolders request"
+        )
+        kotlin.test.assertEquals(1, client.applyEditRequests.size, "applyEdit request")
+        kotlin.test.assertEquals(
+            1,
+            client.showMessageRequests.size,
+            "showMessageRequest"
+        )
+        kotlin.test.assertEquals(
+            1,
+            client.showDocumentRequests.size,
+            "showDocument request"
+        )
+        kotlin.test.assertEquals(
+            1,
+            client.registerCapabilityRequests.size,
+            "registerCapability"
+        )
+        kotlin.test.assertEquals(
+            1,
+            client.unregisterCapabilityRequests.size,
+            "unregisterCapability"
+        )
+        kotlin.test.assertEquals(
+            1,
+            client.workDoneProgressCreateRequests.size,
+            "workDoneProgress/create"
+        )
+        kotlin.test.assertTrue(
+            client.progressNotifications.isNotEmpty(),
+            "progress notification"
+        )
+        kotlin.test.assertEquals(
+            setOf(
+                "workspace/codeLens/refresh",
+                "workspace/semanticTokens/refresh",
+                "workspace/inlayHint/refresh",
+                "workspace/inlineValue/refresh",
+                "workspace/diagnostic/refresh",
+                "workspace/foldingRange/refresh"
+            ),
+            client.refreshCalls.toSet(),
+            "every workspace/<feature>/refresh must round-trip"
+        )
+        kotlin.test.assertTrue(client.telemetryEvents.isNotEmpty(), "telemetry/event")
+        kotlin.test.assertTrue(client.logTraces.isNotEmpty(), "logTrace")
+        kotlin.test.assertTrue(
+            client.showMessages.isNotEmpty(),
+            "window/showMessage notification"
+        )
+        kotlin.test.assertTrue(
+            client.logMessages.isNotEmpty(),
+            "window/logMessage notification"
+        )
+
+        kotlin.test.assertEquals(null, remote.shutdown())
+        remote.exit()
+    }
+
     private suspend fun assertLifecycleAndMethods(remote: KsrpcLanguageServer) {
         // ---- lifecycle: initialize ----
         val init = remote.initialize(
@@ -351,6 +486,13 @@ class TransportMatrixIntegrationTest(
         /** Bound on each transport teardown so a stuck receive loop cannot hang CI. */
         const val TEARDOWN_MS = 5_000L
 
+        /**
+         * Bound on the polling loop that waits for the server fixture's issued-call
+         * record to fill — well under the per-test [TIMEOUT_MS] so a missed trigger
+         * surfaces as a clear assertion rather than a 15s wait.
+         */
+        const val TRIGGER_ASSERT_TIMEOUT_MS = 10_000L
+
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun transports(): List<Array<Any>> = listOf(
@@ -366,6 +508,12 @@ class TransportMatrixIntegrationTest(
  * A transport under test. [withSession] stands up a fresh
  * [ConformanceLanguageServer] reachable through the transport, hands a remote
  * stub to [block], then tears the transport down within a bounded window.
+ *
+ * Transports that carry server → client traffic over a real wire (i.e. every
+ * transport except the in-process [RelayTransport]) implement [withDuplexSession]
+ * to additionally expose the local [ConformanceLanguageServer] fixture (so the
+ * test can read its `issuedClientCalls` recording) and the local
+ * [ConformanceLanguageClient] (so the test can read what the client recorded).
  */
 sealed interface Transport {
     suspend fun withSession(block: suspend (KsrpcLanguageServer) -> Unit) =
@@ -380,7 +528,34 @@ sealed interface Transport {
     suspend fun withSessionAndFixture(
         block: suspend (KsrpcLanguageServer, ConformanceLanguageServer) -> Unit
     )
+
+    /**
+     * Whether this transport supports the server → client trigger test
+     * ([Lsp4jConformanceInteropTest]-style). Returns `false` for transports
+     * (e.g. relay) whose model doesn't carry a server-initiated client wire.
+     */
+    val supportsServerInitiated: Boolean get() = true
+
+    /**
+     * Stand up a session and expose both ends so the caller can drive a
+     * `textDocument/didOpen` against [ConformanceLanguageServer.Triggers.ALL] and
+     * assert the local fixtures recorded what the wire actually carried.
+     * Default implementation throws — only the wire-framed transports override.
+     */
+    suspend fun withDuplexSession(block: suspend (DuplexSession) -> Unit): Unit =
+        error("${this::class.simpleName} does not support a duplex server-initiated session")
 }
+
+/**
+ * The triple a server-initiated wire test needs: the remote server stub to send
+ * `didOpen`, the local server fixture to read [ConformanceLanguageServer.issuedClientCalls]
+ * from, and the local client fixture to read its `*Requests` recording lists.
+ */
+class DuplexSession(
+    val remote: KsrpcLanguageServer,
+    val serverFixture: ConformanceLanguageServer,
+    val clientFixture: ConformanceLanguageClient
+)
 
 /**
  * In-memory ksrpc channel: a pair of ktor [ByteChannel]s carrying the LSP
@@ -409,6 +584,30 @@ private object InMemoryTransport : Transport {
             server.boundedCancel()
         }
     }
+
+    override suspend fun withDuplexSession(block: suspend (DuplexSession) -> Unit): Unit =
+        withContext(Dispatchers.IO) {
+            val clientToServer = ByteChannel(autoFlush = true)
+            val serverToClient = ByteChannel(autoFlush = true)
+            val serverFixture = ConformanceLanguageServer()
+            val clientFixture = ConformanceLanguageClient()
+            val server = standaloneServerScope()
+            server.launch {
+                val conn = (clientToServer to serverToClient).asLspConnection()
+                // The client stub returned here lets serverFixture call back over
+                // the wire on its trigger.
+                serverFixture.client = conn.connectAsLspServer(serverFixture)
+            }
+            try {
+                val conn = (serverToClient to clientToServer).asLspConnection()
+                val remote = conn.connectAsLspClient(clientFixture)
+                block(DuplexSession(remote, serverFixture, clientFixture))
+            } finally {
+                clientToServer.close()
+                serverToClient.close()
+                server.boundedCancel()
+            }
+        }
 }
 
 /**
@@ -421,12 +620,26 @@ private object InMemoryTransport : Transport {
 private object TcpTransport : Transport {
     override suspend fun withSessionAndFixture(
         block: suspend (KsrpcLanguageServer, ConformanceLanguageServer) -> Unit
-    ) = withContext(Dispatchers.IO) {
+    ) = runTcpSession { remote, fixture, _ -> block(remote, fixture) }
+
+    override suspend fun withDuplexSession(block: suspend (DuplexSession) -> Unit): Unit =
+        runTcpSession { remote, serverFixture, clientFixture ->
+            block(DuplexSession(remote, serverFixture, clientFixture))
+        }
+
+    private suspend fun runTcpSession(
+        block: suspend (
+            KsrpcLanguageServer,
+            ConformanceLanguageServer,
+            ConformanceLanguageClient
+        ) -> Unit
+    ): Unit = withContext(Dispatchers.IO) {
         val selector = SelectorManager(Dispatchers.IO)
         val serverSocket = aSocket(selector).tcp()
             .bind(InetSocketAddress(InetAddress.getLoopbackAddress().hostAddress, 0))
         val acceptedSocket = AtomicReference<io.ktor.network.sockets.Socket?>(null)
-        val fixture = ConformanceLanguageServer()
+        val serverFixture = ConformanceLanguageServer()
+        val clientFixture = ConformanceLanguageClient()
         val server = standaloneServerScope()
         server.launch {
             val socket = serverSocket.accept()
@@ -434,7 +647,7 @@ private object TcpTransport : Transport {
             val conn = (
                 socket.openReadChannel() to socket.openWriteChannel(autoFlush = true)
                 ).asLspConnection()
-            conn.connectAsLspServer(fixture)
+            serverFixture.client = conn.connectAsLspServer(serverFixture)
         }
         val clientSocket =
             aSocket(selector).tcp().connect(serverSocket.localAddress as InetSocketAddress)
@@ -443,8 +656,8 @@ private object TcpTransport : Transport {
                 clientSocket.openReadChannel() to
                     clientSocket.openWriteChannel(autoFlush = true)
                 ).asLspConnection()
-            val remote = conn.connectAsLspClient(ConformanceLanguageClient())
-            block(remote, fixture)
+            val remote = conn.connectAsLspClient(clientFixture)
+            block(remote, serverFixture, clientFixture)
         } finally {
             runCatching { clientSocket.close() }
             runCatching { acceptedSocket.get()?.close() }
@@ -464,7 +677,20 @@ private object TcpTransport : Transport {
 private object StdioPipeTransport : Transport {
     override suspend fun withSessionAndFixture(
         block: suspend (KsrpcLanguageServer, ConformanceLanguageServer) -> Unit
-    ) = withContext(Dispatchers.IO) {
+    ) = runStdioSession { remote, fixture, _ -> block(remote, fixture) }
+
+    override suspend fun withDuplexSession(block: suspend (DuplexSession) -> Unit): Unit =
+        runStdioSession { remote, serverFixture, clientFixture ->
+            block(DuplexSession(remote, serverFixture, clientFixture))
+        }
+
+    private suspend fun runStdioSession(
+        block: suspend (
+            KsrpcLanguageServer,
+            ConformanceLanguageServer,
+            ConformanceLanguageClient
+        ) -> Unit
+    ): Unit = withContext(Dispatchers.IO) {
         // client -> server pipe — 1 MiB buffer; the all-methods test sends
         // dozens of notifications/requests in quick succession and would
         // otherwise risk filling the smaller 64 KiB buffer (the stdio writer
@@ -476,16 +702,17 @@ private object StdioPipeTransport : Transport {
         val clientIn = PipedInputStream(1 shl 20)
         val serverOut = PipedOutputStream(clientIn)
 
-        val fixture = ConformanceLanguageServer()
+        val serverFixture = ConformanceLanguageServer()
+        val clientFixture = ConformanceLanguageClient()
         val server = standaloneServerScope()
         server.launch {
             val conn = (serverIn to serverOut).asLspConnection()
-            conn.connectAsLspServer(fixture)
+            serverFixture.client = conn.connectAsLspServer(serverFixture)
         }
         try {
             val conn = (clientIn to clientOut).asLspConnection()
-            val remote = conn.connectAsLspClient(ConformanceLanguageClient())
-            block(remote, fixture)
+            val remote = conn.connectAsLspClient(clientFixture)
+            block(remote, serverFixture, clientFixture)
         } finally {
             runCatching { clientOut.close() }
             runCatching { serverOut.close() }
@@ -503,6 +730,13 @@ private object StdioPipeTransport : Transport {
  * relay boundary in-process.
  */
 private object RelayTransport : Transport {
+    /**
+     * The ksrpc relay model serves the server [serialized] and consumes it via
+     * [toStub] — there is no symmetric client-callback wire here, so the
+     * server → client trigger test cannot be exercised over this transport.
+     */
+    override val supportsServerInitiated: Boolean = false
+
     override suspend fun withSessionAndFixture(
         block: suspend (KsrpcLanguageServer, ConformanceLanguageServer) -> Unit
     ) {

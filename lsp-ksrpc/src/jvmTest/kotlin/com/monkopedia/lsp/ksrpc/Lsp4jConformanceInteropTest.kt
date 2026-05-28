@@ -39,7 +39,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import org.eclipse.lsp4j.ApplyWorkspaceEditParams
+import org.eclipse.lsp4j.ApplyWorkspaceEditResponse
 import org.eclipse.lsp4j.CompletionParams
+import org.eclipse.lsp4j.ConfigurationParams
 import org.eclipse.lsp4j.DeclarationParams
 import org.eclipse.lsp4j.DefinitionParams
 import org.eclipse.lsp4j.DidOpenTextDocumentParams as Lsp4jDidOpenTextDocumentParams
@@ -48,17 +51,24 @@ import org.eclipse.lsp4j.HoverParams
 import org.eclipse.lsp4j.ImplementationParams
 import org.eclipse.lsp4j.InitializeParams
 import org.eclipse.lsp4j.InitializedParams
+import org.eclipse.lsp4j.LogTraceParams
 import org.eclipse.lsp4j.MessageActionItem
 import org.eclipse.lsp4j.MessageParams
 import org.eclipse.lsp4j.Position as Lsp4jPosition
 import org.eclipse.lsp4j.PublishDiagnosticsParams as Lsp4jPublishDiagnosticsParams
 import org.eclipse.lsp4j.ReferenceContext
 import org.eclipse.lsp4j.ReferenceParams
+import org.eclipse.lsp4j.RegistrationParams
+import org.eclipse.lsp4j.ShowDocumentParams
+import org.eclipse.lsp4j.ShowDocumentResult
 import org.eclipse.lsp4j.ShowMessageRequestParams
 import org.eclipse.lsp4j.TextDocumentIdentifier
 import org.eclipse.lsp4j.TextDocumentItem
 import org.eclipse.lsp4j.TypeDefinitionParams
+import org.eclipse.lsp4j.UnregistrationParams
+import org.eclipse.lsp4j.WorkDoneProgressCreateParams
 import org.eclipse.lsp4j.WorkDoneProgressNotification
+import org.eclipse.lsp4j.WorkspaceFolder
 import org.eclipse.lsp4j.launch.LSPLauncher
 import org.eclipse.lsp4j.services.LanguageClient
 
@@ -666,6 +676,146 @@ class Lsp4jConformanceInteropTest {
         }
     }
 
+    @Test
+    fun `real lsp4j client receives every server-initiated call the fixture triggers`() {
+        // clientToServer: lsp4j writes requests here, our server reads them.
+        val clientToServerSink = PipedOutputStream()
+        val clientToServerSource = PipedInputStream(clientToServerSink, PIPE_BUFFER)
+        // serverToClient: our server writes responses + pushes here, lsp4j reads them.
+        val serverToClientSink = PipedOutputStream()
+        val serverToClientSource = PipedInputStream(serverToClientSink, PIPE_BUFFER)
+        pipes += listOf(
+            clientToServerSink,
+            clientToServerSource,
+            serverToClientSink,
+            serverToClientSource
+        )
+
+        val fixture = ConformanceLanguageServer()
+        serverJob = scope.launch {
+            val connection = (clientToServerSource to serverToClientSink).asLspConnection()
+            // The client stub lets the fixture call back into lsp4j.
+            fixture.client = connection.connectAsLspServer(fixture)
+        }
+
+        val client = RecordingClient()
+        val launcher = LSPLauncher.createClientLauncher(
+            client,
+            serverToClientSource,
+            clientToServerSink
+        )
+        val listening = launcher.startListening()
+        val server = launcher.remoteProxy
+
+        try {
+            server.initialize(InitializeParams()).get(TIMEOUT_S, TimeUnit.SECONDS)
+            server.initialized(InitializedParams())
+
+            // didOpen on the trigger URI drives ConformanceLanguageServer.emitAllClientTriggers.
+            server.textDocumentService.didOpen(
+                Lsp4jDidOpenTextDocumentParams(
+                    TextDocumentItem(
+                        ConformanceLanguageServer.Triggers.ALL,
+                        "kotlin",
+                        1,
+                        "// trigger"
+                    )
+                )
+            )
+
+            // For each server-initiated client method we expect, drain one entry off
+            // the corresponding lsp4j RecordingClient queue with a bounded timeout.
+            // Each poll asserts the wire actually carried that method back.
+            assertNotNull(
+                client.configurationRequests.poll(TIMEOUT_S, TimeUnit.SECONDS),
+                "expected workspace/configuration over the wire"
+            )
+            assertNotNull(
+                client.workspaceFoldersRequests.poll(TIMEOUT_S, TimeUnit.SECONDS),
+                "expected workspace/workspaceFolders over the wire"
+            )
+            assertNotNull(
+                client.applyEditRequests.poll(TIMEOUT_S, TimeUnit.SECONDS),
+                "expected workspace/applyEdit over the wire"
+            )
+            assertNotNull(
+                client.showMessageRequests.poll(TIMEOUT_S, TimeUnit.SECONDS),
+                "expected window/showMessageRequest over the wire"
+            )
+            assertNotNull(
+                client.showDocumentRequests.poll(TIMEOUT_S, TimeUnit.SECONDS),
+                "expected window/showDocument over the wire"
+            )
+            assertNotNull(
+                client.registerCapabilityRequests.poll(TIMEOUT_S, TimeUnit.SECONDS),
+                "expected client/registerCapability over the wire"
+            )
+            assertNotNull(
+                client.unregisterCapabilityRequests.poll(TIMEOUT_S, TimeUnit.SECONDS),
+                "expected client/unregisterCapability over the wire"
+            )
+            assertNotNull(
+                client.workDoneProgressCreateRequests.poll(TIMEOUT_S, TimeUnit.SECONDS),
+                "expected window/workDoneProgress/create over the wire"
+            )
+            val progress = client.progress.poll(TIMEOUT_S, TimeUnit.SECONDS)
+            assertNotNull(progress, "expected \$/progress over the wire")
+            val begin: WorkDoneProgressNotification? = progress.value.left
+            assertNotNull(begin, "progress value should parse as a WorkDoneProgress notification")
+
+            // refresh family — drain six entries in any order, all six method
+            // names must appear so we know each crossed the wire.
+            val refreshSeen = mutableSetOf<String>()
+            repeat(EXPECTED_REFRESH_COUNT) {
+                val name = client.refreshCalls.poll(TIMEOUT_S, TimeUnit.SECONDS)
+                    ?: error("missing refresh call #$it; saw so far: $refreshSeen")
+                refreshSeen += name
+            }
+            assertEquals(
+                setOf(
+                    "workspace/codeLens/refresh",
+                    "workspace/semanticTokens/refresh",
+                    "workspace/inlayHint/refresh",
+                    "workspace/inlineValue/refresh",
+                    "workspace/diagnostic/refresh",
+                    "workspace/foldingRange/refresh"
+                ),
+                refreshSeen,
+                "every workspace/<feature>/refresh must round-trip"
+            )
+
+            assertNotNull(
+                client.telemetry.poll(TIMEOUT_S, TimeUnit.SECONDS),
+                "expected telemetry/event over the wire"
+            )
+            assertNotNull(
+                client.logTraces.poll(TIMEOUT_S, TimeUnit.SECONDS),
+                "expected \$/logTrace over the wire"
+            )
+            assertNotNull(
+                client.showMessages.poll(TIMEOUT_S, TimeUnit.SECONDS),
+                "expected window/showMessage over the wire"
+            )
+            assertNotNull(
+                client.logMessages.poll(TIMEOUT_S, TimeUnit.SECONDS),
+                "expected window/logMessage over the wire"
+            )
+
+            // The fixture's own record of the calls it issued must reflect what
+            // we observed on the wire — every method name in ClientMethods.ALL.
+            assertEquals(
+                ConformanceLanguageServer.ClientMethods.ALL.toSet(),
+                fixture.issuedClientCalls.toSet(),
+                "fixture should record every issued server-initiated call"
+            )
+
+            server.shutdown().get(TIMEOUT_S, TimeUnit.SECONDS)
+            server.exit()
+        } finally {
+            listening.cancel(true)
+        }
+    }
+
     private fun assertHoverBranches(td: org.eclipse.lsp4j.services.TextDocumentService) {
         // line 0 → MarkupContent (Either.right)
         val markup = td.hover(hover(ConformanceLanguageServer.Lines.SINGLE))
@@ -798,10 +948,9 @@ class Lsp4jConformanceInteropTest {
      * answers requests but emits no pushes, so this lives test-side.
      */
     private class DiagnosticsEmittingServer : ConformanceLanguageServer() {
-        @Volatile
-        var client: com.monkopedia.lsp.KsrpcLanguageClient? = null
 
         override suspend fun textDocumentDidOpen(params: DidOpenTextDocumentParams) {
+            super.textDocumentDidOpen(params)
             val range = Range(
                 start = Position(line = 0u, character = 0u),
                 end = Position(line = 0u, character = 4u)
@@ -827,26 +976,128 @@ class Lsp4jConformanceInteropTest {
         }
     }
 
+    /**
+     * Lsp4j-side recording client. Records every server-initiated call so the
+     * trigger test ([drives every server-initiated client call over the lsp4j
+     * wire][`the lsp4j wire`]) can assert which methods the server issued. lsp4j's
+     * client surface is `CompletableFuture`-shaped; we hand back deterministic
+     * canned values (`applyEdit` → applied=true, `configuration` → list of nulls,
+     * `showMessageRequest` → the first action, `workspaceFolders` → a fixed
+     * folder, refresh family → null Void) — the same contract our common
+     * [com.monkopedia.lsp.ksrpc.fixtures.ConformanceLanguageClient] honours.
+     */
     private class RecordingClient : LanguageClient {
         val diagnostics = LinkedBlockingQueue<Lsp4jPublishDiagnosticsParams>()
         val progress = LinkedBlockingQueue<org.eclipse.lsp4j.ProgressParams>()
+        val showMessages = LinkedBlockingQueue<MessageParams>()
+        val logMessages = LinkedBlockingQueue<MessageParams>()
+        val telemetry = LinkedBlockingQueue<Any?>()
+        val logTraces = LinkedBlockingQueue<LogTraceParams>()
+        val configurationRequests = LinkedBlockingQueue<ConfigurationParams>()
+        val applyEditRequests = LinkedBlockingQueue<ApplyWorkspaceEditParams>()
+        val showMessageRequests = LinkedBlockingQueue<ShowMessageRequestParams>()
+        val showDocumentRequests = LinkedBlockingQueue<ShowDocumentParams>()
+        val registerCapabilityRequests = LinkedBlockingQueue<RegistrationParams>()
+        val unregisterCapabilityRequests = LinkedBlockingQueue<UnregistrationParams>()
+        val workDoneProgressCreateRequests =
+            LinkedBlockingQueue<WorkDoneProgressCreateParams>()
+        val workspaceFoldersRequests = LinkedBlockingQueue<Unit>()
+        val refreshCalls = LinkedBlockingQueue<String>()
 
-        override fun telemetryEvent(`object`: Any?) = Unit
+        override fun telemetryEvent(`object`: Any?) {
+            telemetry.add(`object`)
+        }
         override fun publishDiagnostics(diagnostics: Lsp4jPublishDiagnosticsParams?) {
             diagnostics?.let { this.diagnostics.add(it) }
         }
-        override fun showMessage(messageParams: MessageParams?) = Unit
+        override fun showMessage(messageParams: MessageParams?) {
+            messageParams?.let { showMessages.add(it) }
+        }
         override fun showMessageRequest(
             requestParams: ShowMessageRequestParams?
-        ): CompletableFuture<MessageActionItem> = CompletableFuture.completedFuture(null)
-        override fun logMessage(message: MessageParams?) = Unit
+        ): CompletableFuture<MessageActionItem> {
+            requestParams?.let { showMessageRequests.add(it) }
+            val response = requestParams?.actions?.firstOrNull()
+                ?: MessageActionItem("OK")
+            return CompletableFuture.completedFuture(response)
+        }
+        override fun logMessage(message: MessageParams?) {
+            message?.let { logMessages.add(it) }
+        }
         override fun notifyProgress(params: org.eclipse.lsp4j.ProgressParams?) {
             params?.let { progress.add(it) }
+        }
+        override fun logTrace(params: LogTraceParams?) {
+            params?.let { logTraces.add(it) }
+        }
+        override fun applyEdit(
+            params: ApplyWorkspaceEditParams?
+        ): CompletableFuture<ApplyWorkspaceEditResponse> {
+            params?.let { applyEditRequests.add(it) }
+            return CompletableFuture.completedFuture(ApplyWorkspaceEditResponse(true))
+        }
+        override fun configuration(
+            params: ConfigurationParams?
+        ): CompletableFuture<MutableList<Any>> {
+            params?.let { configurationRequests.add(it) }
+            // Return one null per requested item (lsp4j accepts a list of Object,
+            // null values represent unset configuration).
+            val nulls: MutableList<Any> = ArrayList<Any>(params?.items?.size ?: 0).apply {
+                repeat(params?.items?.size ?: 0) {
+                    @Suppress("UNCHECKED_CAST")
+                    (this as MutableList<Any?>).add(null)
+                }
+            }
+            return CompletableFuture.completedFuture(nulls)
+        }
+        override fun showDocument(
+            params: ShowDocumentParams?
+        ): CompletableFuture<ShowDocumentResult> {
+            params?.let { showDocumentRequests.add(it) }
+            return CompletableFuture.completedFuture(ShowDocumentResult(true))
+        }
+        override fun registerCapability(params: RegistrationParams?): CompletableFuture<Void> {
+            params?.let { registerCapabilityRequests.add(it) }
+            return CompletableFuture.completedFuture(null)
+        }
+        override fun unregisterCapability(params: UnregistrationParams?): CompletableFuture<Void> {
+            params?.let { unregisterCapabilityRequests.add(it) }
+            return CompletableFuture.completedFuture(null)
+        }
+        override fun createProgress(
+            params: WorkDoneProgressCreateParams?
+        ): CompletableFuture<Void> {
+            params?.let { workDoneProgressCreateRequests.add(it) }
+            return CompletableFuture.completedFuture(null)
+        }
+        override fun workspaceFolders(): CompletableFuture<MutableList<WorkspaceFolder>> {
+            workspaceFoldersRequests.add(Unit)
+            return CompletableFuture.completedFuture(
+                mutableListOf(WorkspaceFolder("file:///conformance", "conformance-root"))
+            )
+        }
+        override fun refreshSemanticTokens(): CompletableFuture<Void> =
+            recordRefresh("workspace/semanticTokens/refresh")
+        override fun refreshCodeLenses(): CompletableFuture<Void> =
+            recordRefresh("workspace/codeLens/refresh")
+        override fun refreshInlayHints(): CompletableFuture<Void> =
+            recordRefresh("workspace/inlayHint/refresh")
+        override fun refreshInlineValues(): CompletableFuture<Void> =
+            recordRefresh("workspace/inlineValue/refresh")
+        override fun refreshDiagnostics(): CompletableFuture<Void> =
+            recordRefresh("workspace/diagnostic/refresh")
+        override fun refreshFoldingRanges(): CompletableFuture<Void> =
+            recordRefresh("workspace/foldingRange/refresh")
+
+        private fun recordRefresh(name: String): CompletableFuture<Void> {
+            refreshCalls.add(name)
+            return CompletableFuture.completedFuture(null)
         }
     }
 
     private companion object {
         const val TIMEOUT_S = 15L
         const val PIPE_BUFFER = 1 shl 20
+        const val EXPECTED_REFRESH_COUNT = 6
     }
 }
