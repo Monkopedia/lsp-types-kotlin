@@ -194,8 +194,21 @@ class RealServerClientRoleTest {
             .redirectError(ProcessBuilder.Redirect.DISCARD)
             .start()
         try {
-            val connection = (process.inputStream to process.outputStream)
-                .asLspConnection()
+            // When `-Plsp.captureCorpus=true` is set, tee every observed LSP
+            // wire frame to disk so CapturedCorpusReplayTest has real-world
+            // payloads to round-trip-check against. The tee is byte-level and
+            // synchronous — if it ever throws or stalls, the wrapped streams
+            // still flush the original bytes through, so the underlying drive
+            // can't be broken by a recorder failure.
+            val recorder = if (isCaptureEnabled()) {
+                CorpusRecorder(server = spec.binary, corpusRoot = captureCorpusRoot())
+            } else {
+                null
+            }
+            val inStream = recorder?.wrapInbound(process.inputStream) ?: process.inputStream
+            val outStream = recorder?.wrapOutbound(process.outputStream) ?: process.outputStream
+
+            val connection = (inStream to outStream).asLspConnection()
             val server = connection.connectAsLspClient(client)
 
             // Hard upper bound on the initialize→query drive so a server that

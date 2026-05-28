@@ -1,0 +1,1 @@
+{"contents":{"kind":"plaintext","value":"function add\n\n→ int\n\nParameters:\n\n- int a\n- int b\n\nTiny self-contained fixture for clangd client-role integration tests.\nNo external includes so clangd can parse it without a compile_commands.json.\n\nint add(int a, int b)"},"range":{"end":{"character":19,"line":8},"start":{"character":16,"line":8}}}
