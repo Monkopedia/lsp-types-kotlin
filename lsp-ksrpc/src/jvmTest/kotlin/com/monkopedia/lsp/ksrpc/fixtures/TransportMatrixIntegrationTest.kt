@@ -353,6 +353,10 @@ class TransportMatrixIntegrationTest(
             client.logMessages.isNotEmpty(),
             "window/logMessage notification"
         )
+        kotlin.test.assertTrue(
+            client.publishedDiagnostics.isNotEmpty(),
+            "textDocument/publishDiagnostics notification"
+        )
 
         kotlin.test.assertEquals(null, remote.shutdown())
         remote.exit()
