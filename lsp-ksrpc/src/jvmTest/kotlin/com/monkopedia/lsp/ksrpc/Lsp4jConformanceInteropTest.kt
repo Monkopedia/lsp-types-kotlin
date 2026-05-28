@@ -800,6 +800,10 @@ class Lsp4jConformanceInteropTest {
                 client.logMessages.poll(TIMEOUT_S, TimeUnit.SECONDS),
                 "expected window/logMessage over the wire"
             )
+            assertNotNull(
+                client.diagnostics.poll(TIMEOUT_S, TimeUnit.SECONDS),
+                "expected textDocument/publishDiagnostics over the wire"
+            )
 
             // The fixture's own record of the calls it issued must reflect what
             // we observed on the wire — every method name in ClientMethods.ALL.

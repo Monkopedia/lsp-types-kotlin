@@ -97,6 +97,8 @@ import com.monkopedia.lsp.InlineValueText
 import com.monkopedia.lsp.IntOrString
 import com.monkopedia.lsp.KsrpcLanguageClient
 import com.monkopedia.lsp.LSPAny
+import com.monkopedia.lsp.LanguageClient
+import com.monkopedia.lsp.LanguageServer
 import com.monkopedia.lsp.LinkedEditingRangeParams
 import com.monkopedia.lsp.LinkedEditingRanges
 import com.monkopedia.lsp.Location
@@ -113,6 +115,7 @@ import com.monkopedia.lsp.PrepareRenameParams
 import com.monkopedia.lsp.PrepareRenameResult
 import com.monkopedia.lsp.PrepareRenameResultRange
 import com.monkopedia.lsp.ProgressParams
+import com.monkopedia.lsp.PublishDiagnosticsParams
 import com.monkopedia.lsp.Range
 import com.monkopedia.lsp.ReferenceParams
 import com.monkopedia.lsp.Registration
@@ -287,6 +290,18 @@ open class ConformanceLanguageServer : DefaultLanguageServer() {
             notificationsBuffer += NotificationReceipt(method, paramsSummary)
         }
         notificationFlow.tryEmit(NotificationReceipt(method, paramsSummary))
+        ConformanceWireRecorder.observeServer(method)
+    }
+
+    /**
+     * Wire-coverage observation hook for request handlers (issue #66). Notifications
+     * route through [record]; requests don't take a params summary so they call this
+     * directly. Fires into the shared [ConformanceWireRecorder] so the JVM coverage
+     * tracker can record every server-side method that arrived over the wire.
+     * Defaults to a no-op on targets that haven't installed a recorder.
+     */
+    private fun observeRequest(method: String) {
+        ConformanceWireRecorder.observeServer(method)
     }
 
     /** Well-known document URIs the fixture recognises. */
@@ -344,6 +359,7 @@ open class ConformanceLanguageServer : DefaultLanguageServer() {
         const val LOG_TRACE = "\$/logTrace"
         const val WINDOW_SHOW_MESSAGE = "window/showMessage"
         const val WINDOW_LOG_MESSAGE = "window/logMessage"
+        const val TEXT_DOCUMENT_PUBLISH_DIAGNOSTICS = "textDocument/publishDiagnostics"
 
         /** The full ordered list of method names [emitAllClientTriggers] issues. */
         val ALL: List<String> = listOf(
@@ -365,7 +381,8 @@ open class ConformanceLanguageServer : DefaultLanguageServer() {
             TELEMETRY_EVENT,
             LOG_TRACE,
             WINDOW_SHOW_MESSAGE,
-            WINDOW_LOG_MESSAGE
+            WINDOW_LOG_MESSAGE,
+            TEXT_DOCUMENT_PUBLISH_DIAGNOSTICS
         )
     }
 
@@ -411,36 +428,43 @@ open class ConformanceLanguageServer : DefaultLanguageServer() {
         targetSelectionRange = range(line + 10)
     )
 
-    override suspend fun initialize(params: InitializeParams): InitializeResult = InitializeResult(
-        capabilities = ServerCapabilities(
-            hoverProvider = BooleanOr.BooleanValue(true),
-            definitionProvider = BooleanOr.BooleanValue(true),
-            declarationProvider = BooleanOr.BooleanValue(true),
-            typeDefinitionProvider = BooleanOr.BooleanValue(true),
-            implementationProvider = BooleanOr.BooleanValue(true),
-            referencesProvider = BooleanOr.BooleanValue(true),
-            documentSymbolProvider = BooleanOr.BooleanValue(true),
-            completionProvider = CompletionOptions(),
-            signatureHelpProvider = com.monkopedia.lsp.SignatureHelpOptions(),
-            documentHighlightProvider = BooleanOr.BooleanValue(true),
-            documentFormattingProvider = BooleanOr.BooleanValue(true),
-            renameProvider = BooleanOr.BooleanValue(true),
-            codeActionProvider = BooleanOr.BooleanValue(true),
-            codeLensProvider = com.monkopedia.lsp.CodeLensOptions(),
-            foldingRangeProvider = BooleanOr.BooleanValue(true),
-            inlayHintProvider = BooleanOr.BooleanValue(true)
-        ),
-        serverInfo = InitializeResultServerInfo(
-            name = "ConformanceLanguageServer",
-            version = "1.0.0"
+    override suspend fun initialize(params: InitializeParams): InitializeResult {
+        observeRequest(LanguageServer.INITIALIZE)
+        return InitializeResult(
+            capabilities = ServerCapabilities(
+                hoverProvider = BooleanOr.BooleanValue(true),
+                definitionProvider = BooleanOr.BooleanValue(true),
+                declarationProvider = BooleanOr.BooleanValue(true),
+                typeDefinitionProvider = BooleanOr.BooleanValue(true),
+                implementationProvider = BooleanOr.BooleanValue(true),
+                referencesProvider = BooleanOr.BooleanValue(true),
+                documentSymbolProvider = BooleanOr.BooleanValue(true),
+                completionProvider = CompletionOptions(),
+                signatureHelpProvider = com.monkopedia.lsp.SignatureHelpOptions(),
+                documentHighlightProvider = BooleanOr.BooleanValue(true),
+                documentFormattingProvider = BooleanOr.BooleanValue(true),
+                renameProvider = BooleanOr.BooleanValue(true),
+                codeActionProvider = BooleanOr.BooleanValue(true),
+                codeLensProvider = com.monkopedia.lsp.CodeLensOptions(),
+                foldingRangeProvider = BooleanOr.BooleanValue(true),
+                inlayHintProvider = BooleanOr.BooleanValue(true)
+            ),
+            serverInfo = InitializeResultServerInfo(
+                name = "ConformanceLanguageServer",
+                version = "1.0.0"
+            )
         )
-    )
+    }
 
-    override suspend fun shutdown(): Nothing? = null
+    override suspend fun shutdown(): Nothing? {
+        observeRequest(LanguageServer.SHUTDOWN)
+        return null
+    }
 
     // region union-branch-exhaustive methods
 
     override suspend fun textDocumentHover(params: HoverParams): Hover {
+        observeRequest(LanguageServer.TEXT_DOCUMENT_HOVER)
         val contents = when (params.position.line.toInt()) {
             Lines.SINGLE -> HoverContents.markdown("**markup** hover at line 0")
 
@@ -458,122 +482,143 @@ open class ConformanceLanguageServer : DefaultLanguageServer() {
 
     override suspend fun textDocumentDefinition(
         params: DefinitionParams
-    ): TextDocumentDefinitionResult = when (params.position.line.toInt()) {
-        Lines.SINGLE -> TextDocumentDefinitionResult.DefinitionValue(
-            singleDefinition(Uri.MAIN, 0)
-        )
+    ): TextDocumentDefinitionResult {
+        observeRequest(LanguageServer.TEXT_DOCUMENT_DEFINITION)
+        return when (params.position.line.toInt()) {
+            Lines.SINGLE -> TextDocumentDefinitionResult.DefinitionValue(
+                singleDefinition(Uri.MAIN, 0)
+            )
 
-        Lines.ARRAY -> TextDocumentDefinitionResult.DefinitionValue(
-            arrayDefinition(Uri.MAIN)
-        )
+            Lines.ARRAY -> TextDocumentDefinitionResult.DefinitionValue(
+                arrayDefinition(Uri.MAIN)
+            )
 
-        else -> TextDocumentDefinitionResult.DefinitionLinkArray(linkDefinitions(Uri.MAIN))
+            else -> TextDocumentDefinitionResult.DefinitionLinkArray(linkDefinitions(Uri.MAIN))
+        }
     }
 
     override suspend fun textDocumentDeclaration(
         params: DeclarationParams
-    ): TextDocumentDeclarationResult = when (params.position.line.toInt()) {
-        Lines.SINGLE -> TextDocumentDeclarationResult.DeclarationValue(
-            singleDeclaration(Uri.MAIN, 0)
-        )
+    ): TextDocumentDeclarationResult {
+        observeRequest(LanguageServer.TEXT_DOCUMENT_DECLARATION)
+        return when (params.position.line.toInt()) {
+            Lines.SINGLE -> TextDocumentDeclarationResult.DeclarationValue(
+                singleDeclaration(Uri.MAIN, 0)
+            )
 
-        Lines.ARRAY -> TextDocumentDeclarationResult.DeclarationValue(
-            arrayDeclaration(Uri.MAIN)
-        )
+            Lines.ARRAY -> TextDocumentDeclarationResult.DeclarationValue(
+                arrayDeclaration(Uri.MAIN)
+            )
 
-        else -> TextDocumentDeclarationResult.DeclarationLinkArray(linkDeclarations(Uri.MAIN))
+            else -> TextDocumentDeclarationResult.DeclarationLinkArray(linkDeclarations(Uri.MAIN))
+        }
     }
 
     override suspend fun textDocumentTypeDefinition(
         params: TypeDefinitionParams
-    ): TextDocumentTypeDefinitionResult = when (params.position.line.toInt()) {
-        Lines.SINGLE -> TextDocumentTypeDefinitionResult.DefinitionValue(
-            singleDefinition(Uri.MAIN, 0)
-        )
+    ): TextDocumentTypeDefinitionResult {
+        observeRequest(LanguageServer.TEXT_DOCUMENT_TYPE_DEFINITION)
+        return when (params.position.line.toInt()) {
+            Lines.SINGLE -> TextDocumentTypeDefinitionResult.DefinitionValue(
+                singleDefinition(Uri.MAIN, 0)
+            )
 
-        Lines.ARRAY -> TextDocumentTypeDefinitionResult.DefinitionValue(
-            arrayDefinition(Uri.MAIN)
-        )
+            Lines.ARRAY -> TextDocumentTypeDefinitionResult.DefinitionValue(
+                arrayDefinition(Uri.MAIN)
+            )
 
-        else -> TextDocumentTypeDefinitionResult.DefinitionLinkArray(linkDefinitions(Uri.MAIN))
+            else -> TextDocumentTypeDefinitionResult.DefinitionLinkArray(linkDefinitions(Uri.MAIN))
+        }
     }
 
     override suspend fun textDocumentImplementation(
         params: ImplementationParams
-    ): TextDocumentImplementationResult = when (params.position.line.toInt()) {
-        Lines.SINGLE -> TextDocumentImplementationResult.DefinitionValue(
-            singleDefinition(Uri.MAIN, 0)
-        )
+    ): TextDocumentImplementationResult {
+        observeRequest(LanguageServer.TEXT_DOCUMENT_IMPLEMENTATION)
+        return when (params.position.line.toInt()) {
+            Lines.SINGLE -> TextDocumentImplementationResult.DefinitionValue(
+                singleDefinition(Uri.MAIN, 0)
+            )
 
-        Lines.ARRAY -> TextDocumentImplementationResult.DefinitionValue(
-            arrayDefinition(Uri.MAIN)
-        )
+            Lines.ARRAY -> TextDocumentImplementationResult.DefinitionValue(
+                arrayDefinition(Uri.MAIN)
+            )
 
-        else -> TextDocumentImplementationResult.DefinitionLinkArray(linkDefinitions(Uri.MAIN))
+            else -> TextDocumentImplementationResult.DefinitionLinkArray(linkDefinitions(Uri.MAIN))
+        }
     }
 
-    override suspend fun textDocumentReferences(params: ReferenceParams): List<Location> =
-        listOf(location(Uri.MAIN, 0), location(Uri.MAIN, 1), location(Uri.MAIN, 2))
+    override suspend fun textDocumentReferences(params: ReferenceParams): List<Location> {
+        observeRequest(LanguageServer.TEXT_DOCUMENT_REFERENCES)
+        return listOf(location(Uri.MAIN, 0), location(Uri.MAIN, 1), location(Uri.MAIN, 2))
+    }
 
     override suspend fun textDocumentCompletion(
         params: CompletionParams
-    ): TextDocumentCompletionResult = when (params.position.line.toInt()) {
-        Lines.SINGLE -> TextDocumentCompletionResult.CompletionListValue(
-            CompletionList(
-                isIncomplete = false,
-                items = listOf(
-                    CompletionItem(label = "fromList", kind = CompletionItemKind.FUNCTION)
+    ): TextDocumentCompletionResult {
+        observeRequest(LanguageServer.TEXT_DOCUMENT_COMPLETION)
+        return when (params.position.line.toInt()) {
+            Lines.SINGLE -> TextDocumentCompletionResult.CompletionListValue(
+                CompletionList(
+                    isIncomplete = false,
+                    items = listOf(
+                        CompletionItem(label = "fromList", kind = CompletionItemKind.FUNCTION)
+                    )
                 )
             )
-        )
 
-        else -> TextDocumentCompletionResult.CompletionItemArray(
-            listOf(
-                CompletionItem(label = "fromArrayA", kind = CompletionItemKind.VALUE),
-                CompletionItem(label = "fromArrayB", kind = CompletionItemKind.VALUE)
+            else -> TextDocumentCompletionResult.CompletionItemArray(
+                listOf(
+                    CompletionItem(label = "fromArrayA", kind = CompletionItemKind.VALUE),
+                    CompletionItem(label = "fromArrayB", kind = CompletionItemKind.VALUE)
+                )
             )
-        )
+        }
     }
 
     override suspend fun textDocumentDocumentSymbol(
         params: DocumentSymbolParams
-    ): TextDocumentDocumentSymbolResult = if (params.textDocument.uri.endsWith("#flat")) {
-        TextDocumentDocumentSymbolResult.SymbolInformationArray(
-            listOf(
-                SymbolInformation(
-                    name = "flatSymbol",
-                    kind = SymbolKind.FUNCTION,
-                    location = location(params.textDocument.uri, 0)
+    ): TextDocumentDocumentSymbolResult {
+        observeRequest(LanguageServer.TEXT_DOCUMENT_DOCUMENT_SYMBOL)
+        return if (params.textDocument.uri.endsWith("#flat")) {
+            TextDocumentDocumentSymbolResult.SymbolInformationArray(
+                listOf(
+                    SymbolInformation(
+                        name = "flatSymbol",
+                        kind = SymbolKind.FUNCTION,
+                        location = location(params.textDocument.uri, 0)
+                    )
                 )
             )
-        )
-    } else {
-        TextDocumentDocumentSymbolResult.DocumentSymbolArray(
-            listOf(
-                DocumentSymbol(
-                    name = "hierarchicalSymbol",
-                    kind = SymbolKind.CLASS,
-                    range = range(0),
-                    selectionRange = range(0),
-                    children = listOf(
-                        DocumentSymbol(
-                            name = "childMethod",
-                            kind = SymbolKind.METHOD,
-                            range = range(1),
-                            selectionRange = range(1)
+        } else {
+            TextDocumentDocumentSymbolResult.DocumentSymbolArray(
+                listOf(
+                    DocumentSymbol(
+                        name = "hierarchicalSymbol",
+                        kind = SymbolKind.CLASS,
+                        range = range(0),
+                        selectionRange = range(0),
+                        children = listOf(
+                            DocumentSymbol(
+                                name = "childMethod",
+                                kind = SymbolKind.METHOD,
+                                range = range(1),
+                                selectionRange = range(1)
+                            )
                         )
                     )
                 )
             )
-        )
+        }
     }
 
     // endregion
 
     // region simple well-formed canned methods
 
-    override suspend fun textDocumentSignatureHelp(params: SignatureHelpParams): SignatureHelp =
-        SignatureHelp(
+    override suspend fun textDocumentSignatureHelp(params: SignatureHelpParams): SignatureHelp {
+        observeRequest(LanguageServer.TEXT_DOCUMENT_SIGNATURE_HELP)
+        return SignatureHelp(
             signatures = listOf(
                 SignatureInformation(
                     label = "fun conformance(value: Int): Int",
@@ -583,160 +628,237 @@ open class ConformanceLanguageServer : DefaultLanguageServer() {
             activeSignature = 0u,
             activeParameter = 0u
         )
+    }
 
     override suspend fun textDocumentDocumentHighlight(
         params: DocumentHighlightParams
-    ): List<DocumentHighlight> = listOf(
-        DocumentHighlight(range = range(0), kind = DocumentHighlightKind.TEXT),
-        DocumentHighlight(range = range(1), kind = DocumentHighlightKind.WRITE)
-    )
-
-    override suspend fun textDocumentFormatting(params: DocumentFormattingParams): List<TextEdit> =
-        listOf(TextEdit(range = range(0), newText = "formatted\n"))
-
-    override suspend fun textDocumentRename(params: RenameParams): WorkspaceEdit = WorkspaceEdit(
-        changes = mapOf(
-            Uri.MAIN to listOf(TextEdit(range = range(0), newText = params.newName))
+    ): List<DocumentHighlight> {
+        observeRequest(LanguageServer.TEXT_DOCUMENT_DOCUMENT_HIGHLIGHT)
+        return listOf(
+            DocumentHighlight(range = range(0), kind = DocumentHighlightKind.TEXT),
+            DocumentHighlight(range = range(1), kind = DocumentHighlightKind.WRITE)
         )
-    )
+    }
+
+    override suspend fun textDocumentFormatting(params: DocumentFormattingParams): List<TextEdit> {
+        observeRequest(LanguageServer.TEXT_DOCUMENT_FORMATTING)
+        return listOf(TextEdit(range = range(0), newText = "formatted\n"))
+    }
+
+    override suspend fun textDocumentRename(params: RenameParams): WorkspaceEdit {
+        observeRequest(LanguageServer.TEXT_DOCUMENT_RENAME)
+        return WorkspaceEdit(
+            changes = mapOf(
+                Uri.MAIN to listOf(TextEdit(range = range(0), newText = params.newName))
+            )
+        )
+    }
 
     override suspend fun textDocumentCodeAction(
         params: CodeActionParams
-    ): List<com.monkopedia.lsp.TextDocumentCodeActionResult> = listOf(
-        CodeAction(title = "Canned quick fix"),
-        Command(title = "Canned command", command = "conformance.command")
-    )
-
-    override suspend fun textDocumentCodeLens(params: CodeLensParams): List<CodeLens> = listOf(
-        CodeLens(
-            range = range(0),
-            command = Command(title = "Canned lens", command = "conformance.lens")
+    ): List<com.monkopedia.lsp.TextDocumentCodeActionResult> {
+        observeRequest(LanguageServer.TEXT_DOCUMENT_CODE_ACTION)
+        return listOf(
+            CodeAction(title = "Canned quick fix"),
+            Command(title = "Canned command", command = "conformance.command")
         )
-    )
+    }
 
-    override suspend fun textDocumentFoldingRange(params: FoldingRangeParams): List<FoldingRange> =
-        listOf(
+    override suspend fun textDocumentCodeLens(params: CodeLensParams): List<CodeLens> {
+        observeRequest(LanguageServer.TEXT_DOCUMENT_CODE_LENS)
+        return listOf(
+            CodeLens(
+                range = range(0),
+                command = Command(title = "Canned lens", command = "conformance.lens")
+            )
+        )
+    }
+
+    override suspend fun textDocumentFoldingRange(params: FoldingRangeParams): List<FoldingRange> {
+        observeRequest(LanguageServer.TEXT_DOCUMENT_FOLDING_RANGE)
+        return listOf(
             FoldingRange(startLine = 0u, endLine = 5u, kind = FoldingRangeKind.REGION)
         )
+    }
 
     override suspend fun textDocumentSemanticTokensFull(
         params: SemanticTokensParams
-    ): SemanticTokens = SemanticTokens(
-        resultId = "conformance-1",
-        data = listOf(0u, 0u, 4u, 0u, 0u)
-    )
-
-    override suspend fun textDocumentInlayHint(params: InlayHintParams): List<InlayHint> = listOf(
-        InlayHint(
-            position = pos(0, 4),
-            label = StringOr.StringValue(": Int")
+    ): SemanticTokens {
+        observeRequest(LanguageServer.TEXT_DOCUMENT_SEMANTIC_TOKENS_FULL)
+        return SemanticTokens(
+            resultId = "conformance-1",
+            data = listOf(0u, 0u, 4u, 0u, 0u)
         )
-    )
+    }
 
-    override suspend fun inlayHintResolve(params: InlayHint): InlayHint = params.copy(
-        tooltip = StringOr.StringValue("resolved tooltip")
-    )
+    override suspend fun textDocumentInlayHint(params: InlayHintParams): List<InlayHint> {
+        observeRequest(LanguageServer.TEXT_DOCUMENT_INLAY_HINT)
+        return listOf(
+            InlayHint(
+                position = pos(0, 4),
+                label = StringOr.StringValue(": Int")
+            )
+        )
+    }
+
+    override suspend fun inlayHintResolve(params: InlayHint): InlayHint {
+        observeRequest(LanguageServer.INLAY_HINT_RESOLVE)
+        return params.copy(
+            tooltip = StringOr.StringValue("resolved tooltip")
+        )
+    }
 
     override suspend fun textDocumentDocumentColor(
         params: DocumentColorParams
-    ): List<ColorInformation> = listOf(
-        ColorInformation(
-            range = range(0),
-            color = Color(red = 1.0, green = 0.0, blue = 0.0, alpha = 1.0)
+    ): List<ColorInformation> {
+        observeRequest(LanguageServer.TEXT_DOCUMENT_DOCUMENT_COLOR)
+        return listOf(
+            ColorInformation(
+                range = range(0),
+                color = Color(red = 1.0, green = 0.0, blue = 0.0, alpha = 1.0)
+            )
         )
-    )
+    }
 
     override suspend fun textDocumentColorPresentation(
         params: ColorPresentationParams
-    ): List<ColorPresentation> = listOf(
-        ColorPresentation(label = "red")
-    )
+    ): List<ColorPresentation> {
+        observeRequest(LanguageServer.TEXT_DOCUMENT_COLOR_PRESENTATION)
+        return listOf(
+            ColorPresentation(label = "red")
+        )
+    }
 
     override suspend fun textDocumentSelectionRange(
         params: SelectionRangeParams
-    ): List<SelectionRange> = listOf(
-        SelectionRange(range = range(0), parent = SelectionRange(range = range(0)))
-    )
+    ): List<SelectionRange> {
+        observeRequest(LanguageServer.TEXT_DOCUMENT_SELECTION_RANGE)
+        return listOf(
+            SelectionRange(range = range(0), parent = SelectionRange(range = range(0)))
+        )
+    }
 
-    override suspend fun textDocumentDocumentLink(params: DocumentLinkParams): List<DocumentLink> =
-        listOf(
+    override suspend fun textDocumentDocumentLink(params: DocumentLinkParams): List<DocumentLink> {
+        observeRequest(LanguageServer.TEXT_DOCUMENT_DOCUMENT_LINK)
+        return listOf(
             DocumentLink(range = range(0), target = "https://example.com/conformance")
         )
+    }
 
-    override suspend fun documentLinkResolve(params: DocumentLink): DocumentLink = params.copy(
-        tooltip = "resolved link tooltip"
-    )
+    override suspend fun documentLinkResolve(params: DocumentLink): DocumentLink {
+        observeRequest(LanguageServer.DOCUMENT_LINK_RESOLVE)
+        return params.copy(
+            tooltip = "resolved link tooltip"
+        )
+    }
 
     override suspend fun textDocumentRangeFormatting(
         params: DocumentRangeFormattingParams
-    ): List<TextEdit> = listOf(TextEdit(range = range(0), newText = "range-formatted\n"))
+    ): List<TextEdit> {
+        observeRequest(LanguageServer.TEXT_DOCUMENT_RANGE_FORMATTING)
+        return listOf(TextEdit(range = range(0), newText = "range-formatted\n"))
+    }
 
     override suspend fun textDocumentRangesFormatting(
         params: DocumentRangesFormattingParams
-    ): List<TextEdit> = listOf(TextEdit(range = range(0), newText = "ranges-formatted\n"))
+    ): List<TextEdit> {
+        observeRequest(LanguageServer.TEXT_DOCUMENT_RANGES_FORMATTING)
+        return listOf(TextEdit(range = range(0), newText = "ranges-formatted\n"))
+    }
 
     override suspend fun textDocumentOnTypeFormatting(
         params: DocumentOnTypeFormattingParams
-    ): List<TextEdit> = listOf(TextEdit(range = range(0), newText = "on-type-formatted\n"))
+    ): List<TextEdit> {
+        observeRequest(LanguageServer.TEXT_DOCUMENT_ON_TYPE_FORMATTING)
+        return listOf(TextEdit(range = range(0), newText = "on-type-formatted\n"))
+    }
 
     override suspend fun textDocumentPrepareRename(
         params: PrepareRenameParams
-    ): PrepareRenameResult = PrepareRenameResultRange(
-        range = range(params.position.line.toInt()),
-        placeholder = "newName"
-    )
+    ): PrepareRenameResult {
+        observeRequest(LanguageServer.TEXT_DOCUMENT_PREPARE_RENAME)
+        return PrepareRenameResultRange(
+            range = range(params.position.line.toInt()),
+            placeholder = "newName"
+        )
+    }
 
     override suspend fun textDocumentWillSaveWaitUntil(
         params: WillSaveTextDocumentParams
-    ): List<TextEdit> = listOf(TextEdit(range = range(0), newText = "// pre-save\n"))
+    ): List<TextEdit> {
+        observeRequest(LanguageServer.TEXT_DOCUMENT_WILL_SAVE_WAIT_UNTIL)
+        return listOf(TextEdit(range = range(0), newText = "// pre-save\n"))
+    }
 
-    override suspend fun completionItemResolve(params: CompletionItem): CompletionItem =
-        params.copy(detail = "resolved: ${params.label}")
+    override suspend fun completionItemResolve(params: CompletionItem): CompletionItem {
+        observeRequest(LanguageServer.COMPLETION_ITEM_RESOLVE)
+        return params.copy(detail = "resolved: ${params.label}")
+    }
 
-    override suspend fun codeActionResolve(params: CodeAction): CodeAction =
-        params.copy(isPreferred = true)
+    override suspend fun codeActionResolve(params: CodeAction): CodeAction {
+        observeRequest(LanguageServer.CODE_ACTION_RESOLVE)
+        return params.copy(isPreferred = true)
+    }
 
-    override suspend fun codeLensResolve(params: CodeLens): CodeLens = params.copy(
-        command = Command(title = "Resolved lens", command = "conformance.lens.resolved")
-    )
+    override suspend fun codeLensResolve(params: CodeLens): CodeLens {
+        observeRequest(LanguageServer.CODE_LENS_RESOLVE)
+        return params.copy(
+            command = Command(title = "Resolved lens", command = "conformance.lens.resolved")
+        )
+    }
 
     override suspend fun textDocumentSemanticTokensFullDelta(
         params: SemanticTokensDeltaParams
-    ): TextDocumentSemanticTokensFullDeltaResult = SemanticTokens(
-        resultId = "conformance-delta-${params.previousResultId}",
-        data = listOf(0u, 0u, 4u, 0u, 0u)
-    )
+    ): TextDocumentSemanticTokensFullDeltaResult {
+        observeRequest(LanguageServer.TEXT_DOCUMENT_SEMANTIC_TOKENS_FULL_DELTA)
+        return SemanticTokens(
+            resultId = "conformance-delta-${params.previousResultId}",
+            data = listOf(0u, 0u, 4u, 0u, 0u)
+        )
+    }
 
     override suspend fun textDocumentSemanticTokensRange(
         params: SemanticTokensRangeParams
-    ): SemanticTokens = SemanticTokens(
-        resultId = "conformance-range",
-        data = listOf(0u, 0u, 4u, 0u, 0u)
-    )
+    ): SemanticTokens {
+        observeRequest(LanguageServer.TEXT_DOCUMENT_SEMANTIC_TOKENS_RANGE)
+        return SemanticTokens(
+            resultId = "conformance-range",
+            data = listOf(0u, 0u, 4u, 0u, 0u)
+        )
+    }
 
     override suspend fun textDocumentLinkedEditingRange(
         params: LinkedEditingRangeParams
-    ): LinkedEditingRanges = LinkedEditingRanges(
-        ranges = listOf(range(0), range(1)),
-        wordPattern = "[a-zA-Z_][a-zA-Z0-9_]*"
-    )
-
-    override suspend fun textDocumentMoniker(params: MonikerParams): List<Moniker> = listOf(
-        Moniker(
-            scheme = "tsc",
-            identifier = "conformance#symbol",
-            unique = UniquenessLevel.SCHEME,
-            kind = MonikerKind.LOCAL
+    ): LinkedEditingRanges {
+        observeRequest(LanguageServer.TEXT_DOCUMENT_LINKED_EDITING_RANGE)
+        return LinkedEditingRanges(
+            ranges = listOf(range(0), range(1)),
+            wordPattern = "[a-zA-Z_][a-zA-Z0-9_]*"
         )
-    )
+    }
 
-    override suspend fun textDocumentInlineValue(params: InlineValueParams): List<InlineValue> =
-        listOf(InlineValueText(range = range(0), text = "42"))
+    override suspend fun textDocumentMoniker(params: MonikerParams): List<Moniker> {
+        observeRequest(LanguageServer.TEXT_DOCUMENT_MONIKER)
+        return listOf(
+            Moniker(
+                scheme = "tsc",
+                identifier = "conformance#symbol",
+                unique = UniquenessLevel.SCHEME,
+                kind = MonikerKind.LOCAL
+            )
+        )
+    }
+
+    override suspend fun textDocumentInlineValue(params: InlineValueParams): List<InlineValue> {
+        observeRequest(LanguageServer.TEXT_DOCUMENT_INLINE_VALUE)
+        return listOf(InlineValueText(range = range(0), text = "42"))
+    }
 
     override suspend fun textDocumentInlineCompletion(
         params: InlineCompletionParams
-    ): TextDocumentInlineCompletionResult =
-        TextDocumentInlineCompletionResult.InlineCompletionListValue(
+    ): TextDocumentInlineCompletionResult {
+        observeRequest(LanguageServer.TEXT_DOCUMENT_INLINE_COMPLETION)
+        return TextDocumentInlineCompletionResult.InlineCompletionListValue(
             InlineCompletionList(
                 items = listOf(
                     InlineCompletionItem(
@@ -745,74 +867,100 @@ open class ConformanceLanguageServer : DefaultLanguageServer() {
                 )
             )
         )
+    }
 
     override suspend fun textDocumentDiagnostic(
         params: DocumentDiagnosticParams
-    ): DocumentDiagnosticReport = RelatedFullDocumentDiagnosticReport(
-        kind = "full",
-        resultId = "conformance-doc-diag",
-        items = listOf(
-            Diagnostic(range = range(0), message = "canned doc diagnostic")
+    ): DocumentDiagnosticReport {
+        observeRequest(LanguageServer.TEXT_DOCUMENT_DIAGNOSTIC)
+        return RelatedFullDocumentDiagnosticReport(
+            kind = "full",
+            resultId = "conformance-doc-diag",
+            items = listOf(
+                Diagnostic(range = range(0), message = "canned doc diagnostic")
+            )
         )
-    )
+    }
 
     override suspend fun workspaceDiagnostic(
         params: WorkspaceDiagnosticParams
-    ): WorkspaceDiagnosticReport = WorkspaceDiagnosticReport(
-        items = listOf(
-            WorkspaceFullDocumentDiagnosticReport(
-                kind = "full",
-                resultId = "conformance-ws-diag",
-                items = listOf(
-                    Diagnostic(range = range(0), message = "canned workspace diagnostic")
-                ),
-                uri = Uri.MAIN,
-                version = 1
+    ): WorkspaceDiagnosticReport {
+        observeRequest(LanguageServer.WORKSPACE_DIAGNOSTIC)
+        return WorkspaceDiagnosticReport(
+            items = listOf(
+                WorkspaceFullDocumentDiagnosticReport(
+                    kind = "full",
+                    resultId = "conformance-ws-diag",
+                    items = listOf(
+                        Diagnostic(range = range(0), message = "canned workspace diagnostic")
+                    ),
+                    uri = Uri.MAIN,
+                    version = 1
+                )
             )
         )
-    )
+    }
 
     // ---- Call hierarchy ----
 
     override suspend fun textDocumentPrepareCallHierarchy(
         params: CallHierarchyPrepareParams
-    ): List<CallHierarchyItem> = listOf(callHierarchyItem("preparedCall"))
+    ): List<CallHierarchyItem> {
+        observeRequest(LanguageServer.TEXT_DOCUMENT_PREPARE_CALL_HIERARCHY)
+        return listOf(callHierarchyItem("preparedCall"))
+    }
 
     override suspend fun callHierarchyIncomingCalls(
         params: CallHierarchyIncomingCallsParams
-    ): List<CallHierarchyIncomingCall> = listOf(
-        CallHierarchyIncomingCall(
-            from = callHierarchyItem("incomingCaller"),
-            fromRanges = listOf(range(0))
+    ): List<CallHierarchyIncomingCall> {
+        observeRequest(LanguageServer.CALL_HIERARCHY_INCOMING_CALLS)
+        return listOf(
+            CallHierarchyIncomingCall(
+                from = callHierarchyItem("incomingCaller"),
+                fromRanges = listOf(range(0))
+            )
         )
-    )
+    }
 
     override suspend fun callHierarchyOutgoingCalls(
         params: CallHierarchyOutgoingCallsParams
-    ): List<CallHierarchyOutgoingCall> = listOf(
-        CallHierarchyOutgoingCall(
-            to = callHierarchyItem("outgoingCallee"),
-            fromRanges = listOf(range(0))
+    ): List<CallHierarchyOutgoingCall> {
+        observeRequest(LanguageServer.CALL_HIERARCHY_OUTGOING_CALLS)
+        return listOf(
+            CallHierarchyOutgoingCall(
+                to = callHierarchyItem("outgoingCallee"),
+                fromRanges = listOf(range(0))
+            )
         )
-    )
+    }
 
     // ---- Type hierarchy ----
 
     override suspend fun textDocumentPrepareTypeHierarchy(
         params: TypeHierarchyPrepareParams
-    ): List<TypeHierarchyItem> = listOf(typeHierarchyItem("preparedType"))
+    ): List<TypeHierarchyItem> {
+        observeRequest(LanguageServer.TEXT_DOCUMENT_PREPARE_TYPE_HIERARCHY)
+        return listOf(typeHierarchyItem("preparedType"))
+    }
 
     override suspend fun typeHierarchySupertypes(
         params: TypeHierarchySupertypesParams
-    ): List<TypeHierarchyItem> = listOf(typeHierarchyItem("Supertype"))
+    ): List<TypeHierarchyItem> {
+        observeRequest(LanguageServer.TYPE_HIERARCHY_SUPERTYPES)
+        return listOf(typeHierarchyItem("Supertype"))
+    }
 
     override suspend fun typeHierarchySubtypes(
         params: TypeHierarchySubtypesParams
-    ): List<TypeHierarchyItem> = listOf(typeHierarchyItem("Subtype"))
+    ): List<TypeHierarchyItem> {
+        observeRequest(LanguageServer.TYPE_HIERARCHY_SUBTYPES)
+        return listOf(typeHierarchyItem("Subtype"))
+    }
 
     // ---- Workspace operations ----
 
     override suspend fun workspaceSymbol(params: WorkspaceSymbolParams): LSPAny {
+        observeRequest(LanguageServer.WORKSPACE_SYMBOL)
         // workspace/symbol's result is a JsonElement union (SymbolInformation[] |
         // WorkspaceSymbol[]). Emit a SymbolInformation[] for simplicity — lsp4j
         // accepts it.
@@ -851,35 +999,45 @@ open class ConformanceLanguageServer : DefaultLanguageServer() {
         }
     }
 
-    override suspend fun workspaceSymbolResolve(params: WorkspaceSymbol): WorkspaceSymbol =
-        params.copy(containerName = "resolved")
+    override suspend fun workspaceSymbolResolve(params: WorkspaceSymbol): WorkspaceSymbol {
+        observeRequest(LanguageServer.WORKSPACE_SYMBOL_RESOLVE)
+        return params.copy(containerName = "resolved")
+    }
 
-    override suspend fun workspaceExecuteCommand(params: ExecuteCommandParams): LSPAny =
-        buildJsonObject {
+    override suspend fun workspaceExecuteCommand(params: ExecuteCommandParams): LSPAny {
+        observeRequest(LanguageServer.WORKSPACE_EXECUTE_COMMAND)
+        return buildJsonObject {
             put("command", JsonPrimitive(params.command))
             put("status", JsonPrimitive("ok"))
         }
+    }
 
-    override suspend fun workspaceWillCreateFiles(params: CreateFilesParams): WorkspaceEdit =
-        WorkspaceEdit(
+    override suspend fun workspaceWillCreateFiles(params: CreateFilesParams): WorkspaceEdit {
+        observeRequest(LanguageServer.WORKSPACE_WILL_CREATE_FILES)
+        return WorkspaceEdit(
             changes = mapOf(
                 Uri.MAIN to listOf(TextEdit(range = range(0), newText = "// will-create\n"))
             )
         )
+    }
 
-    override suspend fun workspaceWillRenameFiles(params: RenameFilesParams): WorkspaceEdit =
-        WorkspaceEdit(
+    override suspend fun workspaceWillRenameFiles(params: RenameFilesParams): WorkspaceEdit {
+        observeRequest(LanguageServer.WORKSPACE_WILL_RENAME_FILES)
+        return WorkspaceEdit(
             changes = mapOf(
                 Uri.MAIN to listOf(TextEdit(range = range(0), newText = "// will-rename\n"))
             )
         )
+    }
 
-    override suspend fun workspaceWillDeleteFiles(params: DeleteFilesParams): WorkspaceEdit =
-        WorkspaceEdit(
+    override suspend fun workspaceWillDeleteFiles(params: DeleteFilesParams): WorkspaceEdit {
+        observeRequest(LanguageServer.WORKSPACE_WILL_DELETE_FILES)
+        return WorkspaceEdit(
             changes = mapOf(
                 Uri.MAIN to listOf(TextEdit(range = range(0), newText = "// will-delete\n"))
             )
         )
+    }
 
     private fun callHierarchyItem(name: String): CallHierarchyItem = CallHierarchyItem(
         name = name,
@@ -1184,6 +1342,17 @@ open class ConformanceLanguageServer : DefaultLanguageServer() {
             LogMessageParams(type = MessageType.LOG, message = "conformance log")
         )
         recordClientCall(ClientMethods.WINDOW_LOG_MESSAGE)
+
+        // textDocument/publishDiagnostics (notification)
+        c.textDocumentPublishDiagnostics(
+            PublishDiagnosticsParams(
+                uri = Uri.MAIN,
+                diagnostics = listOf(
+                    Diagnostic(range = range(0), message = "trigger diagnostic")
+                )
+            )
+        )
+        recordClientCall(ClientMethods.TEXT_DOCUMENT_PUBLISH_DIAGNOSTICS)
     }
 
     private suspend fun recordClientCall(method: String) {

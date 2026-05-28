@@ -20,6 +20,7 @@ import com.monkopedia.lsp.ApplyWorkspaceEditResult
 import com.monkopedia.lsp.ConfigurationParams
 import com.monkopedia.lsp.DefaultLanguageClient
 import com.monkopedia.lsp.LSPAny
+import com.monkopedia.lsp.LanguageClient
 import com.monkopedia.lsp.LogMessageParams
 import com.monkopedia.lsp.LogTraceParams
 import com.monkopedia.lsp.MessageActionItem
@@ -195,36 +196,43 @@ open class ConformanceLanguageClient : DefaultLanguageClient() {
     val logTraceFlow: SharedFlow<LogTraceParams> get() = _logTraceFlow
 
     override suspend fun windowShowMessage(params: ShowMessageParams) {
+        observe(LanguageClient.WINDOW_SHOW_MESSAGE)
         _showMessages += params
         _showMessageFlow.emit(params)
     }
 
     override suspend fun windowLogMessage(params: LogMessageParams) {
+        observe(LanguageClient.WINDOW_LOG_MESSAGE)
         _logMessages += params
         _logMessageFlow.emit(params)
     }
 
     override suspend fun textDocumentPublishDiagnostics(params: PublishDiagnosticsParams) {
+        observe(LanguageClient.TEXT_DOCUMENT_PUBLISH_DIAGNOSTICS)
         _publishedDiagnostics += params
         _diagnosticsFlow.emit(params)
     }
 
     override suspend fun progress(params: ProgressParams) {
+        observe(LanguageClient.PROGRESS)
         _progressNotifications += params
         _progressFlow.emit(params)
     }
 
     override suspend fun telemetryEvent(params: LSPAny) {
+        observe(LanguageClient.TELEMETRY_EVENT)
         _telemetryEvents += params
         _telemetryEventFlow.emit(params)
     }
 
     override suspend fun logTrace(params: LogTraceParams) {
+        observe(LanguageClient.LOG_TRACE)
         _logTraces += params
         _logTraceFlow.emit(params)
     }
 
     override suspend fun workspaceConfiguration(params: ConfigurationParams): List<LSPAny> {
+        observe(LanguageClient.WORKSPACE_CONFIGURATION)
         _configurationRequests += params
         // Deterministic canned response: one JsonNull per requested item so the
         // shape (a list of LSPAny) round-trips and tests can count items.
@@ -232,6 +240,7 @@ open class ConformanceLanguageClient : DefaultLanguageClient() {
     }
 
     override suspend fun workspaceWorkspaceFolders(): List<WorkspaceFolder> {
+        observe(LanguageClient.WORKSPACE_WORKSPACE_FOLDERS)
         _workspaceFoldersRequestCount += 1
         return listOf(DEFAULT_FOLDER)
     }
@@ -239,6 +248,7 @@ open class ConformanceLanguageClient : DefaultLanguageClient() {
     override suspend fun workspaceApplyEdit(
         params: ApplyWorkspaceEditParams
     ): ApplyWorkspaceEditResult {
+        observe(LanguageClient.WORKSPACE_APPLY_EDIT)
         _applyEditRequests += params
         return ApplyWorkspaceEditResult(applied = true)
     }
@@ -246,21 +256,25 @@ open class ConformanceLanguageClient : DefaultLanguageClient() {
     override suspend fun windowShowMessageRequest(
         params: ShowMessageRequestParams
     ): MessageActionItem {
+        observe(LanguageClient.WINDOW_SHOW_MESSAGE_REQUEST)
         _showMessageRequests += params
         return params.actions?.firstOrNull() ?: DEFAULT_MESSAGE_ACTION
     }
 
     override suspend fun windowShowDocument(params: ShowDocumentParams): ShowDocumentResult {
+        observe(LanguageClient.WINDOW_SHOW_DOCUMENT)
         _showDocumentRequests += params
         return ShowDocumentResult(success = true)
     }
 
     override suspend fun clientRegisterCapability(params: RegistrationParams): Nothing? {
+        observe(LanguageClient.CLIENT_REGISTER_CAPABILITY)
         _registerCapabilityRequests += params
         return null
     }
 
     override suspend fun clientUnregisterCapability(params: UnregistrationParams): Nothing? {
+        observe(LanguageClient.CLIENT_UNREGISTER_CAPABILITY)
         _unregisterCapabilityRequests += params
         return null
     }
@@ -268,38 +282,56 @@ open class ConformanceLanguageClient : DefaultLanguageClient() {
     override suspend fun windowWorkDoneProgressCreate(
         params: WorkDoneProgressCreateParams
     ): Nothing? {
+        observe(LanguageClient.WINDOW_WORK_DONE_PROGRESS_CREATE)
         _workDoneProgressCreateRequests += params
         return null
     }
 
     override suspend fun workspaceCodeLensRefresh(): Nothing? {
+        observe(LanguageClient.WORKSPACE_CODE_LENS_REFRESH)
         _refreshCalls += "workspace/codeLens/refresh"
         return null
     }
 
     override suspend fun workspaceSemanticTokensRefresh(): Nothing? {
+        observe(LanguageClient.WORKSPACE_SEMANTIC_TOKENS_REFRESH)
         _refreshCalls += "workspace/semanticTokens/refresh"
         return null
     }
 
     override suspend fun workspaceInlayHintRefresh(): Nothing? {
+        observe(LanguageClient.WORKSPACE_INLAY_HINT_REFRESH)
         _refreshCalls += "workspace/inlayHint/refresh"
         return null
     }
 
     override suspend fun workspaceInlineValueRefresh(): Nothing? {
+        observe(LanguageClient.WORKSPACE_INLINE_VALUE_REFRESH)
         _refreshCalls += "workspace/inlineValue/refresh"
         return null
     }
 
     override suspend fun workspaceDiagnosticRefresh(): Nothing? {
+        observe(LanguageClient.WORKSPACE_DIAGNOSTIC_REFRESH)
         _refreshCalls += "workspace/diagnostic/refresh"
         return null
     }
 
     override suspend fun workspaceFoldingRangeRefresh(): Nothing? {
+        observe(LanguageClient.WORKSPACE_FOLDING_RANGE_REFRESH)
         _refreshCalls += "workspace/foldingRange/refresh"
         return null
+    }
+
+    /**
+     * Wire-coverage observation hook (issue #66). Fires into the shared
+     * [ConformanceWireRecorder] so the JVM coverage tracker can record every
+     * client-side method that arrived over the wire. Defaults to a no-op on
+     * targets that haven't installed a recorder, keeping the fixture's public
+     * contract unchanged.
+     */
+    private fun observe(method: String) {
+        ConformanceWireRecorder.observeClient(method)
     }
 
     companion object {

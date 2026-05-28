@@ -1,0 +1,114 @@
+# Wire-coverage baseline (issue #66).
+#
+# Edit by re-running ./gradlew :lsp-ksrpc:jvmTest -Plsp.requireIntegrationTests=true
+# and copying the per-method coverage from the produced report at
+# lsp-ksrpc/build/reports/wire-coverage.md. Each `server: <wire/name>` /
+# `client: <wire/name>` line records a method the suite MUST keep exercising;
+# the test fails the build if any drops out.
+#
+# The two `*-total:` lines anchor the surface size — adding a method to
+# LanguageServer / LanguageClient without driving it from the conformance
+# fixture also fails the build, surfacing the gap right away rather than
+# silently shipping uncovered wire.
+
+server-total: 73
+client-total: 20
+
+# ---- Server-side methods (received from client) ----
+
+server: $/progress
+server: $/setTrace
+server: callHierarchy/incomingCalls
+server: callHierarchy/outgoingCalls
+server: codeAction/resolve
+server: codeLens/resolve
+server: completionItem/resolve
+server: documentLink/resolve
+server: exit
+server: initialize
+server: initialized
+server: inlayHint/resolve
+server: notebookDocument/didChange
+server: notebookDocument/didClose
+server: notebookDocument/didOpen
+server: notebookDocument/didSave
+server: shutdown
+server: textDocument/codeAction
+server: textDocument/codeLens
+server: textDocument/colorPresentation
+server: textDocument/completion
+server: textDocument/declaration
+server: textDocument/definition
+server: textDocument/diagnostic
+server: textDocument/didChange
+server: textDocument/didClose
+server: textDocument/didOpen
+server: textDocument/didSave
+server: textDocument/documentColor
+server: textDocument/documentHighlight
+server: textDocument/documentLink
+server: textDocument/documentSymbol
+server: textDocument/foldingRange
+server: textDocument/formatting
+server: textDocument/hover
+server: textDocument/implementation
+server: textDocument/inlayHint
+server: textDocument/inlineCompletion
+server: textDocument/inlineValue
+server: textDocument/linkedEditingRange
+server: textDocument/moniker
+server: textDocument/onTypeFormatting
+server: textDocument/prepareCallHierarchy
+server: textDocument/prepareRename
+server: textDocument/prepareTypeHierarchy
+server: textDocument/rangeFormatting
+server: textDocument/rangesFormatting
+server: textDocument/references
+server: textDocument/rename
+server: textDocument/selectionRange
+server: textDocument/semanticTokens/full
+server: textDocument/semanticTokens/full/delta
+server: textDocument/semanticTokens/range
+server: textDocument/signatureHelp
+server: textDocument/typeDefinition
+server: textDocument/willSave
+server: textDocument/willSaveWaitUntil
+server: typeHierarchy/subtypes
+server: typeHierarchy/supertypes
+server: window/workDoneProgress/cancel
+server: workspace/diagnostic
+server: workspace/didChangeConfiguration
+server: workspace/didChangeWatchedFiles
+server: workspace/didChangeWorkspaceFolders
+server: workspace/didCreateFiles
+server: workspace/didDeleteFiles
+server: workspace/didRenameFiles
+server: workspace/executeCommand
+server: workspace/symbol
+server: workspace/willCreateFiles
+server: workspace/willDeleteFiles
+server: workspace/willRenameFiles
+server: workspaceSymbol/resolve
+
+# ---- Client-side methods (server-initiated) ----
+
+client: $/logTrace
+client: $/progress
+client: client/registerCapability
+client: client/unregisterCapability
+client: telemetry/event
+client: textDocument/publishDiagnostics
+client: window/logMessage
+client: window/showDocument
+client: window/showMessage
+client: window/showMessageRequest
+client: window/workDoneProgress/create
+client: workspace/applyEdit
+client: workspace/codeLens/refresh
+client: workspace/configuration
+client: workspace/diagnostic/refresh
+client: workspace/foldingRange/refresh
+client: workspace/inlayHint/refresh
+client: workspace/inlineValue/refresh
+client: workspace/semanticTokens/refresh
+client: workspace/workspaceFolders
