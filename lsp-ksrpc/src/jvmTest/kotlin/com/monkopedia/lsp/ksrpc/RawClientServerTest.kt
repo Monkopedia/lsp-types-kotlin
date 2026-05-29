@@ -42,7 +42,7 @@ import kotlinx.serialization.json.jsonPrimitive
  * is gated on the install having been built, so running just this test in
  * isolation requires `./gradlew :samples:echo-server:installDist` first.
  */
-class RawClientServerTest {
+class RawClientServerTest : JvmIntegrationTestBase() {
 
     private val json = Json { ignoreUnknownKeys = true }
 

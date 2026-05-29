@@ -122,6 +122,7 @@ import com.monkopedia.lsp.WorkspaceFolder
 import com.monkopedia.lsp.WorkspaceFoldersChangeEvent
 import com.monkopedia.lsp.WorkspaceSymbol
 import com.monkopedia.lsp.WorkspaceSymbolParams
+import com.monkopedia.lsp.ksrpc.JvmIntegrationTestBase
 import com.monkopedia.lsp.ksrpc.asLspConnection
 import com.monkopedia.lsp.ksrpc.connectAsLspClient
 import com.monkopedia.lsp.ksrpc.connectAsLspServer
@@ -192,7 +193,7 @@ import org.junit.runners.Parameterized
 class TransportMatrixIntegrationTest(
     @Suppress("unused") private val transportName: String,
     private val transport: Transport
-) {
+) : JvmIntegrationTestBase() {
 
     @org.junit.Test
     fun `lifecycle and representative typed methods round-trip identically`() =

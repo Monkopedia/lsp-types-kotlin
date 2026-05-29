@@ -56,7 +56,7 @@ import kotlinx.coroutines.withTimeout
  * pattern used by ksrpc's own JSON-RPC tests — the server's receiver coroutine
  * runs independently and is shut down by closing the channels.
  */
-class InMemoryLspIntegrationTest {
+class InMemoryLspIntegrationTest : JvmIntegrationTestBase() {
 
     @Test
     fun `client initialize round-trips through the connection`() = runBlocking(Dispatchers.IO) {

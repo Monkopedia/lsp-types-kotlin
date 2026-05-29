@@ -46,7 +46,7 @@ import org.eclipse.lsp4j.services.LanguageClient
  * like." Driving lsp4j proves it parses what a battle-tested third-party
  * client actually sends.
  */
-class Lsp4jClientIntegrationTest {
+class Lsp4jClientIntegrationTest : JvmIntegrationTestBase() {
 
     @Test
     fun `lsp4j client drives echo-server through hover round-trip`() {

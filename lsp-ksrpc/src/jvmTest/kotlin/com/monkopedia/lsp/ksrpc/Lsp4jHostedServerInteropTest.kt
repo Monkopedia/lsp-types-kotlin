@@ -96,7 +96,7 @@ import org.eclipse.lsp4j.services.WorkspaceService
  *
  * Every call is bounded by a [withTimeout] so a stall fails fast.
  */
-class Lsp4jHostedServerInteropTest {
+class Lsp4jHostedServerInteropTest : JvmIntegrationTestBase() {
 
     @Test
     fun `our client parses every union branch a real lsp4j server emits`() = runBlocking(
