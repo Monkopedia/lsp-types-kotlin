@@ -27,7 +27,12 @@ import com.monkopedia.lsp.TextDocumentItem
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertNotNull
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 
@@ -44,6 +49,12 @@ class RealServerIntegrationTest : JvmIntegrationTestBase() {
     fun `clangd handles initialize and shutdown`() {
         requireOrSkip("clangd not on PATH", isOnPath("clangd"))
         runBlocking(Dispatchers.IO) {
+            driveBounded { driveClangd() }
+        }
+    }
+
+    private suspend fun driveClangd() {
+        run {
             val client = object : DefaultLanguageClient() {
                 override suspend fun windowLogMessage(params: LogMessageParams) = Unit
                 override suspend fun windowShowMessage(params: ShowMessageParams) = Unit
@@ -110,15 +121,48 @@ class RealServerIntegrationTest : JvmIntegrationTestBase() {
                     // exit is a notification; server may close before we send it.
                 }
             } finally {
-                // Close the streams and tear down the process so the receiver
-                // coroutines (running on GlobalScope) can exit and the test can
-                // actually terminate.
+                // Close the streams and tear down the process so the connection's
+                // read pump sees EOF and the test can terminate. The pump itself is
+                // hosted in a detached scope by driveBounded (issue #79), so even if
+                // it does not unwind here it cannot wedge the worker JVM.
                 runCatching { process.outputStream.close() }
                 runCatching { process.inputStream.close() }
                 if (!process.waitFor(2, java.util.concurrent.TimeUnit.SECONDS)) {
                     process.destroyForcibly()
                 }
             }
+        }
+    }
+
+    /**
+     * Host [block] (which opens an LSP connection via `asLspConnection`) in a scope
+     * **detached** from the enclosing `runBlocking`, and let `runBlocking` await only
+     * a [CompletableDeferred] signalling the block's own completion — never the scope's
+     * [Job] (issue #79).
+     *
+     * `asLspConnection` parents its stdout-pump / ksrpc serve loop to the caller's
+     * coroutine context. Driving clangd directly inside `runBlocking` would make those
+     * pumps descendants of the `runBlocking` job; a server killed mid-stream can leave a
+     * pump parked on a read that never closes, and structured concurrency would then keep
+     * `runBlocking` parked on it forever — the #79 wedge. Awaiting a detached completion
+     * signal instead lets `runBlocking` return as soon as the drive finishes; the scope is
+     * cancelled best-effort and any lingering daemon-thread pump can no longer block exit.
+     */
+    private suspend fun driveBounded(block: suspend () -> Unit) {
+        val driveScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+        val done = CompletableDeferred<Unit>()
+        driveScope.launch {
+            try {
+                block()
+                done.complete(Unit)
+            } catch (t: Throwable) {
+                done.completeExceptionally(t)
+            }
+        }
+        try {
+            done.await()
+        } finally {
+            driveScope.cancel()
         }
     }
 

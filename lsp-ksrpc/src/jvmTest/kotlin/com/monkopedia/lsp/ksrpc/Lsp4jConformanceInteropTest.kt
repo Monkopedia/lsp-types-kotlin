@@ -69,7 +69,6 @@ import org.eclipse.lsp4j.UnregistrationParams
 import org.eclipse.lsp4j.WorkDoneProgressCreateParams
 import org.eclipse.lsp4j.WorkDoneProgressNotification
 import org.eclipse.lsp4j.WorkspaceFolder
-import org.eclipse.lsp4j.launch.LSPLauncher
 import org.eclipse.lsp4j.services.LanguageClient
 
 /**
@@ -101,8 +100,17 @@ class Lsp4jConformanceInteropTest : JvmIntegrationTestBase() {
     private var serverJob: Job? = null
     private val pipes = mutableListOf<java.io.Closeable>()
 
+    // lsp4j launchers spin up a reader thread on an ExecutorService; the default
+    // executor's threads are non-daemon and the reader can block forever on a
+    // non-interruptible pipe read, so `listening.cancel(true)` alone does not free
+    // them. DaemonLsp4jLauncher backs the reader with daemon threads and we
+    // additionally shut its executor down here, so no lsp4j thread outlives the
+    // test (issue #79).
+    private val launchers = mutableListOf<DaemonLsp4jLauncher<*>>()
+
     @AfterTest
     fun tearDown() {
+        launchers.forEach { it.shutdown() }
         serverJob?.cancel()
         pipes.forEach { runCatching { it.close() } }
         scope.cancel()
@@ -143,12 +151,11 @@ class Lsp4jConformanceInteropTest : JvmIntegrationTestBase() {
             connection.connectAsLspServer(fixture)
         }
 
-        val client = RecordingClient()
-        val launcher = LSPLauncher.createClientLauncher(
-            client,
+        val launcher = DaemonLsp4jLauncher.createClientLauncher(
+            RecordingClient(),
             serverToClientSource,
             clientToServerSink
-        )
+        ).also { launchers += it }
         val listening = launcher.startListening()
         val server = launcher.remoteProxy
 
@@ -624,11 +631,11 @@ class Lsp4jConformanceInteropTest : JvmIntegrationTestBase() {
         }
 
         val client = RecordingClient()
-        val launcher = LSPLauncher.createClientLauncher(
+        val launcher = DaemonLsp4jLauncher.createClientLauncher(
             client,
             serverToClientSource,
             clientToServerSink
-        )
+        ).also { launchers += it }
         val listening = launcher.startListening()
         val server = launcher.remoteProxy
 
@@ -699,11 +706,11 @@ class Lsp4jConformanceInteropTest : JvmIntegrationTestBase() {
         }
 
         val client = RecordingClient()
-        val launcher = LSPLauncher.createClientLauncher(
+        val launcher = DaemonLsp4jLauncher.createClientLauncher(
             client,
             serverToClientSource,
             clientToServerSink
-        )
+        ).also { launchers += it }
         val listening = launcher.startListening()
         val server = launcher.remoteProxy
 
