@@ -32,7 +32,6 @@ import org.eclipse.lsp4j.PublishDiagnosticsParams
 import org.eclipse.lsp4j.ShowMessageRequestParams
 import org.eclipse.lsp4j.TextDocumentIdentifier
 import org.eclipse.lsp4j.TextDocumentItem
-import org.eclipse.lsp4j.launch.LSPLauncher
 import org.eclipse.lsp4j.services.LanguageClient
 
 /**
@@ -66,13 +65,12 @@ class Lsp4jClientIntegrationTest : JvmIntegrationTestBase() {
             .also { it.environment()["JAVA_HOME"] = System.getProperty("java.home") }
             .start()
 
+        val launcher = DaemonLsp4jLauncher.createClientLauncher(
+            TestClient(),
+            process.inputStream,
+            process.outputStream
+        )
         try {
-            val client = TestClient()
-            val launcher = LSPLauncher.createClientLauncher(
-                client,
-                process.inputStream,
-                process.outputStream
-            )
             val listening = launcher.startListening()
             val server = launcher.remoteProxy
 
@@ -118,6 +116,9 @@ class Lsp4jClientIntegrationTest : JvmIntegrationTestBase() {
             }
             listening.cancel(true)
         } finally {
+            // Stop the daemon-backed reader executor first so no lsp4j thread can
+            // outlive the test (issue #79), then close streams / kill the process.
+            launcher.shutdown()
             runCatching { process.outputStream.close() }
             runCatching { process.inputStream.close() }
             if (!process.waitFor(2, TimeUnit.SECONDS)) {
