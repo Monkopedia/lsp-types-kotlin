@@ -50,21 +50,23 @@ import kotlinx.coroutines.withTimeout
  *
  * The original ambition for #47 was a native client driving an external server
  * (e.g. `clangd`) over a posix-stdio pipe and tearing the child down with a
- * process kill. That path is **blocked on #201 (ksrpc) / our #53**: the only
- * native posix-fd byte-channel primitive (ksrpc-sockets `posixFileReadChannel`)
- * reads on a dedicated thread blocked in a `read(2)` syscall that is **not**
- * coroutine-cancellable — a `withTimeout` cannot unblock it — and on EOF it
- * busy-loops rather than terminating. lsp-ksrpc also exposes no native
- * process-spawn surface (`ProcessBuilder.asLspConnection` is JVM-only). A native
- * round-trip built on that primitive can hang the build on teardown, which is
- * explicitly disallowed.
+ * process kill. The posix-fd read primitive (ksrpc-sockets
+ * `posixFileReadChannel`) historically **busy-looped on EOF** instead of
+ * terminating, which wedged teardown — that was the core of our #53. ksrpc
+ * 1.1.0 ships the #201 fix (EOF now breaks the reader loop); see
+ * [PosixStdioTeardownNativeTest] for a bounded test that drives a real posix
+ * pipe round-trip and asserts the reader terminates on EOF. The remaining gap
+ * to a full external-process integration is that lsp-ksrpc still exposes no
+ * native process-spawn surface (`ProcessBuilder.asLspConnection` is JVM-only),
+ * so there is no native API to launch and kill a child server yet (#47's native
+ * leg).
  *
- * This test therefore uses ktor in-memory [ByteChannel]s, which carry the exact
- * same jsonrpc wire bytes but are fully coroutine-driven: teardown is a channel
- * close plus a scope cancel, with no blocking syscall, so it terminates
+ * This test uses ktor in-memory [ByteChannel]s, which carry the exact same
+ * jsonrpc wire bytes but are fully coroutine-driven: teardown is a channel close
+ * plus a scope cancel, with no blocking syscall, so it terminates
  * deterministically and can never hang `allTests`. It proves the native
- * transport carries a real LSP round-trip; the external-process posix-stdio leg
- * remains tracked under #201/#53.
+ * transport carries a real LSP round-trip; [PosixStdioTeardownNativeTest]
+ * separately proves the posix-fd primitive now tears down cleanly.
  */
 class NativeStdioSmokeTest {
 

@@ -39,12 +39,18 @@ import com.monkopedia.lsp.TextDocumentDocumentSymbolResult
 import com.monkopedia.lsp.TextDocumentIdentifier
 import com.monkopedia.lsp.TextDocumentItem
 import java.io.File
+import java.net.URI
 import java.util.concurrent.TimeUnit
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 
@@ -165,13 +171,58 @@ class RealServerClientRoleTest : JvmIntegrationTestBase() {
         // (timeout, dead server, missing structure) skips cleanly. With the flag
         // ON — the dedicated job where servers are guaranteed usable — it's a
         // hard failure.
-        val failure = runCatching { runBlocking(Dispatchers.IO) { driveServer(spec) } }
+        val failure = runCatching { runBlocking(Dispatchers.IO) { driveServerBounded(spec) } }
             .exceptionOrNull()
         if (failure != null) {
             requireRealServerOrSkip(
                 "${spec.binary} did not complete the client-role drive: $failure",
                 condition = false
             )
+        }
+    }
+
+    /**
+     * Run [driveServer] in a scope **detached** from the enclosing `runBlocking`,
+     * observe its completion via a [CompletableDeferred], and never join that scope
+     * unbounded (issue #79).
+     *
+     * `asLspConnection` parents the connection's stdout-pump (and ksrpc's serve
+     * loop) to the *caller's* coroutine context. If we drove the server directly
+     * inside `runBlocking`, those pump coroutines would be descendants of the
+     * `runBlocking` job — and a real LSP server killed mid-stream can leave a pump
+     * parked on a read of the (now-dead) process stream that never closes. Under
+     * structured concurrency `runBlocking` (and any `launch`/`async` we `join`/
+     * `await`) does not complete until *all* its child coroutines do, so it would
+     * wait on that pump forever and wedge the test-worker JVM. That is exactly the
+     * intermittent `:lsp-ksrpc:jvmTest` hang #79 (the captured thread dump shows the
+     * non-daemon `Test worker` parked in `runBlocking.joinBlocking`).
+     *
+     * The fix: host the drive in a detached [SupervisorJob] scope and have
+     * `runBlocking` await *only* a [CompletableDeferred] that the drive coroutine
+     * completes when its own body returns — never the scope's [Job]. As soon as the
+     * drive logic finishes (success or failure), `runBlocking` returns; the detached
+     * scope is then cancelled best-effort and abandoned without an unbounded join.
+     * Any lingering pump runs on a daemon `Dispatchers.IO` thread and so can no
+     * longer keep the worker JVM alive. Mirrors the detached-scope + bounded teardown
+     * shape proven in `TransportMatrixIntegrationTest`.
+     */
+    private suspend fun driveServerBounded(spec: ServerSpec) {
+        val driveScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+        val done = CompletableDeferred<Unit>()
+        driveScope.launch {
+            try {
+                driveServer(spec)
+                done.complete(Unit)
+            } catch (t: Throwable) {
+                done.completeExceptionally(t)
+            }
+        }
+        try {
+            // Await ONLY the drive's own completion signal — NOT the launch job or
+            // driveScope, whose children include the (possibly wedged) pump.
+            done.await()
+        } finally {
+            driveScope.cancel()
         }
     }
 
@@ -186,7 +237,11 @@ class RealServerClientRoleTest : JvmIntegrationTestBase() {
         val workspace = fixtureDir(spec.fixtureDir)
         val sourceFile = File(workspace, spec.fixtureFile)
         assertTrue(sourceFile.exists(), "fixture missing: ${sourceFile.path}")
-        val uri = sourceFile.toURI().toString()
+        val uri = fileUri(sourceFile)
+        assertTrue(
+            uri.startsWith("file:///"),
+            "${spec.binary}: document uri must be canonical file:///, got $uri"
+        )
 
         val process = ProcessBuilder(spec.command)
             .redirectInput(ProcessBuilder.Redirect.PIPE)
@@ -214,12 +269,17 @@ class RealServerClientRoleTest : JvmIntegrationTestBase() {
             // Hard upper bound on the initialize→query drive so a server that
             // indexes very slowly (or never answers) fails THIS test fast
             // instead of hanging the suite.
+            val rootUri = fileUri(workspace).trimEnd('/')
+            assertTrue(
+                rootUri.startsWith("file:///"),
+                "${spec.binary}: rootUri must be canonical file:///, got $rootUri"
+            )
             withTimeout(spec.budgetMillis) {
                 val initResult = server.initialize(
                     InitializeParams(
                         capabilities = ClientCapabilities(),
                         processId = ProcessHandle.current().pid().toInt(),
-                        rootUri = workspace.toURI().toString().trimEnd('/')
+                        rootUri = rootUri
                     )
                 )
                 assertNotNull(initResult, "${spec.binary}: null initialize result")
@@ -418,6 +478,18 @@ private fun fixtureDir(relative: String): File {
     }
     error("fixture '$relative' not found in any of: ${candidates.joinToString()}")
 }
+
+/**
+ * Build the canonical LSP `file:///<absolute-path>` URI for [file].
+ *
+ * Java's [File.toURI] emits the non-canonical single-slash, no-authority form
+ * (`file:/home/...`), which ksrpc-jsonrpc's DocumentUri parser rejects and which
+ * trips servers like gopls that echo the workspace-folder URI back verbatim.
+ * Constructing the URI with an explicit empty authority yields the triple-slash
+ * form real editors send (`file:///home/...`), with proper percent-encoding of
+ * any special characters in the path.
+ */
+private fun fileUri(file: File): String = URI("file", "", file.absoluteFile.path, null).toString()
 
 private fun isOnPath(binary: String): Boolean {
     val path = System.getenv("PATH") ?: return false

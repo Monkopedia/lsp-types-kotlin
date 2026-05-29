@@ -73,14 +73,13 @@ import org.eclipse.lsp4j.ServerInfo
 import org.eclipse.lsp4j.SymbolInformation
 import org.eclipse.lsp4j.SymbolKind
 import org.eclipse.lsp4j.jsonrpc.messages.Either
-import org.eclipse.lsp4j.launch.LSPLauncher
 import org.eclipse.lsp4j.services.LanguageServer
 import org.eclipse.lsp4j.services.TextDocumentService
 import org.eclipse.lsp4j.services.WorkspaceService
 
 /**
  * Direction 2 of the lsp4j interop matrix (#45): a real Eclipse lsp4j
- * [LanguageServer] (driven through [LSPLauncher.createServerLauncher]) hosts
+ * [LanguageServer] (driven through [DaemonLsp4jLauncher.createServerLauncher]) hosts
  * canned responses, and OUR [connectAsLspClient] stub drives it over an
  * in-process `Content-Length`-framed pipe. For each typed-union result we assert
  * that OUR generated types parse what lsp4j emits into the expected concrete
@@ -110,7 +109,10 @@ class Lsp4jHostedServerInteropTest : JvmIntegrationTestBase() {
         val serverToClientSource = PipedInputStream(serverToClientSink, PIPE_BUFFER)
 
         val lsp4jServer = CannedLsp4jServer()
-        val launcher = LSPLauncher.createServerLauncher(
+        // Daemon-backed launcher so the lsp4j reader thread (blocked on a
+        // non-interruptible pipe read) can never keep the worker JVM alive after
+        // the test; we also shut its executor down in `finally` (issue #79).
+        val launcher = DaemonLsp4jLauncher.createServerLauncher(
             lsp4jServer,
             clientToServerSource,
             serverToClientSink
@@ -171,6 +173,7 @@ class Lsp4jHostedServerInteropTest : JvmIntegrationTestBase() {
             // lets the test terminate rather than hang on the pump.
             connectionScope.cancel()
             listening.cancel(true)
+            launcher.shutdown()
             runCatching { clientToServerSink.close() }
             runCatching { clientToServerSource.close() }
             runCatching { serverToClientSink.close() }
