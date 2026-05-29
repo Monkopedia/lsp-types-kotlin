@@ -4,6 +4,51 @@ All notable changes to lsp-types-kotlin are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions track the
 `1.0.0-RC*` release-candidate train toward a stable `1.0.0`.
 
+## [Unreleased]
+
+Validation, robustness, and tooling pass toward 1.0 (will fold into the next RC).
+
+### ⚠️ Behavior change (pre-1.0, migration note)
+- **Wiring a server no longer implicitly keeps the caller alive.** `asLspConnection`'s
+  JSON-RPC read pump now runs in a **connection-owned** coroutine scope instead of as a
+  child of the caller's `runBlocking` (#87). This fixes a class of teardown wedges (see
+  Fixed), but it means a server `main` written as
+  `runBlocking { stdInLspConnection().connectAsLspServer(impl) }` will now **return
+  immediately** instead of blocking. Servers must explicitly stay alive while serving —
+  e.g. `awaitCancellation()` (or await your `LifecycleState` reaching `EXITED`). The
+  `samples/echo-server` shows the pattern.
+
+### Added
+- **Native external-server process spawn.** `spawnLspServer(command, env): LspServerProcess`
+  (`pid` / `connection` / bounded `kill()` / `close()`) — a single cross-platform API via
+  `expect`/`actual`, with `actual`s on JVM (`ProcessBuilder`) and Kotlin/Native posix
+  (linux + apple; `fork`/`exec`). JVM gains a real process handle it previously lacked (#47).
+- **Comprehensive real-LSP integration suite** (#41): real Eclipse lsp4j interop covering
+  every method in both directions; a real-server client-role matrix (clangd / pyright /
+  typescript-language-server / gopls / rust-analyzer, run nightly); a transport matrix
+  (in-memory / TCP / stdio / ksrpc-relay); and native + wasmJs round-trips.
+- **Coverage gates with fail-on-regression baselines** (#66/#73/#74): 100% LSP-method
+  wire coverage (server 73/73, client 20/20), 100% union-branch coverage, plus Kover
+  serializer line/branch coverage — all guarded so coverage can't silently regress.
+- **klib (native/JS/wasm) ABI validation** in BCV (#89), so the multiplatform public
+  surface (including `spawnLspServer` and the wasmJs API) is tracked alongside the JVM `.api`.
+
+### Changed
+- **ksrpc 1.0.0 → 1.1.0** (#53). Brings the #201 fix that makes the Kotlin/Native posix
+  reader terminate cleanly on EOF.
+- Payload-corpus tests are now sourced exclusively from upstream (LSP spec /
+  vscode-languageserver-node / lsprotocol) and captured real-server traffic; the prior
+  synthetic, self-referential corpus was removed (#61/#62/#63).
+
+### Fixed
+- **Native posix-stdio teardown no longer hangs** (#53, via ksrpc #201): the reader broke
+  on `read()==0` (EOF) instead of busy-looping, so process/connection teardown terminates.
+- **`:lsp-ksrpc` JVM integration tests no longer wedge on teardown** (#79): real-server
+  pumps driven under `runBlocking` could park on a force-killed process's dead stream;
+  pumps now run detached on daemon scopes.
+- **`asLspConnection` can no longer wedge a caller's `runBlocking`** on process-kill
+  teardown (#87) — see the behavior change above.
+
 ## [1.0.0-RC4] - 2026-05-25
 
 Hardening + ergonomics pass from an independent API review.
