@@ -38,7 +38,14 @@ group = "com.monkopedia.lsp"
 apiValidation {
     @OptIn(kotlinx.validation.ExperimentalBCVApi::class)
     klib {
-        enabled = false
+        // Track the target-specific public API of every klib target
+        // (native/JS/wasm), not just the JVM `.api`. BCV infers the ABI of
+        // targets that can't be built on the current host (e.g. Apple targets
+        // on a Linux CI leg) from the targets it CAN build, recording them as
+        // "inferred" in the merged `*.klib.api`. That keeps `apiCheck` runnable
+        // and the baseline identical on both the ubuntu and macOS CI legs
+        // without needing cross-compilation (kotlin.native.enableKlibsCrossCompilation).
+        enabled = true
     }
     // echo-server is a sample; lsp-codegen is an internal build-time tool — neither
     // is published, so neither needs binary-compatibility validation.
