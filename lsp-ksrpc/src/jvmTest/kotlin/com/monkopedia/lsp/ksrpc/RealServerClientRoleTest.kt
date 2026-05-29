@@ -70,7 +70,7 @@ import kotlinx.coroutines.withTimeout
  * Assertions are deliberately resilient to version drift: we never assert exact
  * hover text or completion contents, only structural facts.
  */
-class RealServerClientRoleTest {
+class RealServerClientRoleTest : JvmIntegrationTestBase() {
 
     @Test
     fun `clangd client-role sequence`() {

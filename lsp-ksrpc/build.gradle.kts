@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import java.time.Duration
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
@@ -104,6 +105,20 @@ kotlin {
         val macosArm64Test by getting { dependsOn(nativeJsonrpcTest) }
         val macosX64Test by getting { dependsOn(nativeJsonrpcTest) }
     }
+}
+
+// Hard ceiling on every Test task (the KMP `jvmTest` task is an
+// `org.gradle.api.tasks.testing.Test`, so `withType<Test>` catches it). The JVM
+// integration suite occasionally wedges on teardown — a leaked non-daemon thread
+// keeps the test-worker JVM alive after the suite passes — and with no timeout
+// the task stalled for 45–118 min in CI before manual cancellation (issue #79).
+//
+// Real jvmTest runtime is ~2 min, so a 5-minute cap fails a genuine wedge fast
+// (Gradle's task `timeout` fails the task on expiry) without tripping on healthy
+// runs. The in-process JvmTestWatchdog fires its thread dump at 4 min — under
+// this cap — so the diagnostic stack trace lands before Gradle kills the worker.
+tasks.withType<Test>().configureEach {
+    timeout.set(Duration.ofMinutes(5))
 }
 
 // RawClientServerTest spawns samples/echo-server as a child process and drives it

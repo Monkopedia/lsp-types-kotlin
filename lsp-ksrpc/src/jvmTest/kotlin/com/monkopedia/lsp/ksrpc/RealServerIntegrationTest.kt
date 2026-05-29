@@ -38,7 +38,7 @@ import kotlinx.coroutines.withTimeout
  *
  * In CI we install `clangd` so this actually runs there.
  */
-class RealServerIntegrationTest {
+class RealServerIntegrationTest : JvmIntegrationTestBase() {
 
     @Test
     fun `clangd handles initialize and shutdown`() {

@@ -95,7 +95,7 @@ import org.eclipse.lsp4j.services.LanguageClient
  *
  * Every blocking round-trip is bounded by [TIMEOUT_S] so a stall fails fast.
  */
-class Lsp4jConformanceInteropTest {
+class Lsp4jConformanceInteropTest : JvmIntegrationTestBase() {
 
     private val scope = CoroutineScope(Dispatchers.IO + Job())
     private var serverJob: Job? = null
