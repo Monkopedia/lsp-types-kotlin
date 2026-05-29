@@ -39,6 +39,7 @@ import com.monkopedia.lsp.TextDocumentDocumentSymbolResult
 import com.monkopedia.lsp.TextDocumentIdentifier
 import com.monkopedia.lsp.TextDocumentItem
 import java.io.File
+import java.net.URI
 import java.util.concurrent.TimeUnit
 import kotlin.test.Test
 import kotlin.test.assertNotNull
@@ -186,7 +187,11 @@ class RealServerClientRoleTest : JvmIntegrationTestBase() {
         val workspace = fixtureDir(spec.fixtureDir)
         val sourceFile = File(workspace, spec.fixtureFile)
         assertTrue(sourceFile.exists(), "fixture missing: ${sourceFile.path}")
-        val uri = sourceFile.toURI().toString()
+        val uri = fileUri(sourceFile)
+        assertTrue(
+            uri.startsWith("file:///"),
+            "${spec.binary}: document uri must be canonical file:///, got $uri"
+        )
 
         val process = ProcessBuilder(spec.command)
             .redirectInput(ProcessBuilder.Redirect.PIPE)
@@ -214,12 +219,17 @@ class RealServerClientRoleTest : JvmIntegrationTestBase() {
             // Hard upper bound on the initialize→query drive so a server that
             // indexes very slowly (or never answers) fails THIS test fast
             // instead of hanging the suite.
+            val rootUri = fileUri(workspace).trimEnd('/')
+            assertTrue(
+                rootUri.startsWith("file:///"),
+                "${spec.binary}: rootUri must be canonical file:///, got $rootUri"
+            )
             withTimeout(spec.budgetMillis) {
                 val initResult = server.initialize(
                     InitializeParams(
                         capabilities = ClientCapabilities(),
                         processId = ProcessHandle.current().pid().toInt(),
-                        rootUri = workspace.toURI().toString().trimEnd('/')
+                        rootUri = rootUri
                     )
                 )
                 assertNotNull(initResult, "${spec.binary}: null initialize result")
@@ -418,6 +428,18 @@ private fun fixtureDir(relative: String): File {
     }
     error("fixture '$relative' not found in any of: ${candidates.joinToString()}")
 }
+
+/**
+ * Build the canonical LSP `file:///<absolute-path>` URI for [file].
+ *
+ * Java's [File.toURI] emits the non-canonical single-slash, no-authority form
+ * (`file:/home/...`), which ksrpc-jsonrpc's DocumentUri parser rejects and which
+ * trips servers like gopls that echo the workspace-folder URI back verbatim.
+ * Constructing the URI with an explicit empty authority yields the triple-slash
+ * form real editors send (`file:///home/...`), with proper percent-encoding of
+ * any special characters in the path.
+ */
+private fun fileUri(file: File): String = URI("file", "", file.absoluteFile.path, null).toString()
 
 private fun isOnPath(binary: String): Boolean {
     val path = System.getenv("PATH") ?: return false
