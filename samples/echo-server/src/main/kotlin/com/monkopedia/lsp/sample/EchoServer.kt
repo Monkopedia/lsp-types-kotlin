@@ -35,6 +35,7 @@ import com.monkopedia.lsp.ksrpc.connectAsLspServer
 import com.monkopedia.lsp.ksrpc.stdInLspConnection
 import com.monkopedia.lsp.markdown
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.runBlocking
 
 /**
@@ -106,4 +107,12 @@ fun main(): Unit = runBlocking(Dispatchers.IO) {
 
     val connection = stdInLspConnection()
     client = connection.connectAsLspServer(server)
+
+    // Keep `main` alive while the connection serves requests. The JSON-RPC read pump
+    // now runs in a connection-owned scope (issue #87 hardening) rather than as a child
+    // of this `runBlocking`, so wiring the server no longer implicitly blocks here — we
+    // must wait explicitly. The `exit` notification calls `exitProcess`, which tears the
+    // whole JVM down; until then we simply park. (Were `exit` not to exit the process,
+    // observing `state` reaching `EXITED` would be the place to return.)
+    awaitCancellation()
 }

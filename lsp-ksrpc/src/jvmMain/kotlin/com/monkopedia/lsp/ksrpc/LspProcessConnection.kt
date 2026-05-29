@@ -24,8 +24,9 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.nio.channels.Channels
 import java.util.concurrent.TimeUnit
-import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 
 /**
  * Open an LSP-compatible JSON-RPC connection over a pair of byte streams.
@@ -37,9 +38,24 @@ suspend fun Pair<InputStream, OutputStream>.asLspConnection(
     env: KsrpcEnvironment<String> = lspKsrpcEnvironment()
 ): SingleChannelConnection<String> {
     val (input, output) = this
-    // Parent the stdout-pump coroutine to the caller's job (via coroutineContext)
-    // rather than GlobalScope, so it is cancelled when the caller's scope ends.
-    val writeChannel = CoroutineScope(coroutineContext).reader(coroutineContext) {
+    // These two pumps wrap BLOCKING `java.io` stream operations: the writer drains a
+    // ktor channel into `output`, and `toByteReadChannel` pulls bytes off `input`'s
+    // blocking `read()`. A blocking `read()` on a dead/half-open stream (e.g. after a
+    // child process is force-killed and the pipe never reaches clean EOF) parks on a
+    // non-interruptible syscall that may never return.
+    //
+    // Historically both were parented to the caller's `coroutineContext`. Under a
+    // consumer's `runBlocking { ... }`, that made the parked read a CHILD of the
+    // caller's job; structured concurrency then refused to let `runBlocking` return
+    // until the (never-returning) read completed — wedging teardown (issue #87).
+    //
+    // Instead, host both pumps in a connection-owned `Dispatchers.IO` + `SupervisorJob`
+    // scope that is NOT a child of the caller. `Dispatchers.IO` threads are daemon
+    // threads, so even a pump parked on a dead fd can never keep the JVM (or the
+    // caller's `runBlocking`) alive. The pumps still wind down normally on clean EOF /
+    // connection close; this only changes WHO owns them, removing the wedge.
+    val pumpScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    val writeChannel = pumpScope.reader(pumpScope.coroutineContext) {
         val outputChannel = Channels.newChannel(output)
         while (!channel.isClosedForRead) {
             channel.read { buffer ->
@@ -48,7 +64,8 @@ suspend fun Pair<InputStream, OutputStream>.asLspConnection(
             }
         }
     }.channel
-    return (input.toByteReadChannel(coroutineContext) to writeChannel).asLspConnection(env)
+    return (input.toByteReadChannel(pumpScope.coroutineContext) to writeChannel)
+        .asLspConnection(env)
 }
 
 /**
