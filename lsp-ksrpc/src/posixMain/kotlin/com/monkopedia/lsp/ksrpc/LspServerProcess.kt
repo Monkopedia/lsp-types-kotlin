@@ -45,54 +45,44 @@ import platform.posix.usleep
 import platform.posix.waitpid
 
 /**
- * A spawned external LSP server child process and the JSON-RPC connection to it.
+ * Kotlin/Native (posix-fd) implementation of [LspServerProcess].
  *
- * This is the Kotlin/Native analog of the JVM
- * [ProcessBuilder.asLspConnection][com.monkopedia.lsp.ksrpc.asLspConnection] helper.
  * Kotlin/Native has no `ProcessBuilder`, so [spawnLspServer] forks/execs the server
  * directly and wires the parent ends of two `pipe(2)`s — the child's stdin and
  * stdout — as ksrpc posix-fd byte channels feeding the shared
  * [asLspConnection][com.monkopedia.lsp.ksrpc.asLspConnection] path.
  *
- * Obtain the language-server stub with
- * [connection]`.`[connectAsLspClient][com.monkopedia.lsp.ksrpc.connectAsLspClient].
+ * The interface exposes [pid] as a `Long`; the posix `pid_t` is an `Int`, so we keep
+ * the native pid internally as an [Int] and widen it for the interface accessor.
  *
- * ## Teardown
- *
- * LSP servers are expected to be torn down by the client. Prefer a clean
- * `shutdown`/`exit` round-trip, but that depends on the server cooperating; for a
- * guaranteed-bounded teardown call [kill] (SIGTERM, then SIGKILL after a grace
- * window) and then [close]. Closing the channels lets the ksrpc posix reader thread
- * observe EOF and terminate (ksrpc >= 1.1.0, the #201 fix), so teardown never wedges.
- *
- * Not Windows (mingw): there is no posix process model there. Use the JVM helper for
- * a portable client, or a relay channel for mingw.
+ * Closing the channels lets the ksrpc posix reader thread observe EOF and terminate
+ * (ksrpc >= 1.1.0, the #201 fix), so teardown never wedges.
  */
-public class LspServerProcess internal constructor(
-    /** PID of the spawned server child. */
-    public val pid: Int,
-    /**
-     * JSON-RPC connection to the child over its stdio. Wire it with
-     * [connectAsLspClient][com.monkopedia.lsp.ksrpc.connectAsLspClient].
-     */
-    public val connection: SingleChannelConnection<String>,
+private class PosixLspServerProcess(
+    /** Native posix pid_t (Int); widened to Long for the interface [pid]. */
+    private val nativePid: Int,
+    override val connection: SingleChannelConnection<String>,
     private val stdinWriteFd: Int,
     private val stdoutReadFd: Int
-) {
+) : LspServerProcess {
+
+    override val pid: Long
+        get() = nativePid.toLong()
+
     /**
      * Signal the child to terminate. Sends SIGTERM, and if the process is still
      * alive after a short grace window, SIGKILL. Bounded and non-suspending: safe
      * to call from a `finally` during teardown. Idempotent.
      */
-    public fun kill() {
-        if (pid <= 0) return
-        kill(pid, SIGTERM)
+    override fun kill() {
+        if (nativePid <= 0) return
+        kill(nativePid, SIGTERM)
         // Short bounded grace, then force-kill. We poll waitpid(WNOHANG) rather
         // than block, so this can never hang even if the child ignores SIGTERM.
         memScoped {
             val status = allocArray<IntVar>(1)
             if (!waitBounded(status)) {
-                kill(pid, SIGKILL)
+                kill(nativePid, SIGKILL)
                 // Reap so we don't leak a zombie. Final bounded poll window.
                 waitBounded(status)
             }
@@ -107,7 +97,7 @@ public class LspServerProcess internal constructor(
     private fun waitBounded(status: CArrayPointer<IntVar>): Boolean {
         repeat(GRACE_POLLS) {
             // Non-zero means reaped (pid) or no such child (-1) — either way, done.
-            if (waitpid(pid, status, WNOHANG) != 0) return true
+            if (waitpid(nativePid, status, WNOHANG) != 0) return true
             spinWait()
         }
         return false
@@ -124,7 +114,7 @@ public class LspServerProcess internal constructor(
      * of the same fd. Call this exactly once during teardown (it is not safe to call
      * repeatedly: a second call could close an unrelated fd that reused the number).
      */
-    public fun close() {
+    override fun close() {
         kill()
         close(stdinWriteFd)
         close(stdoutReadFd)
@@ -136,32 +126,16 @@ public class LspServerProcess internal constructor(
 }
 
 /**
- * Spawn an external LSP server child process and open an LSP-compatible JSON-RPC
- * connection over its stdin/stdout. The Kotlin/Native analog of the JVM
- * [ProcessBuilder.asLspConnection][com.monkopedia.lsp.ksrpc.asLspConnection].
+ * Kotlin/Native (posix-fd) `actual` for [spawnLspServer].
  *
  * [command] is the argv to exec (e.g. `listOf("clangd", "--log=error")`); it is
- * resolved against `PATH` via `execvp(3)`. The returned [LspServerProcess] owns the
- * child PID and pipe fds — call [LspServerProcess.connectAsLspClient] (via its
- * [connection][LspServerProcess.connection]) to drive the server, and
- * [LspServerProcess.kill] / [LspServerProcess.close] to tear it down.
- *
- * ```
- * val proc = spawnLspServer(listOf("clangd", "--log=error"))
- * try {
- *     val server = proc.connection.connectAsLspClient(MyClientImpl)
- *     val initResult = server.initialize(InitializeParams(...))
- *     // ... drive the server ...
- * } finally {
- *     proc.close() // bounded kill + fd close; never hangs
- * }
- * ```
+ * resolved against `PATH` via `execvp(3)`.
  *
  * @throws IllegalStateException if `pipe(2)` or `fork(2)` fails.
  */
-public suspend fun spawnLspServer(
+public actual suspend fun spawnLspServer(
     command: List<String>,
-    env: KsrpcEnvironment<String> = lspKsrpcEnvironment()
+    env: KsrpcEnvironment<String>
 ): LspServerProcess {
     require(command.isNotEmpty()) { "command must not be empty" }
 
@@ -215,8 +189,8 @@ public suspend fun spawnLspServer(
                 val output = posixFileWriteChannel(childStdinWrite)
                 val input = posixFileReadChannel(childStdoutRead)
                 val connection = (input to output).asLspConnection(env)
-                return LspServerProcess(
-                    pid = pid,
+                return PosixLspServerProcess(
+                    nativePid = pid,
                     connection = connection,
                     stdinWriteFd = childStdinWrite,
                     stdoutReadFd = childStdoutRead
@@ -233,7 +207,7 @@ private fun posixPipe(): Pair<Int, Int> = memScoped {
     fds[0] to fds[1]
 }
 
-/** Bounded sleep between waitpid polls (5ms). [LspServerProcess.GRACE_POLLS] * 5ms = 1s total. */
+/** Bounded sleep between waitpid polls (5ms). 200 polls * 5ms = 1s total. */
 private fun spinWait() {
     usleep(GRACE_POLL_INTERVAL_US)
 }

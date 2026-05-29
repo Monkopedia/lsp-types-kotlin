@@ -84,18 +84,32 @@ kotlin {
                 api(libs.ksrpc.jsonrpc)
             }
         }
-        jvmMain.get().dependsOn(jsonrpcMain)
         val jsMain by getting { dependsOn(jsonrpcMain) }
         val wasmJsMain by getting { dependsOn(jsonrpcMain) }
 
+        // Process-spawn tier. The unified cross-platform `spawnLspServer` /
+        // `LspServerProcess` contract (the `expect suspend fun` + the
+        // `LspServerProcess` interface) lives here so JVM and the posix-fd native
+        // targets share a single, compiler-enforced surface — no API drift. It sits
+        // between jsonrpcMain (for the connection types + lspKsrpcEnvironment) and
+        // the two platforms that can actually fork/exec a child process: jvm and
+        // posix. js/wasm/mingw do NOT depend on it — they can't spawn processes, so
+        // they get no `spawnLspServer` declaration (and thus no missing-actual error).
+        // processMain itself needs no ksrpc-sockets; that's a posix-only (native
+        // posix-fd ByteChannel) dependency kept on posixMain below.
+        val processMain by creating {
+            dependsOn(jsonrpcMain)
+        }
+        jvmMain.get().dependsOn(processMain)
+
         // posix-fd targets (linux + apple). These are the native targets that
         // (a) ksrpc-jsonrpc supports and (b) have a real posix process-spawn
-        // surface (fork/exec/pipe). The native `spawnLspServer` helper and its
+        // surface (fork/exec/pipe). The native `spawnLspServer` actual and its
         // posix-fd ByteChannel plumbing (ksrpc-sockets) live here. mingwX64 is
         // intentionally excluded: no posix process model, and ksrpc-jsonrpc
         // doesn't target it anyway (it stays interface-only via commonMain).
         val posixMain by creating {
-            dependsOn(jsonrpcMain)
+            dependsOn(processMain)
             dependencies {
                 api(libs.ksrpc.sockets)
             }
