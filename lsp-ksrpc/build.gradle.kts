@@ -84,11 +84,38 @@ kotlin {
                 api(libs.ksrpc.jsonrpc)
             }
         }
-        jvmMain.get().dependsOn(jsonrpcMain)
         val jsMain by getting { dependsOn(jsonrpcMain) }
         val wasmJsMain by getting { dependsOn(jsonrpcMain) }
-        val appleMain by getting { dependsOn(jsonrpcMain) }
-        val linuxMain by getting { dependsOn(jsonrpcMain) }
+
+        // Process-spawn tier. The unified cross-platform `spawnLspServer` /
+        // `LspServerProcess` contract (the `expect suspend fun` + the
+        // `LspServerProcess` interface) lives here so JVM and the posix-fd native
+        // targets share a single, compiler-enforced surface — no API drift. It sits
+        // between jsonrpcMain (for the connection types + lspKsrpcEnvironment) and
+        // the two platforms that can actually fork/exec a child process: jvm and
+        // posix. js/wasm/mingw do NOT depend on it — they can't spawn processes, so
+        // they get no `spawnLspServer` declaration (and thus no missing-actual error).
+        // processMain itself needs no ksrpc-sockets; that's a posix-only (native
+        // posix-fd ByteChannel) dependency kept on posixMain below.
+        val processMain by creating {
+            dependsOn(jsonrpcMain)
+        }
+        jvmMain.get().dependsOn(processMain)
+
+        // posix-fd targets (linux + apple). These are the native targets that
+        // (a) ksrpc-jsonrpc supports and (b) have a real posix process-spawn
+        // surface (fork/exec/pipe). The native `spawnLspServer` actual and its
+        // posix-fd ByteChannel plumbing (ksrpc-sockets) live here. mingwX64 is
+        // intentionally excluded: no posix process model, and ksrpc-jsonrpc
+        // doesn't target it anyway (it stays interface-only via commonMain).
+        val posixMain by creating {
+            dependsOn(processMain)
+            dependencies {
+                api(libs.ksrpc.sockets)
+            }
+        }
+        val appleMain by getting { dependsOn(posixMain) }
+        val linuxMain by getting { dependsOn(posixMain) }
 
         // Shared native (linux + apple) test source set for the jsonrpc-transport
         // smoke. It depends only on commonTest (for the fixtures); the jsonrpc
@@ -120,6 +147,27 @@ kotlin {
 tasks.withType<Test>().configureEach {
     timeout.set(Duration.ofMinutes(5))
 }
+
+// Native test executables (KotlinNativeTest) are NOT `org.gradle.api.tasks.testing.Test`,
+// so the cap above doesn't cover them and the #79 in-process JVM watchdog can't see them.
+// The native real-server test (LspProcessRealServerTest) drives an external clangd over a
+// posix-stdio pipe and tears it down with a process kill; if that teardown ever wedged it
+// would stall with no ceiling. Give every native test task its own hard timeout so a wedge
+// fails the task fast instead of hanging the build. (Each test also bounds its own wire
+// calls with withTimeout and kills the child in a finally, so a hang should fail bounded;
+// this is the belt-and-suspenders ceiling.)
+//
+// Native test processes don't receive Gradle `-P` properties as JVM system properties the
+// way `jvmTest` does, so the real-server gate is forwarded as an ENVIRONMENT VARIABLE
+// (LSP_REQUIRE_REAL_SERVERS), which the test reads via getenv at runtime.
+tasks.withType<org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeTest>()
+    .configureEach {
+        timeout.set(Duration.ofMinutes(5))
+        environment(
+            "LSP_REQUIRE_REAL_SERVERS",
+            project.findProperty("lsp.requireRealServers")?.toString() ?: "false"
+        )
+    }
 
 // RawClientServerTest spawns samples/echo-server as a child process and drives it
 // with raw JSON-RPC bytes to validate wire compatibility. Make sure the echo-server

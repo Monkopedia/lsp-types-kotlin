@@ -23,6 +23,7 @@ import io.ktor.utils.io.reader
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.channels.Channels
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.CoroutineScope
 
@@ -85,4 +86,68 @@ suspend fun ProcessBuilder.asLspConnection(
         .redirectOutput(ProcessBuilder.Redirect.PIPE)
         .start()
     return (process.inputStream to process.outputStream).asLspConnection(env)
+}
+
+/**
+ * JVM implementation of [LspServerProcess]. Wraps a [java.lang.Process] and the
+ * LSP connection built over its stdio. Unlike the lower-level
+ * [ProcessBuilder.asLspConnection] helper, this carries the process handle, so the
+ * caller can [kill] / [close] the child deterministically.
+ */
+private class JvmLspServerProcess(
+    private val process: Process,
+    override val connection: SingleChannelConnection<String>
+) : LspServerProcess {
+
+    override val pid: Long
+        get() = process.pid()
+
+    /**
+     * Terminate the child. Requests a graceful [Process.destroy], then — after a short
+     * bounded grace window — force-kills with [Process.destroyForcibly]. Bounded and
+     * non-suspending: safe to call from a `finally`. Idempotent (destroying an
+     * already-dead process is a no-op).
+     */
+    override fun kill() {
+        if (!process.isAlive) return
+        process.destroy()
+        // Bounded grace, then force. waitFor with a timeout never blocks indefinitely.
+        if (!process.waitFor(GRACE_MILLIS, TimeUnit.MILLISECONDS)) {
+            process.destroyForcibly()
+        }
+    }
+
+    /**
+     * Tear down: close the child's stdio streams (so the ksrpc pump observes EOF and
+     * winds down) and [kill] the child. Bounded — never an unbounded `waitFor`. Call
+     * this exactly once during teardown.
+     */
+    override fun close() {
+        runCatching { process.outputStream.close() }
+        runCatching { process.inputStream.close() }
+        kill()
+    }
+
+    private companion object {
+        const val GRACE_MILLIS = 1_000L
+    }
+}
+
+/**
+ * JVM `actual` for [spawnLspServer]. Launches [command] via [ProcessBuilder] with its
+ * stdin/stdout piped, builds the LSP connection over those streams with the existing
+ * [Pair.asLspConnection] helper, and returns a [LspServerProcess] carrying the real
+ * [java.lang.Process] handle.
+ */
+public actual suspend fun spawnLspServer(
+    command: List<String>,
+    env: KsrpcEnvironment<String>
+): LspServerProcess {
+    require(command.isNotEmpty()) { "command must not be empty" }
+    val process = ProcessBuilder(command)
+        .redirectInput(ProcessBuilder.Redirect.PIPE)
+        .redirectOutput(ProcessBuilder.Redirect.PIPE)
+        .start()
+    val connection = (process.inputStream to process.outputStream).asLspConnection(env)
+    return JvmLspServerProcess(process, connection)
 }
