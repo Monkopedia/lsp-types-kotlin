@@ -26,6 +26,13 @@ import com.monkopedia.lsp.KsrpcLanguageServer
 import com.monkopedia.lsp.LifecycleTrackingLanguageServer
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.ByteWriteChannel
+import kotlin.coroutines.ContinuationInterceptor
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.coroutines.coroutineContext
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 
 /**
@@ -61,11 +68,53 @@ public fun lspKsrpcEnvironment(): KsrpcEnvironment<String> = ksrpcEnvironment(LS
  */
 suspend fun Pair<ByteReadChannel, ByteWriteChannel>.asLspConnection(
     env: KsrpcEnvironment<String> = lspKsrpcEnvironment()
-): SingleChannelConnection<String> = asJsonRpcConnection(
-    env = env,
-    includeContentHeaders = true,
-    cancellationConvention = JsonRpcCancellationConvention.Lsp
-)
+): SingleChannelConnection<String> {
+    // The JSON-RPC connection launches a long-lived read pump (it reads framed
+    // messages off the channel for the connection's whole life). ksrpc's
+    // `asJsonRpcConnection` hosts that pump in `CoroutineScope(coroutineContext)`,
+    // i.e. parented to whatever job is active when this `suspend fun` runs. If the
+    // caller drives this from a `runBlocking { ... }`, the pump becomes a CHILD of
+    // that `runBlocking` job — and under structured concurrency `runBlocking` will
+    // not return until all its children complete. A pump parked on a dead/half-open
+    // stream that never reaches clean EOF then wedges the caller's `runBlocking`
+    // forever (issue #87, the production-facing form of the #79 test hang).
+    //
+    // Break that parent/child edge: host the pump in a fresh, connection-owned
+    // `SupervisorJob` that is NOT a child of the caller's job. We keep the caller's
+    // *dispatcher* (so the pump runs on the same threading model — important for the
+    // single-threaded JS/wasm event loop, which has no `Dispatchers.IO`), but the
+    // new Job means the pump's lifecycle is the connection's, not the caller's. The
+    // caller's `runBlocking` returns as soon as the caller's own work finishes; a
+    // wedged pump can no longer hold it open.
+    //
+    // ksrpc launches the pump as a CHILD of the coroutine that runs
+    // `asJsonRpcConnection` (it does `CoroutineScope(coroutineContext).launch { }`).
+    // So we must run `asJsonRpcConnection` from a coroutine we `launch`-and-forget on
+    // the detached `pumpScope` and hand the built connection back via a
+    // `CompletableDeferred`. We never `join` that launched coroutine — it stays alive
+    // holding the pump — so the pump is owned by `pumpScope` alone, never by the
+    // caller's structured-concurrency tree. The caller only awaits the deferred, which
+    // is completed the instant the connection is built (the pump is launched but not
+    // awaited), so this returns promptly and can never wedge.
+    val callerDispatcher = coroutineContext[ContinuationInterceptor] ?: EmptyCoroutineContext
+    val pumpScope = CoroutineScope(SupervisorJob() + callerDispatcher)
+    val built = CompletableDeferred<SingleChannelConnection<String>>()
+    pumpScope.launch {
+        try {
+            built.complete(
+                asJsonRpcConnection(
+                    env = env,
+                    includeContentHeaders = true,
+                    cancellationConvention = JsonRpcCancellationConvention.Lsp
+                )
+            )
+        } catch (t: Throwable) {
+            built.completeExceptionally(t)
+            throw t
+        }
+    }
+    return built.await()
+}
 
 /**
  * Wire this connection from the client side: register a [KsrpcLanguageClient]
