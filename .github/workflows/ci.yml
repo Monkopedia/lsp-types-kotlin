@@ -50,6 +50,17 @@ jobs:
       - name: Build
         run: ./gradlew build
 
+      # Binary-compatibility validation (JVM `.api` + klib `*.klib.api`). The
+      # klib ABI covers every native/JS/wasm target; Apple targets (and any
+      # other target unsupported on a Linux host) are INFERRED by BCV from the
+      # targets ubuntu can build, so the committed `*.klib.api` baseline is
+      # host-independent and `apiCheck` is deterministic here. We deliberately
+      # run apiCheck on the ubuntu leg (not the macOS `appleCheck` leg) because
+      # that leg only compiles the Apple targets in isolation and lacks the
+      # full merge inputs the klib dump needs.
+      - name: API compatibility (JVM + klib ABI)
+        run: ./gradlew apiCheck
+
       - name: Test
         run: ./gradlew allTests -Plsp.requireIntegrationTests=true
 
