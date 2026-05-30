@@ -1,8 +1,15 @@
 # Changelog
 
 All notable changes to lsp-types-kotlin are documented here. The format follows
-[Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions track the
-`1.0.0-RC*` release-candidate train toward a stable `1.0.0`.
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The public API is
+stable under semantic versioning as of 1.0.0; the `1.0.0-RC*` entries below
+trace the path to it.
+
+## [1.0.0] - 2026-05-30
+
+First stable release — the public API is now under semantic versioning.
+Identical in content to `1.0.0-RC5`; see that entry (and RC1–RC4) for the full
+set of changes. Built on ksrpc 1.1.0.
 
 ## [1.0.0-RC5] - 2026-05-29
 
@@ -135,6 +142,7 @@ Hardening + ergonomics pass from an independent API review.
     connection helpers, lifecycle state machine, progress) built on ksrpc 1.0.0.
 - Wire compatibility verified against clangd, Eclipse lsp4j, and raw JSON-RPC bytes.
 
+[1.0.0]: https://github.com/Monkopedia/lsp-types-kotlin/releases/tag/v1.0.0
 [1.0.0-RC5]: https://github.com/Monkopedia/lsp-types-kotlin/releases/tag/v1.0.0-RC5
 [1.0.0-RC4]: https://github.com/Monkopedia/lsp-types-kotlin/releases/tag/v1.0.0-RC4
 [1.0.0-RC3]: https://github.com/Monkopedia/lsp-types-kotlin/releases/tag/v1.0.0-RC3
