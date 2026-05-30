@@ -4,9 +4,11 @@ All notable changes to lsp-types-kotlin are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions track the
 `1.0.0-RC*` release-candidate train toward a stable `1.0.0`.
 
-## [Unreleased]
+## [1.0.0-RC5] - 2026-05-29
 
-Validation, robustness, and tooling pass toward 1.0 (will fold into the next RC).
+Validation, robustness, and tooling pass: comprehensive real-LSP integration
+coverage, a unified cross-platform process-spawn API, teardown-hardening, and
+full ABI tracking — toward a stable 1.0.
 
 ### ⚠️ Behavior change (pre-1.0, migration note)
 - **Wiring a server no longer implicitly keeps the caller alive.** `asLspConnection`'s
@@ -133,6 +135,8 @@ Hardening + ergonomics pass from an independent API review.
     connection helpers, lifecycle state machine, progress) built on ksrpc 1.0.0.
 - Wire compatibility verified against clangd, Eclipse lsp4j, and raw JSON-RPC bytes.
 
+[1.0.0-RC5]: https://github.com/Monkopedia/lsp-types-kotlin/releases/tag/v1.0.0-RC5
+[1.0.0-RC4]: https://github.com/Monkopedia/lsp-types-kotlin/releases/tag/v1.0.0-RC4
 [1.0.0-RC3]: https://github.com/Monkopedia/lsp-types-kotlin/releases/tag/v1.0.0-RC3
 [1.0.0-RC2]: https://github.com/Monkopedia/lsp-types-kotlin/releases/tag/v1.0.0-RC2
 [1.0.0-RC1]: https://github.com/Monkopedia/lsp-types-kotlin/releases/tag/v1.0.0-RC1
