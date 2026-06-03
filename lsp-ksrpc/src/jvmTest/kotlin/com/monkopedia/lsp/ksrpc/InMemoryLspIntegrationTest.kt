@@ -42,6 +42,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
@@ -118,8 +119,16 @@ class InMemoryLspIntegrationTest : JvmIntegrationTestBase() {
             }
 
             val received = CompletableDeferred<com.monkopedia.lsp.ProgressParams>()
+            // The registry is a hot SharedFlow that drops events emitted before
+            // subscription (see ProgressTokenRegistry KDoc). Signal once the
+            // collector is actually subscribed so we don't trigger the server's
+            // $/progress emit while the launched collector is still unscheduled —
+            // that race timed out under CI load (it only manifested remotely).
+            val subscribed = CompletableDeferred<Unit>()
             val collectorJob = kotlinx.coroutines.GlobalScope.launch(Dispatchers.Default) {
-                registry.observe(token).collect { received.complete(it) }
+                registry.observe(token)
+                    .onStart { subscribed.complete(Unit) }
+                    .collect { received.complete(it) }
             }
 
             try {
@@ -129,6 +138,7 @@ class InMemoryLspIntegrationTest : JvmIntegrationTestBase() {
                     serverSideClient
                 ) { remoteServer ->
                     withTimeout(5_000) {
+                        subscribed.await()
                         remoteServer.initialize(
                             InitializeParams(
                                 capabilities = ClientCapabilities(),
