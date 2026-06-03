@@ -135,4 +135,21 @@ class LifecycleStateTest {
         server.exit()
         assertEquals(LifecycleState.Phase.EXITED, lifecycle.phase)
     }
+
+    @Test
+    fun `tracked factory wraps server with lifecycle tracking`() = runTest {
+        val lifecycle = LifecycleState()
+        val delegate = object : DefaultLanguageServer() {
+            override suspend fun shutdown(): Nothing? = null
+        }
+        val server = delegate.tracked(lifecycle)
+
+        assertEquals(LifecycleState.Phase.INITIALIZING, lifecycle.phase)
+        server.initialized(InitializedParams())
+        assertEquals(LifecycleState.Phase.INITIALIZED, lifecycle.phase)
+        server.shutdown()
+        assertEquals(LifecycleState.Phase.SHUTTING_DOWN, lifecycle.phase)
+        server.exit()
+        assertEquals(LifecycleState.Phase.EXITED, lifecycle.phase)
+    }
 }

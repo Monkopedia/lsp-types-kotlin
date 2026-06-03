@@ -385,6 +385,8 @@ open class com.monkopedia.lsp/DefaultLanguageServer : com.monkopedia.lsp/KsrpcLa
     open suspend fun workspaceWillRenameFiles(com.monkopedia.lsp/RenameFilesParams): com.monkopedia.lsp/WorkspaceEdit // com.monkopedia.lsp/DefaultLanguageServer.workspaceWillRenameFiles|workspaceWillRenameFiles(com.monkopedia.lsp.RenameFilesParams){}[0]
 }
 
+final fun (com.monkopedia.lsp/KsrpcLanguageServer).com.monkopedia.lsp.ksrpc/tracked(com.monkopedia.lsp.ksrpc/LifecycleState): com.monkopedia.lsp/KsrpcLanguageServer // com.monkopedia.lsp.ksrpc/tracked|tracked@com.monkopedia.lsp.KsrpcLanguageServer(com.monkopedia.lsp.ksrpc.LifecycleState){}[0]
+
 // Targets: [js, linux, wasmJs]
 final val com.monkopedia.lsp.ksrpc/LSP_JSON // com.monkopedia.lsp.ksrpc/LSP_JSON|{}LSP_JSON[0]
     final fun <get-LSP_JSON>(): kotlinx.serialization.json/Json // com.monkopedia.lsp.ksrpc/LSP_JSON.<get-LSP_JSON>|<get-LSP_JSON>(){}[0]
