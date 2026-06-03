@@ -5,6 +5,19 @@ All notable changes to lsp-types-kotlin are documented here. The format follows
 stable under semantic versioning as of 1.0.0; the `1.0.0-RC*` entries below
 trace the path to it.
 
+## [1.0.1] - 2026-06-03
+
+Maintenance release: toolchain and dependency bump, no public API change —
+source- and binary-compatible for consumers.
+
+### Changed
+- **Kotlin 2.3.20 → 2.4.0** and **ksrpc 1.1.0 → 1.1.1.** The public API is
+  unchanged. The only ABI movement is a rename of ksrpc's `synthetic` internal
+  RPC-dispatch accessors on the generated `@KsService` stubs (mangling suffix
+  `$lsp_ksrpc` → `$com_monkopedia_lsp_lsp_ksrpc`); these are non-public
+  dispatch internals, so the regenerated `.api` baseline reflects a pure 1:1
+  rename with no change to any real public surface.
+
 ## [1.0.0] - 2026-05-30
 
 First stable release — the public API is now under semantic versioning.

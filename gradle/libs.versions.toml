@@ -1,8 +1,8 @@
 [versions]
-kotlin = "2.3.20"
+kotlin = "2.4.0"
 kotlinx-serialization = "1.10.0"
 kotlinx-coroutines = "1.10.2"
-ksrpc = "1.1.0"
+ksrpc = "1.1.1"
 dokka = "2.2.0"
 bcv = "0.18.1"
 ktlint = "12.1.2"
