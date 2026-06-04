@@ -26,6 +26,11 @@ package com.monkopedia.lsp.codegen
  *    [structureInterfaces] map for category 2 (NAMED_REFERENCES).
  * 3. Generated literal-branch data classes for LITERAL_UNION cases.
  */
+// Discriminator condition for an all-optional "catch-all" union branch — one with no
+// required field to key on. Such a branch accepts any object (including `{}`), so the
+// generator emits it as the union's unconditional `else` rather than a throwing default.
+private const val FALLBACK_DISCRIMINATOR = "/* fallback */ obj.isNotEmpty()"
+
 class UnionGenerator(private val resolver: TypeResolver) {
 
     /** Sealed interfaces emitted: name -> source. */
@@ -234,11 +239,13 @@ class UnionGenerator(private val resolver: TypeResolver) {
                     line("val obj = element.jsonObject")
                     line("return when {")
                     indent {
-                        emitDiscriminationCases(this, branchTypes, name)
-                        line(
-                            "else -> throw SerializationException(" +
-                                "\"Unknown $name variant: \$obj\")"
-                        )
+                        val emittedElse = emitDiscriminationCases(this, branchTypes, name)
+                        if (!emittedElse) {
+                            line(
+                                "else -> throw SerializationException(" +
+                                    "\"Unknown $name variant: \$obj\")"
+                            )
+                        }
                     }
                     line("}")
                 }
@@ -258,7 +265,7 @@ class UnionGenerator(private val resolver: TypeResolver) {
         w: CodeWriter,
         branchTypes: List<String>,
         sealedName: String
-    ) {
+    ): Boolean {
         val branches = branchTypes.mapNotNull { name ->
             resolver.getStructure(name)?.let { name to resolver.collectAllProperties(it) }
         }
@@ -293,7 +300,7 @@ class UnionGenerator(private val resolver: TypeResolver) {
                         "\"${info.kindValue}\" -> ${info.name}.serializer() $cast"
                 )
             }
-            return
+            return false
         }
 
         // Initial discriminator (the long-standing strategy): a required field
@@ -311,7 +318,7 @@ class UnionGenerator(private val resolver: TypeResolver) {
                 info.required.isNotEmpty() ->
                     Case("\"${info.required.first()}\" in obj", info.required.size)
 
-                else -> Case("/* fallback */ obj.isNotEmpty()", 0)
+                else -> Case(FALLBACK_DISCRIMINATOR, 0)
             }
         }
 
@@ -358,8 +365,21 @@ class UnionGenerator(private val resolver: TypeResolver) {
                 remaining.map { (cond, cs) -> "$cond <- ${cs.map { it.key.name }}" }
         }
 
-        cases.entries.sortedByDescending { it.value.priority }.forEach { (info, case) ->
+        val ordered = cases.entries.sortedByDescending { it.value.priority }
+        // The all-optional catch-all branch (keyed `obj.isNotEmpty()`) accepts ANY object,
+        // including `{}` — emit it as the unconditional `else` so an empty object (e.g.
+        // gopls' `inlayHintProvider: {}`, a spec-valid all-optional Options) resolves to the
+        // base Options branch instead of hitting the caller's throwing else.
+        val fallback = ordered.firstOrNull { it.value.discriminator == FALLBACK_DISCRIMINATOR }
+        for ((info, case) in ordered) {
+            if (case === fallback?.value) continue
             w.line("${case.discriminator} -> ${info.name}.serializer() $cast")
+        }
+        return if (fallback != null) {
+            w.line("else -> ${fallback.key.name}.serializer() $cast")
+            true
+        } else {
+            false
         }
     }
 
@@ -412,7 +432,7 @@ class UnionGenerator(private val resolver: TypeResolver) {
                     Case("\"${b.required.first()}\" in obj -> $serializer", b.required.size)
 
                 else ->
-                    Case("/* fallback */ obj.isNotEmpty() -> $serializer", 0)
+                    Case("$FALLBACK_DISCRIMINATOR -> $serializer", 0)
             }
         }.sortedByDescending { it.priority }
 
@@ -434,11 +454,24 @@ class UnionGenerator(private val resolver: TypeResolver) {
                     line("val obj = element.jsonObject")
                     line("return when {")
                     indent {
-                        for (case in cases) line(case.expr)
-                        line(
-                            "else -> throw SerializationException(" +
-                                "\"Unknown $name variant: \$obj\")"
-                        )
+                        // An all-optional fallback branch accepts any object incl. `{}`;
+                        // emit it as the unconditional `else` rather than throwing (see
+                        // emitDiscriminationCases for the rationale).
+                        val fallback = cases.firstOrNull {
+                            it.expr.startsWith("$FALLBACK_DISCRIMINATOR ->")
+                        }
+                        for (case in cases) {
+                            if (case === fallback) continue
+                            line(case.expr)
+                        }
+                        if (fallback != null) {
+                            line("else -> ${fallback.expr.substringAfter("-> ")}")
+                        } else {
+                            line(
+                                "else -> throw SerializationException(" +
+                                    "\"Unknown $name variant: \$obj\")"
+                            )
+                        }
                     }
                     line("}")
                 }

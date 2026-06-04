@@ -514,4 +514,33 @@ class UnionDiscriminatorTest {
         )
         assertIs<NotebookDocumentSyncOptions>(decoded)
     }
+
+    // ---- Empty-object provider options — a server may advertise a capability as
+    // `{}` (e.g. gopls sends `inlayHintProvider: {}`), which is a spec-valid
+    // all-optional Options object. The union must fall back to the base Options
+    // branch, not throw. Regression for the nightly gopls real-server failure. ----
+
+    @Test
+    fun `empty object provider options deserialize as base Options branch`() {
+        assertIs<InlayHintOptions>(
+            json.decodeFromString(ServerCapabilitiesInlayHintProviderOptionsSerializer, "{}")
+        )
+        assertIs<TypeDefinitionOptions>(
+            json.decodeFromString(ServerCapabilitiesTypeDefinitionProviderOptionsSerializer, "{}")
+        )
+        assertIs<SelectionRangeOptions>(
+            json.decodeFromString(ServerCapabilitiesSelectionRangeProviderOptionsSerializer, "{}")
+        )
+    }
+
+    @Test
+    fun `ServerCapabilities with empty object provider options parses`() {
+        val caps = json.decodeFromString(
+            ServerCapabilities.serializer(),
+            """{"inlayHintProvider": {}, "typeDefinitionProvider": {}, "selectionRangeProvider": {}}"""
+        )
+        assertNotNull(caps.inlayHintProvider)
+        assertNotNull(caps.typeDefinitionProvider)
+        assertNotNull(caps.selectionRangeProvider)
+    }
 }

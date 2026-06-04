@@ -337,13 +337,7 @@ object ServerCapabilitiesCallHierarchyProviderOptionsSerializer :
         val obj = element.jsonObject
         return when {
             "documentSelector" in obj -> CallHierarchyRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesCallHierarchyProviderOptions>
-
-            /* fallback */
-            obj.isNotEmpty() -> CallHierarchyOptions.serializer() as DeserializationStrategy<ServerCapabilitiesCallHierarchyProviderOptions>
-
-            else -> throw SerializationException(
-                "Unknown ServerCapabilitiesCallHierarchyProviderOptions variant: $obj"
-            )
+            else -> CallHierarchyOptions.serializer() as DeserializationStrategy<ServerCapabilitiesCallHierarchyProviderOptions>
         }
     }
 }
@@ -364,13 +358,7 @@ object ServerCapabilitiesColorProviderOptionsSerializer :
         val obj = element.jsonObject
         return when {
             "documentSelector" in obj -> DocumentColorRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesColorProviderOptions>
-
-            /* fallback */
-            obj.isNotEmpty() -> DocumentColorOptions.serializer() as DeserializationStrategy<ServerCapabilitiesColorProviderOptions>
-
-            else -> throw SerializationException(
-                "Unknown ServerCapabilitiesColorProviderOptions variant: $obj"
-            )
+            else -> DocumentColorOptions.serializer() as DeserializationStrategy<ServerCapabilitiesColorProviderOptions>
         }
     }
 }
@@ -391,13 +379,7 @@ object ServerCapabilitiesDeclarationProviderOptionsSerializer :
         val obj = element.jsonObject
         return when {
             "documentSelector" in obj -> DeclarationRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesDeclarationProviderOptions>
-
-            /* fallback */
-            obj.isNotEmpty() -> DeclarationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesDeclarationProviderOptions>
-
-            else -> throw SerializationException(
-                "Unknown ServerCapabilitiesDeclarationProviderOptions variant: $obj"
-            )
+            else -> DeclarationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesDeclarationProviderOptions>
         }
     }
 }
@@ -444,13 +426,7 @@ object ServerCapabilitiesFoldingRangeProviderOptionsSerializer :
         val obj = element.jsonObject
         return when {
             "documentSelector" in obj -> FoldingRangeRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesFoldingRangeProviderOptions>
-
-            /* fallback */
-            obj.isNotEmpty() -> FoldingRangeOptions.serializer() as DeserializationStrategy<ServerCapabilitiesFoldingRangeProviderOptions>
-
-            else -> throw SerializationException(
-                "Unknown ServerCapabilitiesFoldingRangeProviderOptions variant: $obj"
-            )
+            else -> FoldingRangeOptions.serializer() as DeserializationStrategy<ServerCapabilitiesFoldingRangeProviderOptions>
         }
     }
 }
@@ -471,13 +447,7 @@ object ServerCapabilitiesImplementationProviderOptionsSerializer :
         val obj = element.jsonObject
         return when {
             "documentSelector" in obj -> ImplementationRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesImplementationProviderOptions>
-
-            /* fallback */
-            obj.isNotEmpty() -> ImplementationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesImplementationProviderOptions>
-
-            else -> throw SerializationException(
-                "Unknown ServerCapabilitiesImplementationProviderOptions variant: $obj"
-            )
+            else -> ImplementationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesImplementationProviderOptions>
         }
     }
 }
@@ -498,13 +468,7 @@ object ServerCapabilitiesInlayHintProviderOptionsSerializer :
         val obj = element.jsonObject
         return when {
             "documentSelector" in obj -> InlayHintRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesInlayHintProviderOptions>
-
-            /* fallback */
-            obj.isNotEmpty() -> InlayHintOptions.serializer() as DeserializationStrategy<ServerCapabilitiesInlayHintProviderOptions>
-
-            else -> throw SerializationException(
-                "Unknown ServerCapabilitiesInlayHintProviderOptions variant: $obj"
-            )
+            else -> InlayHintOptions.serializer() as DeserializationStrategy<ServerCapabilitiesInlayHintProviderOptions>
         }
     }
 }
@@ -525,13 +489,7 @@ object ServerCapabilitiesInlineValueProviderOptionsSerializer :
         val obj = element.jsonObject
         return when {
             "documentSelector" in obj -> InlineValueRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesInlineValueProviderOptions>
-
-            /* fallback */
-            obj.isNotEmpty() -> InlineValueOptions.serializer() as DeserializationStrategy<ServerCapabilitiesInlineValueProviderOptions>
-
-            else -> throw SerializationException(
-                "Unknown ServerCapabilitiesInlineValueProviderOptions variant: $obj"
-            )
+            else -> InlineValueOptions.serializer() as DeserializationStrategy<ServerCapabilitiesInlineValueProviderOptions>
         }
     }
 }
@@ -552,13 +510,7 @@ object ServerCapabilitiesLinkedEditingRangeProviderOptionsSerializer :
         val obj = element.jsonObject
         return when {
             "documentSelector" in obj -> LinkedEditingRangeRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesLinkedEditingRangeProviderOptions>
-
-            /* fallback */
-            obj.isNotEmpty() -> LinkedEditingRangeOptions.serializer() as DeserializationStrategy<ServerCapabilitiesLinkedEditingRangeProviderOptions>
-
-            else -> throw SerializationException(
-                "Unknown ServerCapabilitiesLinkedEditingRangeProviderOptions variant: $obj"
-            )
+            else -> LinkedEditingRangeOptions.serializer() as DeserializationStrategy<ServerCapabilitiesLinkedEditingRangeProviderOptions>
         }
     }
 }
@@ -579,13 +531,7 @@ object ServerCapabilitiesMonikerProviderOptionsSerializer :
         val obj = element.jsonObject
         return when {
             "documentSelector" in obj -> MonikerRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesMonikerProviderOptions>
-
-            /* fallback */
-            obj.isNotEmpty() -> MonikerOptions.serializer() as DeserializationStrategy<ServerCapabilitiesMonikerProviderOptions>
-
-            else -> throw SerializationException(
-                "Unknown ServerCapabilitiesMonikerProviderOptions variant: $obj"
-            )
+            else -> MonikerOptions.serializer() as DeserializationStrategy<ServerCapabilitiesMonikerProviderOptions>
         }
     }
 }
@@ -632,13 +578,7 @@ object ServerCapabilitiesSelectionRangeProviderOptionsSerializer :
         val obj = element.jsonObject
         return when {
             "documentSelector" in obj -> SelectionRangeRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesSelectionRangeProviderOptions>
-
-            /* fallback */
-            obj.isNotEmpty() -> SelectionRangeOptions.serializer() as DeserializationStrategy<ServerCapabilitiesSelectionRangeProviderOptions>
-
-            else -> throw SerializationException(
-                "Unknown ServerCapabilitiesSelectionRangeProviderOptions variant: $obj"
-            )
+            else -> SelectionRangeOptions.serializer() as DeserializationStrategy<ServerCapabilitiesSelectionRangeProviderOptions>
         }
     }
 }
@@ -704,13 +644,7 @@ object ServerCapabilitiesTypeDefinitionProviderOptionsSerializer :
         val obj = element.jsonObject
         return when {
             "documentSelector" in obj -> TypeDefinitionRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesTypeDefinitionProviderOptions>
-
-            /* fallback */
-            obj.isNotEmpty() -> TypeDefinitionOptions.serializer() as DeserializationStrategy<ServerCapabilitiesTypeDefinitionProviderOptions>
-
-            else -> throw SerializationException(
-                "Unknown ServerCapabilitiesTypeDefinitionProviderOptions variant: $obj"
-            )
+            else -> TypeDefinitionOptions.serializer() as DeserializationStrategy<ServerCapabilitiesTypeDefinitionProviderOptions>
         }
     }
 }
@@ -731,13 +665,7 @@ object ServerCapabilitiesTypeHierarchyProviderOptionsSerializer :
         val obj = element.jsonObject
         return when {
             "documentSelector" in obj -> TypeHierarchyRegistrationOptions.serializer() as DeserializationStrategy<ServerCapabilitiesTypeHierarchyProviderOptions>
-
-            /* fallback */
-            obj.isNotEmpty() -> TypeHierarchyOptions.serializer() as DeserializationStrategy<ServerCapabilitiesTypeHierarchyProviderOptions>
-
-            else -> throw SerializationException(
-                "Unknown ServerCapabilitiesTypeHierarchyProviderOptions variant: $obj"
-            )
+            else -> TypeHierarchyOptions.serializer() as DeserializationStrategy<ServerCapabilitiesTypeHierarchyProviderOptions>
         }
     }
 }

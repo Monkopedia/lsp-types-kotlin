@@ -5,7 +5,7 @@ All notable changes to lsp-types-kotlin are documented here. The format follows
 stable under semantic versioning as of 1.0.0; the `1.0.0-RC*` entries below
 trace the path to it.
 
-## [Unreleased]
+## [1.1.0] - 2026-06-04
 
 ### Added
 - **`KsrpcLanguageServer.tracked(lifecycle)`** — a public factory that wraps a
@@ -15,6 +15,19 @@ trace the path to it.
   returning it from a `@KsMethod` over an existing ksrpc connection) so you still
   get the lifecycle phase machine; previously this tracking was only reachable
   through `connectAsLspServer(server, lifecycle)` on a dedicated LSP connection.
+
+### Fixed
+- **Empty-object capability options no longer fail to deserialize.** A server may
+  advertise a provider capability as `{}` (e.g. gopls sends `inlayHintProvider: {}`),
+  which is a spec-valid all-optional `Options` object. The generated union
+  deserializers gated their base-`Options` fallback on a non-empty object and threw
+  on `{}` (`Unknown ...ProviderOptions variant: {}`), so a real server's
+  `initialize` response could fail to parse. The codegen now emits the all-optional
+  fallback branch as the union's unconditional `else`, fixing all 12 affected
+  capability unions (call-hierarchy, color, declaration, folding-range,
+  implementation, inlay-hint, inline-value, linked-editing-range, moniker,
+  selection-range, type-definition, type-hierarchy). Surfaced by the nightly
+  real-server matrix against gopls; no public API change.
 
 ## [1.0.1] - 2026-06-03
 
