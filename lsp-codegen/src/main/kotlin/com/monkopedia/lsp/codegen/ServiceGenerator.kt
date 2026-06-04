@@ -349,7 +349,15 @@ class ServiceGenerator(private val resolver: TypeResolver, private val model: Me
         val methodName = wireMethod.toMethodName()
         val capitalized = methodName.replaceFirstChar { it.uppercase() }
         val returnType = if (result != null) {
-            ": " + resolver.resolve(result, "${capitalized}Result")
+            // `resolve` strips a `| null` branch and returns the non-null base (it
+            // expects the caller to re-apply nullability for its context). A spec
+            // result of `T | null` (e.g. textDocument/hover -> `Hover | null`, which
+            // a server sends as JSON `null` when there's no result) must therefore be
+            // surfaced as `T?` here, or decoding the null throws. Guard against
+            // double-`?` for already-nullable bases (e.g. a `null`-only result -> `Nothing?`).
+            val resolved = resolver.resolve(result, "${capitalized}Result")
+            val nullable = resolver.isNullableLspType(result) && !resolved.endsWith("?")
+            ": " + if (nullable) "$resolved?" else resolved
         } else {
             ""
         }

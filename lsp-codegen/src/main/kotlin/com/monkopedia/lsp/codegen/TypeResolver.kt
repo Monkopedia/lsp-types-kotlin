@@ -235,7 +235,7 @@ class TypeResolver(private val model: MetaModel) {
         return if (allOptional) "${type.name}()" else null
     }
 
-    private fun isNullableLspType(t: LspType): Boolean {
+    internal fun isNullableLspType(t: LspType): Boolean {
         if (t is LspType.Base && t.name == "null") return true
         if (t is LspType.Or) return t.items.any { it is LspType.Base && it.name == "null" }
         return false

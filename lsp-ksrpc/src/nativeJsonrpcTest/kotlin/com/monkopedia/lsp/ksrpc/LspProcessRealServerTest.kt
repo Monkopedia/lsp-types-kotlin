@@ -137,7 +137,7 @@ class LspProcessRealServerTest {
                                 textDocument = TextDocumentIdentifier(uri),
                                 position = Position(line = 7u, character = 16u)
                             )
-                        ).takeIf { it.locations().isNotEmpty() }
+                        )?.takeIf { it.locations().isNotEmpty() }
                     }
                     assertNotNull(definition, "clangd: definition returned no locations")
                     val lines = definition.locations().map { it.range.start.line }

@@ -27,11 +27,11 @@ internal class LifecycleTrackingLanguageServer(
 
     override suspend fun textDocumentImplementation(
         params: ImplementationParams
-    ): TextDocumentImplementationResult = delegate.textDocumentImplementation(params)
+    ): TextDocumentImplementationResult? = delegate.textDocumentImplementation(params)
 
     override suspend fun textDocumentTypeDefinition(
         params: TypeDefinitionParams
-    ): TextDocumentTypeDefinitionResult = delegate.textDocumentTypeDefinition(params)
+    ): TextDocumentTypeDefinitionResult? = delegate.textDocumentTypeDefinition(params)
 
     override suspend fun textDocumentDocumentColor(
         params: DocumentColorParams
@@ -41,74 +41,74 @@ internal class LifecycleTrackingLanguageServer(
         params: ColorPresentationParams
     ): List<ColorPresentation> = delegate.textDocumentColorPresentation(params)
 
-    override suspend fun textDocumentFoldingRange(params: FoldingRangeParams): List<FoldingRange> =
+    override suspend fun textDocumentFoldingRange(params: FoldingRangeParams): List<FoldingRange>? =
         delegate.textDocumentFoldingRange(params)
 
     override suspend fun textDocumentDeclaration(
         params: DeclarationParams
-    ): TextDocumentDeclarationResult = delegate.textDocumentDeclaration(params)
+    ): TextDocumentDeclarationResult? = delegate.textDocumentDeclaration(params)
 
     override suspend fun textDocumentSelectionRange(
         params: SelectionRangeParams
-    ): List<SelectionRange> = delegate.textDocumentSelectionRange(params)
+    ): List<SelectionRange>? = delegate.textDocumentSelectionRange(params)
 
     override suspend fun textDocumentPrepareCallHierarchy(
         params: CallHierarchyPrepareParams
-    ): List<CallHierarchyItem> = delegate.textDocumentPrepareCallHierarchy(params)
+    ): List<CallHierarchyItem>? = delegate.textDocumentPrepareCallHierarchy(params)
 
     override suspend fun callHierarchyIncomingCalls(
         params: CallHierarchyIncomingCallsParams
-    ): List<CallHierarchyIncomingCall> = delegate.callHierarchyIncomingCalls(params)
+    ): List<CallHierarchyIncomingCall>? = delegate.callHierarchyIncomingCalls(params)
 
     override suspend fun callHierarchyOutgoingCalls(
         params: CallHierarchyOutgoingCallsParams
-    ): List<CallHierarchyOutgoingCall> = delegate.callHierarchyOutgoingCalls(params)
+    ): List<CallHierarchyOutgoingCall>? = delegate.callHierarchyOutgoingCalls(params)
 
     override suspend fun textDocumentSemanticTokensFull(
         params: SemanticTokensParams
-    ): SemanticTokens = delegate.textDocumentSemanticTokensFull(params)
+    ): SemanticTokens? = delegate.textDocumentSemanticTokensFull(params)
 
     override suspend fun textDocumentSemanticTokensFullDelta(
         params: SemanticTokensDeltaParams
-    ): TextDocumentSemanticTokensFullDeltaResult =
+    ): TextDocumentSemanticTokensFullDeltaResult? =
         delegate.textDocumentSemanticTokensFullDelta(params)
 
     override suspend fun textDocumentSemanticTokensRange(
         params: SemanticTokensRangeParams
-    ): SemanticTokens = delegate.textDocumentSemanticTokensRange(params)
+    ): SemanticTokens? = delegate.textDocumentSemanticTokensRange(params)
 
     override suspend fun textDocumentLinkedEditingRange(
         params: LinkedEditingRangeParams
-    ): LinkedEditingRanges = delegate.textDocumentLinkedEditingRange(params)
+    ): LinkedEditingRanges? = delegate.textDocumentLinkedEditingRange(params)
 
-    override suspend fun workspaceWillCreateFiles(params: CreateFilesParams): WorkspaceEdit =
+    override suspend fun workspaceWillCreateFiles(params: CreateFilesParams): WorkspaceEdit? =
         delegate.workspaceWillCreateFiles(params)
 
-    override suspend fun workspaceWillRenameFiles(params: RenameFilesParams): WorkspaceEdit =
+    override suspend fun workspaceWillRenameFiles(params: RenameFilesParams): WorkspaceEdit? =
         delegate.workspaceWillRenameFiles(params)
 
-    override suspend fun workspaceWillDeleteFiles(params: DeleteFilesParams): WorkspaceEdit =
+    override suspend fun workspaceWillDeleteFiles(params: DeleteFilesParams): WorkspaceEdit? =
         delegate.workspaceWillDeleteFiles(params)
 
-    override suspend fun textDocumentMoniker(params: MonikerParams): List<Moniker> =
+    override suspend fun textDocumentMoniker(params: MonikerParams): List<Moniker>? =
         delegate.textDocumentMoniker(params)
 
     override suspend fun textDocumentPrepareTypeHierarchy(
         params: TypeHierarchyPrepareParams
-    ): List<TypeHierarchyItem> = delegate.textDocumentPrepareTypeHierarchy(params)
+    ): List<TypeHierarchyItem>? = delegate.textDocumentPrepareTypeHierarchy(params)
 
     override suspend fun typeHierarchySupertypes(
         params: TypeHierarchySupertypesParams
-    ): List<TypeHierarchyItem> = delegate.typeHierarchySupertypes(params)
+    ): List<TypeHierarchyItem>? = delegate.typeHierarchySupertypes(params)
 
     override suspend fun typeHierarchySubtypes(
         params: TypeHierarchySubtypesParams
-    ): List<TypeHierarchyItem> = delegate.typeHierarchySubtypes(params)
+    ): List<TypeHierarchyItem>? = delegate.typeHierarchySubtypes(params)
 
-    override suspend fun textDocumentInlineValue(params: InlineValueParams): List<InlineValue> =
+    override suspend fun textDocumentInlineValue(params: InlineValueParams): List<InlineValue>? =
         delegate.textDocumentInlineValue(params)
 
-    override suspend fun textDocumentInlayHint(params: InlayHintParams): List<InlayHint> =
+    override suspend fun textDocumentInlayHint(params: InlayHintParams): List<InlayHint>? =
         delegate.textDocumentInlayHint(params)
 
     override suspend fun inlayHintResolve(params: InlayHint): InlayHint =
@@ -124,7 +124,7 @@ internal class LifecycleTrackingLanguageServer(
 
     override suspend fun textDocumentInlineCompletion(
         params: InlineCompletionParams
-    ): TextDocumentInlineCompletionResult = delegate.textDocumentInlineCompletion(params)
+    ): TextDocumentInlineCompletionResult? = delegate.textDocumentInlineCompletion(params)
 
     override suspend fun initialize(params: InitializeParams): InitializeResult =
         delegate.initialize(params)
@@ -137,84 +137,84 @@ internal class LifecycleTrackingLanguageServer(
 
     override suspend fun textDocumentWillSaveWaitUntil(
         params: WillSaveTextDocumentParams
-    ): List<TextEdit> = delegate.textDocumentWillSaveWaitUntil(params)
+    ): List<TextEdit>? = delegate.textDocumentWillSaveWaitUntil(params)
 
     override suspend fun textDocumentCompletion(
         params: CompletionParams
-    ): TextDocumentCompletionResult = delegate.textDocumentCompletion(params)
+    ): TextDocumentCompletionResult? = delegate.textDocumentCompletion(params)
 
     override suspend fun completionItemResolve(params: CompletionItem): CompletionItem =
         delegate.completionItemResolve(params)
 
-    override suspend fun textDocumentHover(params: HoverParams): Hover =
+    override suspend fun textDocumentHover(params: HoverParams): Hover? =
         delegate.textDocumentHover(params)
 
-    override suspend fun textDocumentSignatureHelp(params: SignatureHelpParams): SignatureHelp =
+    override suspend fun textDocumentSignatureHelp(params: SignatureHelpParams): SignatureHelp? =
         delegate.textDocumentSignatureHelp(params)
 
     override suspend fun textDocumentDefinition(
         params: DefinitionParams
-    ): TextDocumentDefinitionResult = delegate.textDocumentDefinition(params)
+    ): TextDocumentDefinitionResult? = delegate.textDocumentDefinition(params)
 
-    override suspend fun textDocumentReferences(params: ReferenceParams): List<Location> =
+    override suspend fun textDocumentReferences(params: ReferenceParams): List<Location>? =
         delegate.textDocumentReferences(params)
 
     override suspend fun textDocumentDocumentHighlight(
         params: DocumentHighlightParams
-    ): List<DocumentHighlight> = delegate.textDocumentDocumentHighlight(params)
+    ): List<DocumentHighlight>? = delegate.textDocumentDocumentHighlight(params)
 
     override suspend fun textDocumentDocumentSymbol(
         params: DocumentSymbolParams
-    ): TextDocumentDocumentSymbolResult = delegate.textDocumentDocumentSymbol(params)
+    ): TextDocumentDocumentSymbolResult? = delegate.textDocumentDocumentSymbol(params)
 
     override suspend fun textDocumentCodeAction(
         params: CodeActionParams
-    ): List<TextDocumentCodeActionResult> = delegate.textDocumentCodeAction(params)
+    ): List<TextDocumentCodeActionResult>? = delegate.textDocumentCodeAction(params)
 
     override suspend fun codeActionResolve(params: CodeAction): CodeAction =
         delegate.codeActionResolve(params)
 
-    override suspend fun workspaceSymbol(params: WorkspaceSymbolParams): JsonElement =
+    override suspend fun workspaceSymbol(params: WorkspaceSymbolParams): JsonElement? =
         delegate.workspaceSymbol(params)
 
     override suspend fun workspaceSymbolResolve(params: WorkspaceSymbol): WorkspaceSymbol =
         delegate.workspaceSymbolResolve(params)
 
-    override suspend fun textDocumentCodeLens(params: CodeLensParams): List<CodeLens> =
+    override suspend fun textDocumentCodeLens(params: CodeLensParams): List<CodeLens>? =
         delegate.textDocumentCodeLens(params)
 
     override suspend fun codeLensResolve(params: CodeLens): CodeLens =
         delegate.codeLensResolve(params)
 
-    override suspend fun textDocumentDocumentLink(params: DocumentLinkParams): List<DocumentLink> =
+    override suspend fun textDocumentDocumentLink(params: DocumentLinkParams): List<DocumentLink>? =
         delegate.textDocumentDocumentLink(params)
 
     override suspend fun documentLinkResolve(params: DocumentLink): DocumentLink =
         delegate.documentLinkResolve(params)
 
-    override suspend fun textDocumentFormatting(params: DocumentFormattingParams): List<TextEdit> =
+    override suspend fun textDocumentFormatting(params: DocumentFormattingParams): List<TextEdit>? =
         delegate.textDocumentFormatting(params)
 
     override suspend fun textDocumentRangeFormatting(
         params: DocumentRangeFormattingParams
-    ): List<TextEdit> = delegate.textDocumentRangeFormatting(params)
+    ): List<TextEdit>? = delegate.textDocumentRangeFormatting(params)
 
     override suspend fun textDocumentRangesFormatting(
         params: DocumentRangesFormattingParams
-    ): List<TextEdit> = delegate.textDocumentRangesFormatting(params)
+    ): List<TextEdit>? = delegate.textDocumentRangesFormatting(params)
 
     override suspend fun textDocumentOnTypeFormatting(
         params: DocumentOnTypeFormattingParams
-    ): List<TextEdit> = delegate.textDocumentOnTypeFormatting(params)
+    ): List<TextEdit>? = delegate.textDocumentOnTypeFormatting(params)
 
-    override suspend fun textDocumentRename(params: RenameParams): WorkspaceEdit =
+    override suspend fun textDocumentRename(params: RenameParams): WorkspaceEdit? =
         delegate.textDocumentRename(params)
 
     override suspend fun textDocumentPrepareRename(
         params: PrepareRenameParams
-    ): PrepareRenameResult = delegate.textDocumentPrepareRename(params)
+    ): PrepareRenameResult? = delegate.textDocumentPrepareRename(params)
 
-    override suspend fun workspaceExecuteCommand(params: ExecuteCommandParams): LSPAny =
+    override suspend fun workspaceExecuteCommand(params: ExecuteCommandParams): LSPAny? =
         delegate.workspaceExecuteCommand(params)
 
     override suspend fun workspaceDidChangeWorkspaceFolders(

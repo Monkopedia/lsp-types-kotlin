@@ -100,6 +100,7 @@ class NativeStdioSmokeTest {
                         position = Position(line = 0u, character = 0u)
                     )
                 )
+                assertNotNull(hover, "hover at line 0 should return a result")
                 assertTrue(
                     hover.contents is HoverContents.MarkupContentValue,
                     "line 0 hover should round-trip as MarkupContentValue, was ${hover.contents}"

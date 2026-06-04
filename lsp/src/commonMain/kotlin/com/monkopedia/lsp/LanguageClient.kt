@@ -22,7 +22,7 @@ interface LanguageClient {
     /**
      * The `workspace/workspaceFolders` is sent from the server to the client to fetch the open workspace folders.
      */
-    suspend fun workspaceWorkspaceFolders(): List<WorkspaceFolder>
+    suspend fun workspaceWorkspaceFolders(): List<WorkspaceFolder>?
 
     /**
      * The 'workspace/configuration' request is sent from the server to the client to fetch a certain
@@ -95,7 +95,7 @@ interface LanguageClient {
      * The show message request is sent from the server to the client to show a message
      * and a set of options actions to the user.
      */
-    suspend fun windowShowMessageRequest(params: ShowMessageRequestParams): MessageActionItem
+    suspend fun windowShowMessageRequest(params: ShowMessageRequestParams): MessageActionItem?
 
     /**
      * A request to refresh all code actions

@@ -5,6 +5,28 @@ All notable changes to lsp-types-kotlin are documented here. The format follows
 stable under semantic versioning as of 1.0.0; the `1.0.0-RC*` entries below
 trace the path to it.
 
+## [1.2.0] - 2026-06-04
+
+### Fixed
+- **Spec-nullable method results are now nullable, instead of crashing on a
+  server's `null`.** Many LSP requests return `T | null` per the spec (e.g.
+  `textDocument/hover` returns `Hover | null` — a server sends `null` when there's
+  nothing under the cursor). The codegen was dropping the `| null`, so the result
+  types were non-nullable and decoding a server's `null` threw
+  `JsonDecodingException`, breaking real-server interaction (and, under a hover
+  storm, appearing to wedge the client). Result types are now generated nullable
+  for every spec-nullable request — `textDocumentHover(): Hover?`,
+  `textDocumentDefinition(): TextDocumentDefinitionResult?`,
+  `textDocumentReferences(): List<Location>?`, completion/signatureHelp/
+  documentSymbol/prepareRename/semanticTokens and ~40 more.
+
+### ⚠️ Source-breaking (released as a minor)
+- The above changes ~45 method return types from `T` to `T?`. Callers that read a
+  result as non-null must now handle `null` (`?.` / `!!` / null-check). This is a
+  source-breaking signature change; it is shipped as a **minor** (not a major)
+  because it corrects an unsound type that crashed on spec-legal input, on a
+  young 1.x line. The wire format is unchanged.
+
 ## [1.1.0] - 2026-06-04
 
 ### Added

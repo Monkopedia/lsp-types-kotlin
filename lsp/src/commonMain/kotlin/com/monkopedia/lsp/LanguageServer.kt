@@ -26,7 +26,7 @@ interface LanguageServer {
      */
     suspend fun textDocumentImplementation(
         params: ImplementationParams
-    ): TextDocumentImplementationResult
+    ): TextDocumentImplementationResult?
 
     /**
      * A request to resolve the type definition locations of a symbol at a given text
@@ -35,7 +35,7 @@ interface LanguageServer {
      */
     suspend fun textDocumentTypeDefinition(
         params: TypeDefinitionParams
-    ): TextDocumentTypeDefinitionResult
+    ): TextDocumentTypeDefinitionResult?
 
     /**
      * A request to list all color symbols found in a given text document. The request's
@@ -61,7 +61,7 @@ interface LanguageServer {
      * response is of type {@link FoldingRangeList} or a Thenable
      * that resolves to such.
      */
-    suspend fun textDocumentFoldingRange(params: FoldingRangeParams): List<FoldingRange>
+    suspend fun textDocumentFoldingRange(params: FoldingRangeParams): List<FoldingRange>?
 
     /**
      * A request to resolve the type definition locations of a symbol at a given text
@@ -69,7 +69,7 @@ interface LanguageServer {
      * the response is of type {@link Declaration} or a typed array of {@link DeclarationLink}
      * or a Thenable that resolves to such.
      */
-    suspend fun textDocumentDeclaration(params: DeclarationParams): TextDocumentDeclarationResult
+    suspend fun textDocumentDeclaration(params: DeclarationParams): TextDocumentDeclarationResult?
 
     /**
      * A request to provide selection ranges in a document. The request's
@@ -77,7 +77,7 @@ interface LanguageServer {
      * response is of type {@link SelectionRange SelectionRange[]} or a Thenable
      * that resolves to such.
      */
-    suspend fun textDocumentSelectionRange(params: SelectionRangeParams): List<SelectionRange>
+    suspend fun textDocumentSelectionRange(params: SelectionRangeParams): List<SelectionRange>?
 
     /**
      * A request to result a `CallHierarchyItem` in a document at a given position.
@@ -87,7 +87,7 @@ interface LanguageServer {
      */
     suspend fun textDocumentPrepareCallHierarchy(
         params: CallHierarchyPrepareParams
-    ): List<CallHierarchyItem>
+    ): List<CallHierarchyItem>?
 
     /**
      * A request to resolve the incoming calls for a given `CallHierarchyItem`.
@@ -96,7 +96,7 @@ interface LanguageServer {
      */
     suspend fun callHierarchyIncomingCalls(
         params: CallHierarchyIncomingCallsParams
-    ): List<CallHierarchyIncomingCall>
+    ): List<CallHierarchyIncomingCall>?
 
     /**
      * A request to resolve the outgoing calls for a given `CallHierarchyItem`.
@@ -105,24 +105,24 @@ interface LanguageServer {
      */
     suspend fun callHierarchyOutgoingCalls(
         params: CallHierarchyOutgoingCallsParams
-    ): List<CallHierarchyOutgoingCall>
+    ): List<CallHierarchyOutgoingCall>?
 
     /**
      * @since 3.16.0
      */
-    suspend fun textDocumentSemanticTokensFull(params: SemanticTokensParams): SemanticTokens
+    suspend fun textDocumentSemanticTokensFull(params: SemanticTokensParams): SemanticTokens?
 
     /**
      * @since 3.16.0
      */
     suspend fun textDocumentSemanticTokensFullDelta(
         params: SemanticTokensDeltaParams
-    ): TextDocumentSemanticTokensFullDeltaResult
+    ): TextDocumentSemanticTokensFullDeltaResult?
 
     /**
      * @since 3.16.0
      */
-    suspend fun textDocumentSemanticTokensRange(params: SemanticTokensRangeParams): SemanticTokens
+    suspend fun textDocumentSemanticTokensRange(params: SemanticTokensRangeParams): SemanticTokens?
 
     /**
      * A request to provide ranges that can be edited together.
@@ -131,7 +131,7 @@ interface LanguageServer {
      */
     suspend fun textDocumentLinkedEditingRange(
         params: LinkedEditingRangeParams
-    ): LinkedEditingRanges
+    ): LinkedEditingRanges?
 
     /**
      * The will create files request is sent from the client to the server before files are actually
@@ -143,7 +143,7 @@ interface LanguageServer {
      *
      * @since 3.16.0
      */
-    suspend fun workspaceWillCreateFiles(params: CreateFilesParams): WorkspaceEdit
+    suspend fun workspaceWillCreateFiles(params: CreateFilesParams): WorkspaceEdit?
 
     /**
      * The will rename files request is sent from the client to the server before files are actually
@@ -151,7 +151,7 @@ interface LanguageServer {
      *
      * @since 3.16.0
      */
-    suspend fun workspaceWillRenameFiles(params: RenameFilesParams): WorkspaceEdit
+    suspend fun workspaceWillRenameFiles(params: RenameFilesParams): WorkspaceEdit?
 
     /**
      * The did delete files notification is sent from the client to the server when
@@ -159,14 +159,14 @@ interface LanguageServer {
      *
      * @since 3.16.0
      */
-    suspend fun workspaceWillDeleteFiles(params: DeleteFilesParams): WorkspaceEdit
+    suspend fun workspaceWillDeleteFiles(params: DeleteFilesParams): WorkspaceEdit?
 
     /**
      * A request to get the moniker of a symbol at a given text document position.
      * The request parameter is of type {@link TextDocumentPositionParams}.
      * The response is of type {@link Moniker Moniker[]} or `null`.
      */
-    suspend fun textDocumentMoniker(params: MonikerParams): List<Moniker>
+    suspend fun textDocumentMoniker(params: MonikerParams): List<Moniker>?
 
     /**
      * A request to result a `TypeHierarchyItem` in a document at a given position.
@@ -176,7 +176,7 @@ interface LanguageServer {
      */
     suspend fun textDocumentPrepareTypeHierarchy(
         params: TypeHierarchyPrepareParams
-    ): List<TypeHierarchyItem>
+    ): List<TypeHierarchyItem>?
 
     /**
      * A request to resolve the supertypes for a given `TypeHierarchyItem`.
@@ -185,14 +185,14 @@ interface LanguageServer {
      */
     suspend fun typeHierarchySupertypes(
         params: TypeHierarchySupertypesParams
-    ): List<TypeHierarchyItem>
+    ): List<TypeHierarchyItem>?
 
     /**
      * A request to resolve the subtypes for a given `TypeHierarchyItem`.
      *
      * @since 3.17.0
      */
-    suspend fun typeHierarchySubtypes(params: TypeHierarchySubtypesParams): List<TypeHierarchyItem>
+    suspend fun typeHierarchySubtypes(params: TypeHierarchySubtypesParams): List<TypeHierarchyItem>?
 
     /**
      * A request to provide inline values in a document. The request's parameter is of
@@ -201,7 +201,7 @@ interface LanguageServer {
      *
      * @since 3.17.0
      */
-    suspend fun textDocumentInlineValue(params: InlineValueParams): List<InlineValue>
+    suspend fun textDocumentInlineValue(params: InlineValueParams): List<InlineValue>?
 
     /**
      * A request to provide inlay hints in a document. The request's parameter is of
@@ -210,7 +210,7 @@ interface LanguageServer {
      *
      * @since 3.17.0
      */
-    suspend fun textDocumentInlayHint(params: InlayHintParams): List<InlayHint>
+    suspend fun textDocumentInlayHint(params: InlayHintParams): List<InlayHint>?
 
     /**
      * A request to resolve additional properties for an inlay hint.
@@ -247,7 +247,7 @@ interface LanguageServer {
      */
     suspend fun textDocumentInlineCompletion(
         params: InlineCompletionParams
-    ): TextDocumentInlineCompletionResult
+    ): TextDocumentInlineCompletionResult?
 
     /**
      * The initialize request is sent from the client to the server.
@@ -275,7 +275,7 @@ interface LanguageServer {
      * server constantly fails on this request. This is done to keep the save fast and
      * reliable.
      */
-    suspend fun textDocumentWillSaveWaitUntil(params: WillSaveTextDocumentParams): List<TextEdit>
+    suspend fun textDocumentWillSaveWaitUntil(params: WillSaveTextDocumentParams): List<TextEdit>?
 
     /**
      * Request to request completion at a given text document position. The request's
@@ -288,7 +288,7 @@ interface LanguageServer {
      * request. However, properties that are needed for the initial sorting and filtering, like `sortText`,
      * `filterText`, `insertText`, and `textEdit`, must not be changed during resolve.
      */
-    suspend fun textDocumentCompletion(params: CompletionParams): TextDocumentCompletionResult
+    suspend fun textDocumentCompletion(params: CompletionParams): TextDocumentCompletionResult?
 
     /**
      * Request to resolve additional information for a given completion item.The request's
@@ -302,9 +302,9 @@ interface LanguageServer {
      * parameter is of type {@link TextDocumentPosition} the response is of
      * type {@link Hover} or a Thenable that resolves to such.
      */
-    suspend fun textDocumentHover(params: HoverParams): Hover
+    suspend fun textDocumentHover(params: HoverParams): Hover?
 
-    suspend fun textDocumentSignatureHelp(params: SignatureHelpParams): SignatureHelp
+    suspend fun textDocumentSignatureHelp(params: SignatureHelpParams): SignatureHelp?
 
     /**
      * A request to resolve the definition location of a symbol at a given text
@@ -312,7 +312,7 @@ interface LanguageServer {
      * the response is of either type {@link Definition} or a typed array of
      * {@link DefinitionLink} or a Thenable that resolves to such.
      */
-    suspend fun textDocumentDefinition(params: DefinitionParams): TextDocumentDefinitionResult
+    suspend fun textDocumentDefinition(params: DefinitionParams): TextDocumentDefinitionResult?
 
     /**
      * A request to resolve project-wide references for the symbol denoted
@@ -320,7 +320,7 @@ interface LanguageServer {
      * type {@link ReferenceParams} the response is of type
      * {@link Location Location[]} or a Thenable that resolves to such.
      */
-    suspend fun textDocumentReferences(params: ReferenceParams): List<Location>
+    suspend fun textDocumentReferences(params: ReferenceParams): List<Location>?
 
     /**
      * Request to resolve a {@link DocumentHighlight} for a given
@@ -330,7 +330,7 @@ interface LanguageServer {
      */
     suspend fun textDocumentDocumentHighlight(
         params: DocumentHighlightParams
-    ): List<DocumentHighlight>
+    ): List<DocumentHighlight>?
 
     /**
      * A request to list all symbols found in a given text document. The request's
@@ -340,12 +340,14 @@ interface LanguageServer {
      */
     suspend fun textDocumentDocumentSymbol(
         params: DocumentSymbolParams
-    ): TextDocumentDocumentSymbolResult
+    ): TextDocumentDocumentSymbolResult?
 
     /**
      * A request to provide commands for the given text document and range.
      */
-    suspend fun textDocumentCodeAction(params: CodeActionParams): List<TextDocumentCodeActionResult>
+    suspend fun textDocumentCodeAction(
+        params: CodeActionParams
+    ): List<TextDocumentCodeActionResult>?
 
     /**
      * Request to resolve additional information for a given code action.The request's
@@ -369,7 +371,7 @@ interface LanguageServer {
 need to advertise support for WorkspaceSymbols via the client capability
 `workspace.symbol.resolveSupport`.
      */
-    suspend fun workspaceSymbol(params: WorkspaceSymbolParams): JsonElement
+    suspend fun workspaceSymbol(params: WorkspaceSymbolParams): JsonElement?
 
     /**
      * A request to resolve the range inside the workspace
@@ -382,7 +384,7 @@ need to advertise support for WorkspaceSymbols via the client capability
     /**
      * A request to provide code lens for the given text document.
      */
-    suspend fun textDocumentCodeLens(params: CodeLensParams): List<CodeLens>
+    suspend fun textDocumentCodeLens(params: CodeLensParams): List<CodeLens>?
 
     /**
      * A request to resolve a command for a given code lens.
@@ -392,7 +394,7 @@ need to advertise support for WorkspaceSymbols via the client capability
     /**
      * A request to provide document links
      */
-    suspend fun textDocumentDocumentLink(params: DocumentLinkParams): List<DocumentLink>
+    suspend fun textDocumentDocumentLink(params: DocumentLinkParams): List<DocumentLink>?
 
     /**
      * Request to resolve additional information for a given document link. The request's
@@ -404,12 +406,12 @@ need to advertise support for WorkspaceSymbols via the client capability
     /**
      * A request to format a whole document.
      */
-    suspend fun textDocumentFormatting(params: DocumentFormattingParams): List<TextEdit>
+    suspend fun textDocumentFormatting(params: DocumentFormattingParams): List<TextEdit>?
 
     /**
      * A request to format a range in a document.
      */
-    suspend fun textDocumentRangeFormatting(params: DocumentRangeFormattingParams): List<TextEdit>
+    suspend fun textDocumentRangeFormatting(params: DocumentRangeFormattingParams): List<TextEdit>?
 
     /**
      * A request to format ranges in a document.
@@ -417,30 +419,34 @@ need to advertise support for WorkspaceSymbols via the client capability
      * @since 3.18.0
      * @proposed
      */
-    suspend fun textDocumentRangesFormatting(params: DocumentRangesFormattingParams): List<TextEdit>
+    suspend fun textDocumentRangesFormatting(
+        params: DocumentRangesFormattingParams
+    ): List<TextEdit>?
 
     /**
      * A request to format a document on type.
      */
-    suspend fun textDocumentOnTypeFormatting(params: DocumentOnTypeFormattingParams): List<TextEdit>
+    suspend fun textDocumentOnTypeFormatting(
+        params: DocumentOnTypeFormattingParams
+    ): List<TextEdit>?
 
     /**
      * A request to rename a symbol.
      */
-    suspend fun textDocumentRename(params: RenameParams): WorkspaceEdit
+    suspend fun textDocumentRename(params: RenameParams): WorkspaceEdit?
 
     /**
      * A request to test and perform the setup necessary for a rename.
      *
      * @since 3.16 - support for default behavior
      */
-    suspend fun textDocumentPrepareRename(params: PrepareRenameParams): PrepareRenameResult
+    suspend fun textDocumentPrepareRename(params: PrepareRenameParams): PrepareRenameResult?
 
     /**
      * A request send from the client to the server to execute a command. The request might return
      * a workspace edit which the client will apply to the workspace.
      */
-    suspend fun workspaceExecuteCommand(params: ExecuteCommandParams): LSPAny
+    suspend fun workspaceExecuteCommand(params: ExecuteCommandParams): LSPAny?
 
     /**
      * The `workspace/didChangeWorkspaceFolders` notification is sent from the client to the server when the workspace

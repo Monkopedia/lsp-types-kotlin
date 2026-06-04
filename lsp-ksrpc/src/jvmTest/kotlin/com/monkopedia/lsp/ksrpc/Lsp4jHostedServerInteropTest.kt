@@ -183,18 +183,21 @@ class Lsp4jHostedServerInteropTest : JvmIntegrationTestBase() {
 
     private suspend fun assertHoverBranches(server: com.monkopedia.lsp.KsrpcLanguageServer) {
         val markup = server.textDocumentHover(hover(ConformanceLanguageServer.Lines.SINGLE))
+        assertNotNull(markup, "lsp4j hover (SINGLE) should not be null")
         assertTrue(
             markup.contents is HoverContents.MarkupContentValue,
             "lsp4j MarkupContent should parse as MarkupContentValue: ${markup.contents}"
         )
         // lsp4j emits a single marked string as a bare object → MarkedStringValue.
         val marked = server.textDocumentHover(hover(ConformanceLanguageServer.Lines.ARRAY))
+        assertNotNull(marked, "lsp4j hover (ARRAY) should not be null")
         assertTrue(
             marked.contents is HoverContents.MarkedStringValue ||
                 marked.contents is HoverContents.MarkedStringArray,
             "lsp4j marked string should parse as a marked-string branch: ${marked.contents}"
         )
         val markedArray = server.textDocumentHover(hover(ConformanceLanguageServer.Lines.LINK))
+        assertNotNull(markedArray, "lsp4j hover (LINK) should not be null")
         assertTrue(
             markedArray.contents is HoverContents.MarkedStringArray,
             "lsp4j marked-string array should parse as MarkedStringArray: ${markedArray.contents}"
@@ -318,6 +321,7 @@ class Lsp4jHostedServerInteropTest : JvmIntegrationTestBase() {
                 context = ReferenceContext(includeDeclaration = true)
             )
         )
+        assertNotNull(refs, "references should not be null")
         assertEquals(3, refs.size)
     }
 

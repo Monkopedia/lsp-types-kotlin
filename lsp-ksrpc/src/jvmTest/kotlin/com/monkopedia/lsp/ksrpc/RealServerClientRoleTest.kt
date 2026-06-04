@@ -336,7 +336,7 @@ class RealServerClientRoleTest : JvmIntegrationTestBase() {
                     textDocument = TextDocumentIdentifier(uri),
                     position = spec.callSite
                 )
-            ).takeIf { it.locations().isNotEmpty() }
+            )?.takeIf { it.locations().isNotEmpty() }
         }
         assertNotNull(result, "${spec.binary}: definition returned no result")
         val locations = result.locations()
@@ -383,7 +383,7 @@ class RealServerClientRoleTest : JvmIntegrationTestBase() {
         val names = retry {
             server.textDocumentDocumentSymbol(
                 DocumentSymbolParams(textDocument = TextDocumentIdentifier(uri))
-            ).symbolNames().takeIf { it.isNotEmpty() }
+            )?.symbolNames()?.takeIf { it.isNotEmpty() }
         }
         assertNotNull(names, "${spec.binary}: documentSymbol returned no symbols")
         assertTrue(
@@ -406,7 +406,7 @@ class RealServerClientRoleTest : JvmIntegrationTestBase() {
                     position = spec.callSite,
                     context = ReferenceContext(includeDeclaration = true)
                 )
-            ).takeIf { it.isNotEmpty() }
+            )?.takeIf { it.isNotEmpty() }
         }
         assertNotNull(refs, "${spec.binary}: references returned no result")
         // Declaration + at least one call site.

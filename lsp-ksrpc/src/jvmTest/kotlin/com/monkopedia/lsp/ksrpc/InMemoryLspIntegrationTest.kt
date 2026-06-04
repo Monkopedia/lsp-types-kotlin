@@ -22,19 +22,24 @@ import com.monkopedia.lsp.ClientCapabilities
 import com.monkopedia.lsp.DefaultLanguageClient
 import com.monkopedia.lsp.DefaultLanguageServer
 import com.monkopedia.lsp.DidOpenTextDocumentParams
+import com.monkopedia.lsp.Hover
+import com.monkopedia.lsp.HoverParams
 import com.monkopedia.lsp.InitializeParams
 import com.monkopedia.lsp.InitializeResult
 import com.monkopedia.lsp.KsrpcLanguageClient
 import com.monkopedia.lsp.KsrpcLanguageServer
 import com.monkopedia.lsp.MessageType
+import com.monkopedia.lsp.Position
 import com.monkopedia.lsp.ServerCapabilities
 import com.monkopedia.lsp.ShowMessageParams
+import com.monkopedia.lsp.TextDocumentIdentifier
 import com.monkopedia.lsp.TextDocumentItem
 import io.ktor.utils.io.ByteChannel
 import io.ktor.utils.io.close
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -88,6 +93,34 @@ class InMemoryLspIntegrationTest : JvmIntegrationTestBase() {
             }
         }
     }
+
+    @Test
+    fun `null hover result round-trips as null instead of crashing`() =
+        runBlocking(Dispatchers.IO) {
+            // A server returns `null` for textDocument/hover when there's nothing under
+            // the cursor (spec result is `Hover | null`). Before results were typed
+            // nullable, the client crashed decoding the `null` into non-nullable Hover
+            // (JsonDecodingException). Now it must round-trip as `null`.
+            val server = object : DefaultLanguageServer() {
+                override suspend fun initialize(params: InitializeParams): InitializeResult =
+                    InitializeResult(capabilities = ServerCapabilities())
+
+                override suspend fun textDocumentHover(params: HoverParams): Hover? = null
+            }
+
+            runWithLspConnection(server, DefaultLanguageClient()) { remoteServer ->
+                withTimeout(5_000) {
+                    remoteServer.initialize(InitializeParams(capabilities = ClientCapabilities()))
+                    val hover = remoteServer.textDocumentHover(
+                        HoverParams(
+                            textDocument = TextDocumentIdentifier(uri = "file:///x.kt"),
+                            position = Position(line = 0u, character = 0u)
+                        )
+                    )
+                    assertNull(hover)
+                }
+            }
+        }
 
     @Test
     fun `progress notification routes through ProgressTokenRegistry`() =
