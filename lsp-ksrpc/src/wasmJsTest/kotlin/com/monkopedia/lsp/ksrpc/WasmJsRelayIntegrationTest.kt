@@ -118,16 +118,19 @@ class WasmJsRelayIntegrationTest {
 
     private suspend fun assertHoverBranches(remote: KsrpcLanguageServer) {
         val markup = remote.textDocumentHover(hoverAt(ConformanceLanguageServer.Lines.SINGLE))
+        assertNotNull(markup, "line 0 hover should return a result")
         assertTrue(
             markup.contents is HoverContents.MarkupContentValue,
             "line 0 hover should be MarkupContentValue, was ${markup.contents}"
         )
         val marked = remote.textDocumentHover(hoverAt(ConformanceLanguageServer.Lines.ARRAY))
+        assertNotNull(marked, "line 1 hover should return a result")
         assertTrue(
             marked.contents is HoverContents.MarkedStringValue,
             "line 1 hover should be MarkedStringValue, was ${marked.contents}"
         )
         val markedArray = remote.textDocumentHover(hoverAt(ConformanceLanguageServer.Lines.LINK))
+        assertNotNull(markedArray, "line 2 hover should return a result")
         assertTrue(
             markedArray.contents is HoverContents.MarkedStringArray,
             "line 2 hover should be MarkedStringArray, was ${markedArray.contents}"
@@ -266,6 +269,7 @@ class WasmJsRelayIntegrationTest {
                 context = ReferenceContext(includeDeclaration = true)
             )
         )
+        assertNotNull(refs, "references should return a result")
         assertEquals(3, refs.size)
     }
 

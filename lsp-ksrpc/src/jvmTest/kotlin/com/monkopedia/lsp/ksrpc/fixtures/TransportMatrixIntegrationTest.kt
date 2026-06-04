@@ -389,16 +389,19 @@ class TransportMatrixIntegrationTest(
 
     private suspend fun assertHoverBranches(remote: KsrpcLanguageServer) {
         val markup = remote.textDocumentHover(hover(ConformanceLanguageServer.Lines.SINGLE))
+        assertNotNull(markup, "line 0 hover should not be null")
         assertTrue(
             markup.contents is HoverContents.MarkupContentValue,
             "line 0 hover should be MarkupContentValue, was ${markup.contents}"
         )
         val marked = remote.textDocumentHover(hover(ConformanceLanguageServer.Lines.ARRAY))
+        assertNotNull(marked, "line 1 hover should not be null")
         assertTrue(
             marked.contents is HoverContents.MarkedStringValue,
             "line 1 hover should be MarkedStringValue, was ${marked.contents}"
         )
         val markedArray = remote.textDocumentHover(hover(ConformanceLanguageServer.Lines.LINK))
+        assertNotNull(markedArray, "line 2 hover should not be null")
         assertTrue(
             markedArray.contents is HoverContents.MarkedStringArray,
             "line 2 hover should be MarkedStringArray, was ${markedArray.contents}"
@@ -848,7 +851,7 @@ private class AllMethodsDriver(
         assertTrue(
             remote.textDocumentDocumentHighlight(
                 DocumentHighlightParams(textDocument = doc, position = pos(0))
-            ).isNotEmpty()
+            )!!.isNotEmpty()
         )
         assertTrue(
             remote.textDocumentCodeAction(
@@ -857,17 +860,17 @@ private class AllMethodsDriver(
                     range = rng(),
                     context = CodeActionContext(diagnostics = emptyList())
                 )
-            ).isNotEmpty()
+            )!!.isNotEmpty()
         )
         val resolvedAction = remote.codeActionResolve(CodeAction(title = "resolve me"))
         assertEquals(true, resolvedAction.isPreferred)
 
-        val codeLens = remote.textDocumentCodeLens(CodeLensParams(textDocument = doc)).first()
+        val codeLens = remote.textDocumentCodeLens(CodeLensParams(textDocument = doc))!!.first()
         val resolvedLens = remote.codeLensResolve(codeLens.copy(command = null))
         assertNotNull(resolvedLens.command)
 
         assertTrue(
-            remote.textDocumentDocumentLink(DocumentLinkParams(textDocument = doc)).isNotEmpty()
+            remote.textDocumentDocumentLink(DocumentLinkParams(textDocument = doc))!!.isNotEmpty()
         )
         val resolvedLink = remote.documentLinkResolve(DocumentLink(range = rng()))
         assertEquals("resolved link tooltip", resolvedLink.tooltip)
@@ -888,11 +891,11 @@ private class AllMethodsDriver(
         assertTrue(
             remote.textDocumentSelectionRange(
                 SelectionRangeParams(textDocument = doc, positions = listOf(pos(0)))
-            ).isNotEmpty()
+            )!!.isNotEmpty()
         )
 
         assertTrue(
-            remote.textDocumentFoldingRange(FoldingRangeParams(textDocument = doc)).isNotEmpty()
+            remote.textDocumentFoldingRange(FoldingRangeParams(textDocument = doc))!!.isNotEmpty()
         )
 
         // formatting family
@@ -900,7 +903,7 @@ private class AllMethodsDriver(
         assertTrue(
             remote.textDocumentFormatting(
                 DocumentFormattingParams(textDocument = doc, options = fmtOptions)
-            ).isNotEmpty()
+            )!!.isNotEmpty()
         )
         assertTrue(
             remote.textDocumentRangeFormatting(
@@ -909,7 +912,7 @@ private class AllMethodsDriver(
                     range = rng(),
                     options = fmtOptions
                 )
-            ).isNotEmpty()
+            )!!.isNotEmpty()
         )
         assertTrue(
             remote.textDocumentRangesFormatting(
@@ -918,7 +921,7 @@ private class AllMethodsDriver(
                     ranges = listOf(rng()),
                     options = fmtOptions
                 )
-            ).isNotEmpty()
+            )!!.isNotEmpty()
         )
         assertTrue(
             remote.textDocumentOnTypeFormatting(
@@ -928,13 +931,14 @@ private class AllMethodsDriver(
                     ch = "}",
                     options = fmtOptions
                 )
-            ).isNotEmpty()
+            )!!.isNotEmpty()
         )
 
         // rename
         val renameEdit = remote.textDocumentRename(
             RenameParams(textDocument = doc, position = pos(0), newName = "renamed")
         )
+        assertNotNull(renameEdit)
         assertNotNull(renameEdit.changes)
         val prepRename = remote.textDocumentPrepareRename(
             PrepareRenameParams(textDocument = doc, position = pos(0))
@@ -948,7 +952,7 @@ private class AllMethodsDriver(
                     textDocument = doc,
                     reason = TextDocumentSaveReason.MANUAL
                 )
-            ).isNotEmpty()
+            )!!.isNotEmpty()
         )
 
         // completion item resolve
@@ -973,31 +977,31 @@ private class AllMethodsDriver(
         // call hierarchy
         val callItem = remote.textDocumentPrepareCallHierarchy(
             CallHierarchyPrepareParams(textDocument = doc, position = pos(0))
-        ).first()
+        )!!.first()
         assertTrue(
             remote.callHierarchyIncomingCalls(
                 CallHierarchyIncomingCallsParams(item = callItem)
-            ).isNotEmpty()
+            )!!.isNotEmpty()
         )
         assertTrue(
             remote.callHierarchyOutgoingCalls(
                 CallHierarchyOutgoingCallsParams(item = callItem)
-            ).isNotEmpty()
+            )!!.isNotEmpty()
         )
 
         // type hierarchy
         val typeItem = remote.textDocumentPrepareTypeHierarchy(
             TypeHierarchyPrepareParams(textDocument = doc, position = pos(0))
-        ).first()
+        )!!.first()
         assertTrue(
             remote.typeHierarchySupertypes(
                 TypeHierarchySupertypesParams(item = typeItem)
-            ).isNotEmpty()
+            )!!.isNotEmpty()
         )
         assertTrue(
             remote.typeHierarchySubtypes(
                 TypeHierarchySubtypesParams(item = typeItem)
-            ).isNotEmpty()
+            )!!.isNotEmpty()
         )
 
         // linked editing, moniker, inline value, inline completion
@@ -1009,7 +1013,7 @@ private class AllMethodsDriver(
         assertTrue(
             remote.textDocumentMoniker(
                 MonikerParams(textDocument = doc, position = pos(0))
-            ).isNotEmpty()
+            )!!.isNotEmpty()
         )
         assertTrue(
             remote.textDocumentInlineValue(
@@ -1021,7 +1025,7 @@ private class AllMethodsDriver(
                         stoppedLocation = rng()
                     )
                 )
-            ).isNotEmpty()
+            )!!.isNotEmpty()
         )
         assertNotNull(
             remote.textDocumentInlineCompletion(
@@ -1038,7 +1042,7 @@ private class AllMethodsDriver(
         // inlayHint + resolve
         val hint = remote.textDocumentInlayHint(
             InlayHintParams(textDocument = doc, range = rng())
-        ).first()
+        )!!.first()
         val resolvedHint = remote.inlayHintResolve(hint)
         assertNotNull(resolvedHint.tooltip)
 

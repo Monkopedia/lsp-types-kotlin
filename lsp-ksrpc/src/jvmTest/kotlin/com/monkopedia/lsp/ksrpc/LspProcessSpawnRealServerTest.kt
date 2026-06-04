@@ -150,7 +150,7 @@ class LspProcessSpawnRealServerTest : JvmIntegrationTestBase() {
                             textDocument = TextDocumentIdentifier(uri),
                             position = Position(line = 8u, character = 17u)
                         )
-                    ).takeIf { it.locations().isNotEmpty() }
+                    )?.takeIf { it.locations().isNotEmpty() }
                 }
                 assertNotNull(definition, "clangd: definition returned no locations")
                 val lines = definition.locations().map { it.range.start.line }

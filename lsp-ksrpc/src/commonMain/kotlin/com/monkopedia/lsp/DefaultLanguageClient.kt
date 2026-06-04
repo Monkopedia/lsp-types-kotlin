@@ -20,7 +20,7 @@ import kotlinx.serialization.json.JsonElement
  */
 open class DefaultLanguageClient : KsrpcLanguageClient {
 
-    override suspend fun workspaceWorkspaceFolders(): List<WorkspaceFolder> =
+    override suspend fun workspaceWorkspaceFolders(): List<WorkspaceFolder>? =
         throw NotImplementedError("workspaceWorkspaceFolders not implemented")
 
     override suspend fun workspaceConfiguration(params: ConfigurationParams): List<LSPAny> =
@@ -56,7 +56,7 @@ open class DefaultLanguageClient : KsrpcLanguageClient {
 
     override suspend fun windowShowMessageRequest(
         params: ShowMessageRequestParams
-    ): MessageActionItem = throw NotImplementedError("windowShowMessageRequest not implemented")
+    ): MessageActionItem? = throw NotImplementedError("windowShowMessageRequest not implemented")
 
     override suspend fun workspaceCodeLensRefresh(): Nothing? =
         throw NotImplementedError("workspaceCodeLensRefresh not implemented")

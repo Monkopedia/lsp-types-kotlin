@@ -29,7 +29,7 @@ interface KsrpcLanguageClient :
     RpcService {
 
     @KsMethod("workspace/workspaceFolders")
-    override suspend fun workspaceWorkspaceFolders(): List<WorkspaceFolder>
+    override suspend fun workspaceWorkspaceFolders(): List<WorkspaceFolder>?
 
     @KsMethod("workspace/configuration")
     override suspend fun workspaceConfiguration(params: ConfigurationParams): List<LSPAny>
@@ -66,7 +66,7 @@ interface KsrpcLanguageClient :
     @KsMethod("window/showMessageRequest")
     override suspend fun windowShowMessageRequest(
         params: ShowMessageRequestParams
-    ): MessageActionItem
+    ): MessageActionItem?
 
     @KsMethod("workspace/codeLens/refresh")
     override suspend fun workspaceCodeLensRefresh(): Nothing?

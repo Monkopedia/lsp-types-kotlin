@@ -31,12 +31,12 @@ interface KsrpcLanguageServer :
     @KsMethod("textDocument/implementation")
     override suspend fun textDocumentImplementation(
         params: ImplementationParams
-    ): TextDocumentImplementationResult
+    ): TextDocumentImplementationResult?
 
     @KsMethod("textDocument/typeDefinition")
     override suspend fun textDocumentTypeDefinition(
         params: TypeDefinitionParams
-    ): TextDocumentTypeDefinitionResult
+    ): TextDocumentTypeDefinitionResult?
 
     @KsMethod("textDocument/documentColor")
     override suspend fun textDocumentDocumentColor(
@@ -49,85 +49,85 @@ interface KsrpcLanguageServer :
     ): List<ColorPresentation>
 
     @KsMethod("textDocument/foldingRange")
-    override suspend fun textDocumentFoldingRange(params: FoldingRangeParams): List<FoldingRange>
+    override suspend fun textDocumentFoldingRange(params: FoldingRangeParams): List<FoldingRange>?
 
     @KsMethod("textDocument/declaration")
     override suspend fun textDocumentDeclaration(
         params: DeclarationParams
-    ): TextDocumentDeclarationResult
+    ): TextDocumentDeclarationResult?
 
     @KsMethod("textDocument/selectionRange")
     override suspend fun textDocumentSelectionRange(
         params: SelectionRangeParams
-    ): List<SelectionRange>
+    ): List<SelectionRange>?
 
     @KsMethod("textDocument/prepareCallHierarchy")
     override suspend fun textDocumentPrepareCallHierarchy(
         params: CallHierarchyPrepareParams
-    ): List<CallHierarchyItem>
+    ): List<CallHierarchyItem>?
 
     @KsMethod("callHierarchy/incomingCalls")
     override suspend fun callHierarchyIncomingCalls(
         params: CallHierarchyIncomingCallsParams
-    ): List<CallHierarchyIncomingCall>
+    ): List<CallHierarchyIncomingCall>?
 
     @KsMethod("callHierarchy/outgoingCalls")
     override suspend fun callHierarchyOutgoingCalls(
         params: CallHierarchyOutgoingCallsParams
-    ): List<CallHierarchyOutgoingCall>
+    ): List<CallHierarchyOutgoingCall>?
 
     @KsMethod("textDocument/semanticTokens/full")
     override suspend fun textDocumentSemanticTokensFull(
         params: SemanticTokensParams
-    ): SemanticTokens
+    ): SemanticTokens?
 
     @KsMethod("textDocument/semanticTokens/full/delta")
     override suspend fun textDocumentSemanticTokensFullDelta(
         params: SemanticTokensDeltaParams
-    ): TextDocumentSemanticTokensFullDeltaResult
+    ): TextDocumentSemanticTokensFullDeltaResult?
 
     @KsMethod("textDocument/semanticTokens/range")
     override suspend fun textDocumentSemanticTokensRange(
         params: SemanticTokensRangeParams
-    ): SemanticTokens
+    ): SemanticTokens?
 
     @KsMethod("textDocument/linkedEditingRange")
     override suspend fun textDocumentLinkedEditingRange(
         params: LinkedEditingRangeParams
-    ): LinkedEditingRanges
+    ): LinkedEditingRanges?
 
     @KsMethod("workspace/willCreateFiles")
-    override suspend fun workspaceWillCreateFiles(params: CreateFilesParams): WorkspaceEdit
+    override suspend fun workspaceWillCreateFiles(params: CreateFilesParams): WorkspaceEdit?
 
     @KsMethod("workspace/willRenameFiles")
-    override suspend fun workspaceWillRenameFiles(params: RenameFilesParams): WorkspaceEdit
+    override suspend fun workspaceWillRenameFiles(params: RenameFilesParams): WorkspaceEdit?
 
     @KsMethod("workspace/willDeleteFiles")
-    override suspend fun workspaceWillDeleteFiles(params: DeleteFilesParams): WorkspaceEdit
+    override suspend fun workspaceWillDeleteFiles(params: DeleteFilesParams): WorkspaceEdit?
 
     @KsMethod("textDocument/moniker")
-    override suspend fun textDocumentMoniker(params: MonikerParams): List<Moniker>
+    override suspend fun textDocumentMoniker(params: MonikerParams): List<Moniker>?
 
     @KsMethod("textDocument/prepareTypeHierarchy")
     override suspend fun textDocumentPrepareTypeHierarchy(
         params: TypeHierarchyPrepareParams
-    ): List<TypeHierarchyItem>
+    ): List<TypeHierarchyItem>?
 
     @KsMethod("typeHierarchy/supertypes")
     override suspend fun typeHierarchySupertypes(
         params: TypeHierarchySupertypesParams
-    ): List<TypeHierarchyItem>
+    ): List<TypeHierarchyItem>?
 
     @KsMethod("typeHierarchy/subtypes")
     override suspend fun typeHierarchySubtypes(
         params: TypeHierarchySubtypesParams
-    ): List<TypeHierarchyItem>
+    ): List<TypeHierarchyItem>?
 
     @KsMethod("textDocument/inlineValue")
-    override suspend fun textDocumentInlineValue(params: InlineValueParams): List<InlineValue>
+    override suspend fun textDocumentInlineValue(params: InlineValueParams): List<InlineValue>?
 
     @KsMethod("textDocument/inlayHint")
-    override suspend fun textDocumentInlayHint(params: InlayHintParams): List<InlayHint>
+    override suspend fun textDocumentInlayHint(params: InlayHintParams): List<InlayHint>?
 
     @KsMethod("inlayHint/resolve")
     override suspend fun inlayHintResolve(params: InlayHint): InlayHint
@@ -145,7 +145,7 @@ interface KsrpcLanguageServer :
     @KsMethod("textDocument/inlineCompletion")
     override suspend fun textDocumentInlineCompletion(
         params: InlineCompletionParams
-    ): TextDocumentInlineCompletionResult
+    ): TextDocumentInlineCompletionResult?
 
     @KsMethod("initialize")
     override suspend fun initialize(params: InitializeParams): InitializeResult
@@ -156,92 +156,94 @@ interface KsrpcLanguageServer :
     @KsMethod("textDocument/willSaveWaitUntil")
     override suspend fun textDocumentWillSaveWaitUntil(
         params: WillSaveTextDocumentParams
-    ): List<TextEdit>
+    ): List<TextEdit>?
 
     @KsMethod("textDocument/completion")
     override suspend fun textDocumentCompletion(
         params: CompletionParams
-    ): TextDocumentCompletionResult
+    ): TextDocumentCompletionResult?
 
     @KsMethod("completionItem/resolve")
     override suspend fun completionItemResolve(params: CompletionItem): CompletionItem
 
     @KsMethod("textDocument/hover")
-    override suspend fun textDocumentHover(params: HoverParams): Hover
+    override suspend fun textDocumentHover(params: HoverParams): Hover?
 
     @KsMethod("textDocument/signatureHelp")
-    override suspend fun textDocumentSignatureHelp(params: SignatureHelpParams): SignatureHelp
+    override suspend fun textDocumentSignatureHelp(params: SignatureHelpParams): SignatureHelp?
 
     @KsMethod("textDocument/definition")
     override suspend fun textDocumentDefinition(
         params: DefinitionParams
-    ): TextDocumentDefinitionResult
+    ): TextDocumentDefinitionResult?
 
     @KsMethod("textDocument/references")
-    override suspend fun textDocumentReferences(params: ReferenceParams): List<Location>
+    override suspend fun textDocumentReferences(params: ReferenceParams): List<Location>?
 
     @KsMethod("textDocument/documentHighlight")
     override suspend fun textDocumentDocumentHighlight(
         params: DocumentHighlightParams
-    ): List<DocumentHighlight>
+    ): List<DocumentHighlight>?
 
     @KsMethod("textDocument/documentSymbol")
     override suspend fun textDocumentDocumentSymbol(
         params: DocumentSymbolParams
-    ): TextDocumentDocumentSymbolResult
+    ): TextDocumentDocumentSymbolResult?
 
     @KsMethod("textDocument/codeAction")
     override suspend fun textDocumentCodeAction(
         params: CodeActionParams
-    ): List<TextDocumentCodeActionResult>
+    ): List<TextDocumentCodeActionResult>?
 
     @KsMethod("codeAction/resolve")
     override suspend fun codeActionResolve(params: CodeAction): CodeAction
 
     @KsMethod("workspace/symbol")
-    override suspend fun workspaceSymbol(params: WorkspaceSymbolParams): JsonElement
+    override suspend fun workspaceSymbol(params: WorkspaceSymbolParams): JsonElement?
 
     @KsMethod("workspaceSymbol/resolve")
     override suspend fun workspaceSymbolResolve(params: WorkspaceSymbol): WorkspaceSymbol
 
     @KsMethod("textDocument/codeLens")
-    override suspend fun textDocumentCodeLens(params: CodeLensParams): List<CodeLens>
+    override suspend fun textDocumentCodeLens(params: CodeLensParams): List<CodeLens>?
 
     @KsMethod("codeLens/resolve")
     override suspend fun codeLensResolve(params: CodeLens): CodeLens
 
     @KsMethod("textDocument/documentLink")
-    override suspend fun textDocumentDocumentLink(params: DocumentLinkParams): List<DocumentLink>
+    override suspend fun textDocumentDocumentLink(params: DocumentLinkParams): List<DocumentLink>?
 
     @KsMethod("documentLink/resolve")
     override suspend fun documentLinkResolve(params: DocumentLink): DocumentLink
 
     @KsMethod("textDocument/formatting")
-    override suspend fun textDocumentFormatting(params: DocumentFormattingParams): List<TextEdit>
+    override suspend fun textDocumentFormatting(params: DocumentFormattingParams): List<TextEdit>?
 
     @KsMethod("textDocument/rangeFormatting")
     override suspend fun textDocumentRangeFormatting(
         params: DocumentRangeFormattingParams
-    ): List<TextEdit>
+    ): List<TextEdit>?
 
     @KsMethod("textDocument/rangesFormatting")
     override suspend fun textDocumentRangesFormatting(
         params: DocumentRangesFormattingParams
-    ): List<TextEdit>
+    ): List<TextEdit>?
 
     @KsMethod("textDocument/onTypeFormatting")
     override suspend fun textDocumentOnTypeFormatting(
         params: DocumentOnTypeFormattingParams
-    ): List<TextEdit>
+    ): List<TextEdit>?
 
     @KsMethod("textDocument/rename")
-    override suspend fun textDocumentRename(params: RenameParams): WorkspaceEdit
+    override suspend fun textDocumentRename(params: RenameParams): WorkspaceEdit?
 
     @KsMethod("textDocument/prepareRename")
-    override suspend fun textDocumentPrepareRename(params: PrepareRenameParams): PrepareRenameResult
+    override suspend fun textDocumentPrepareRename(
+        params: PrepareRenameParams
+    ): PrepareRenameResult?
 
     @KsMethod("workspace/executeCommand")
-    override suspend fun workspaceExecuteCommand(params: ExecuteCommandParams): LSPAny
+    override suspend fun workspaceExecuteCommand(params: ExecuteCommandParams): LSPAny?
 
     @KsMethod("workspace/didChangeWorkspaceFolders")
     @KsNotification
