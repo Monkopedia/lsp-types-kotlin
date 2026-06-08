@@ -4,6 +4,8 @@
 
 Kotlin Multiplatform LSP 3.17 types and transport library.
 
+This is a library for **building** LSP clients and servers in Kotlin — the protocol types plus JSON-RPC transport. It is **not** a language server *for* Kotlin: if you want autocomplete/diagnostics for `.kt` files, you're looking for JetBrains' `kotlin-lsp` or the community `kotlin-language-server`, not this.
+
 Two artifacts, deliberately split:
 
 - **`com.monkopedia.lsp:lsp`** — LSP 3.17 types (structures, enums, type aliases) generated from Microsoft's [`metaModel.json`](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/metaModel/metaModel.json), plus transport-agnostic `LanguageServer` / `LanguageClient` interfaces (no annotations, just `suspend fun` signatures) with method-name `const val` constants on their companion objects. Targets every KMP platform that `kotlinx-serialization` runs on.
