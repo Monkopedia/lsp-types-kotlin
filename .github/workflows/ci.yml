@@ -16,6 +16,12 @@ jobs:
   build:
     name: JVM / JS / Wasm / Linux (ubuntu)
     runs-on: ubuntu-latest
+    # Backstop against an unbounded hang (e.g. the #79 teardown wedge): GitHub's
+    # default job timeout is 6h, so a wedged test would silently burn runner
+    # minutes until then. This job runs in ~13min; 30 is >2x headroom, so it
+    # never trips a healthy run but converts any future hang into a fast, visible
+    # failure instead of a 6h bleed.
+    timeout-minutes: 30
     # Fast, hermetic per-PR leg. Skip on the nightly `schedule` trigger — the
     # `nightly` job below covers that with the real-server matrix turned on.
     if: github.event_name != 'schedule'
@@ -92,6 +98,9 @@ jobs:
   apple:
     name: Apple targets (macOS)
     runs-on: macos-latest
+    # Healthy run ~10min; 30 is generous headroom (macOS runners vary) while
+    # still bounding any hang. See the build job for the rationale.
+    timeout-minutes: 30
     if: github.event_name != 'schedule'
 
     steps:
@@ -121,6 +130,9 @@ jobs:
   nightly:
     name: Nightly real-server matrix (ubuntu)
     runs-on: ubuntu-latest
+    # Healthy run ~10min (incl. external-server installs); 30 bounds any hang
+    # without tripping a slow-but-healthy install. See the build job rationale.
+    timeout-minutes: 30
     # Only the scheduled run and manual dispatch — never on push/pull_request,
     # so this never gates a PR. It installs the external language servers that
     # `RealServerClientRoleTest` drives, then runs `allTests` with BOTH gates on:
