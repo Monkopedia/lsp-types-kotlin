@@ -67,8 +67,7 @@ class BooleanOrSerializer<T>(private val tSerializer: KSerializer<T>) : KSeriali
         buildClassSerialDescriptor("BooleanOr") { }
 
     override fun deserialize(decoder: Decoder): BooleanOr<T> {
-        val jsonDecoder = decoder as? JsonDecoder
-            ?: throw SerializationException("BooleanOr requires JsonDecoder")
+        val jsonDecoder = decoder.asJson("BooleanOr")
         val element = jsonDecoder.decodeJsonElement()
         return if (element is JsonPrimitive && element.booleanOrNull != null) {
             BooleanOr.BooleanValue(element.boolean)
@@ -78,8 +77,7 @@ class BooleanOrSerializer<T>(private val tSerializer: KSerializer<T>) : KSeriali
     }
 
     override fun serialize(encoder: Encoder, value: BooleanOr<T>) {
-        val jsonEncoder = encoder as? JsonEncoder
-            ?: throw SerializationException("BooleanOr requires JsonEncoder")
+        val jsonEncoder = encoder.asJson("BooleanOr")
         when (value) {
             is BooleanOr.BooleanValue ->
                 jsonEncoder.encodeJsonElement(JsonPrimitive(value.value))
@@ -122,8 +120,7 @@ class SingleOrArraySerializer<T>(private val tSerializer: KSerializer<T>) :
         buildClassSerialDescriptor("SingleOrArray") { }
 
     override fun deserialize(decoder: Decoder): SingleOrArray<T> {
-        val jsonDecoder = decoder as? JsonDecoder
-            ?: throw SerializationException("SingleOrArray requires JsonDecoder")
+        val jsonDecoder = decoder.asJson("SingleOrArray")
         val element = jsonDecoder.decodeJsonElement()
         return if (element is JsonArray) {
             SingleOrArray.Multiple(jsonDecoder.json.decodeFromJsonElement(listSerializer, element))
@@ -133,8 +130,7 @@ class SingleOrArraySerializer<T>(private val tSerializer: KSerializer<T>) :
     }
 
     override fun serialize(encoder: Encoder, value: SingleOrArray<T>) {
-        val jsonEncoder = encoder as? JsonEncoder
-            ?: throw SerializationException("SingleOrArray requires JsonEncoder")
+        val jsonEncoder = encoder.asJson("SingleOrArray")
         when (value) {
             is SingleOrArray.Single -> jsonEncoder.encodeJsonElement(
                 jsonEncoder.json.encodeToJsonElement(tSerializer, value.value)
@@ -175,8 +171,7 @@ class StringOrSerializer<T>(private val tSerializer: KSerializer<T>) : KSerializ
         buildClassSerialDescriptor("StringOr") { }
 
     override fun deserialize(decoder: Decoder): StringOr<T> {
-        val jsonDecoder = decoder as? JsonDecoder
-            ?: throw SerializationException("StringOr requires JsonDecoder")
+        val jsonDecoder = decoder.asJson("StringOr")
         val element = jsonDecoder.decodeJsonElement()
         return if (element is JsonPrimitive && element.isString) {
             StringOr.StringValue(element.content)
@@ -186,8 +181,7 @@ class StringOrSerializer<T>(private val tSerializer: KSerializer<T>) : KSerializ
     }
 
     override fun serialize(encoder: Encoder, value: StringOr<T>) {
-        val jsonEncoder = encoder as? JsonEncoder
-            ?: throw SerializationException("StringOr requires JsonEncoder")
+        val jsonEncoder = encoder.asJson("StringOr")
         when (value) {
             is StringOr.StringValue -> jsonEncoder.encodeJsonElement(JsonPrimitive(value.value))
 
@@ -226,8 +220,7 @@ object IntOrStringSerializer : KSerializer<IntOrString> {
         buildClassSerialDescriptor("IntOrString") { }
 
     override fun deserialize(decoder: Decoder): IntOrString {
-        val jsonDecoder = decoder as? JsonDecoder
-            ?: throw SerializationException("IntOrString requires JsonDecoder")
+        val jsonDecoder = decoder.asJson("IntOrString")
         val element = jsonDecoder.decodeJsonElement()
         if (element !is JsonPrimitive) {
             throw SerializationException("IntOrString expected primitive, got $element")
@@ -240,8 +233,7 @@ object IntOrStringSerializer : KSerializer<IntOrString> {
     }
 
     override fun serialize(encoder: Encoder, value: IntOrString) {
-        val jsonEncoder = encoder as? JsonEncoder
-            ?: throw SerializationException("IntOrString requires JsonEncoder")
+        val jsonEncoder = encoder.asJson("IntOrString")
         when (value) {
             is IntOrString.IntValue -> jsonEncoder.encodeJsonElement(JsonPrimitive(value.value))
 
@@ -250,5 +242,23 @@ object IntOrStringSerializer : KSerializer<IntOrString> {
         }
     }
 }
+
+// endregion
+
+// region serializer helpers
+
+/**
+ * Cast this [Decoder] to a [JsonDecoder], or throw a [SerializationException]
+ * naming the union type. Every hand-written union serializer here is JSON-only.
+ */
+private fun Decoder.asJson(name: String): JsonDecoder =
+    this as? JsonDecoder ?: throw SerializationException("$name requires JsonDecoder")
+
+/**
+ * Cast this [Encoder] to a [JsonEncoder], or throw a [SerializationException]
+ * naming the union type. Every hand-written union serializer here is JSON-only.
+ */
+private fun Encoder.asJson(name: String): JsonEncoder =
+    this as? JsonEncoder ?: throw SerializationException("$name requires JsonEncoder")
 
 // endregion
