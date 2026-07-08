@@ -50,8 +50,8 @@ class EnumGenerator(
         w.kdoc(enum.documentation, enum.since)
         w.line("@Serializable")
         w.block("enum class ${enum.name}${supertypeClause(enum.name)}") {
-            enum.values.forEachIndexed { i, v ->
-                val comma = if (i < enum.values.lastIndex) "," else ","
+            enum.values.forEach { v ->
+                val comma = ","
                 val wireValue = v.value.jsonPrimitive.content
                 kdoc(v.documentation, v.since)
                 val enumName = v.name.toEnumEntryName()

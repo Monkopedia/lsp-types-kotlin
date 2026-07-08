@@ -359,13 +359,9 @@ private fun preClassifyUnions(model: MetaModel, resolver: TypeResolver, unionGen
 /** Convert a wire method name to a PascalCase context prefix (matches ServiceGenerator). */
 private fun String.toContextName(): String {
     val cleaned = removePrefix("$/")
-    return cleaned.split("/").mapIndexed { i, part ->
-        if (i == 0) {
-            part.replaceFirstChar { c -> c.uppercase() }
-        } else {
-            part.replaceFirstChar { c -> c.uppercase() }
-        }
-    }.joinToString("")
+    return cleaned.split("/").joinToString("") { part ->
+        part.replaceFirstChar { c -> c.uppercase() }
+    }
 }
 
 private fun groupByNamespace(names: List<String>): Map<String, List<String>> {

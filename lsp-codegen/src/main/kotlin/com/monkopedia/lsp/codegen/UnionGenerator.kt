@@ -185,16 +185,10 @@ class UnionGenerator(private val resolver: TypeResolver) {
         if (contextName.isEmpty()) {
             return "BooleanOr<JsonElement>"
         }
+        // Emit a sub-sealed interface for the options portion so consumers get type safety.
         val optionsTypeName = "${contextName}Options"
-        // For multi-options, we conservatively use JsonElement to avoid emitting
-        // additional sealed interfaces for now. Future work: emit a sub-sealed.
-        return "BooleanOr<JsonElement>"
-            .also { /* TODO: improve */ }
-            .let {
-                // Actually emit a sub-sealed interface so consumers get type safety.
-                emitNamedReferenceSealed(optionsTypeName, nonBoolean)
-                "BooleanOr<$optionsTypeName>"
-            }
+        emitNamedReferenceSealed(optionsTypeName, nonBoolean)
+        return "BooleanOr<$optionsTypeName>"
     }
 
     private fun emitNamedReferenceSealed(name: String, branches: List<LspType>) {
