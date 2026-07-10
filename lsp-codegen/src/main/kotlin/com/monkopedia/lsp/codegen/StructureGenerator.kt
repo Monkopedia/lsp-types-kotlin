@@ -69,7 +69,7 @@ class StructureGenerator(
         w.indent {
             properties.forEachIndexed { i, prop ->
                 val propContext = "${name}${prop.name.replaceFirstChar { it.uppercase() }}"
-                val isNullable = prop.optional || isNullableType(prop.type)
+                val isNullable = prop.optional || resolver.isNullableLspType(prop.type)
                 val kotlinType = resolver.resolve(prop.type, propContext, nullable = isNullable)
                 // For required structured fields whose type is itself an "options
                 // bag" (a struct with no required properties), emit a default-
@@ -129,14 +129,6 @@ class StructureGenerator(
     companion object {
         private const val MAX_NESTING_DEPTH = 20
         private const val MAX_LITERAL_ITERATIONS = 1000
-    }
-
-    private fun isNullableType(type: LspType): Boolean {
-        if (type is LspType.Base && type.name == "null") return true
-        if (type is LspType.Or) {
-            return type.items.any { it is LspType.Base && it.name == "null" }
-        }
-        return false
     }
 }
 
