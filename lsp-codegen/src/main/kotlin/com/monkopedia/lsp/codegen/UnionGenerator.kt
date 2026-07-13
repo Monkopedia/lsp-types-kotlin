@@ -252,6 +252,18 @@ class UnionGenerator(private val resolver: TypeResolver) {
     }
 
     /**
+     * The boolean discriminator expression for a union branch: a required field
+     * unique to this branch if one exists, else its first required field, else
+     * the all-optional catch-all ([FALLBACK_DISCRIMINATOR]). Shared by the three
+     * discrimination emitters so the selection rule — and its fallback — lives once.
+     */
+    private fun discriminatorExpr(unique: Set<String>, required: Set<String>): String = when {
+        unique.isNotEmpty() -> "\"${unique.first()}\" in obj"
+        required.isNotEmpty() -> "\"${required.first()}\" in obj"
+        else -> FALLBACK_DISCRIMINATOR
+    }
+
+    /**
      * Emit `when` cases for discriminating between named reference branches.
      * Strategy: find unique required fields per branch.
      */
@@ -305,15 +317,10 @@ class UnionGenerator(private val resolver: TypeResolver) {
         val cases = infos.associateWithTo(LinkedHashMap()) { info ->
             val otherRequired = infos.filter { it !== info }.flatMap { it.required }.toSet()
             val unique = info.required - otherRequired
-            when {
-                unique.isNotEmpty() ->
-                    Case("\"${unique.first()}\" in obj", 100 + info.required.size)
-
-                info.required.isNotEmpty() ->
-                    Case("\"${info.required.first()}\" in obj", info.required.size)
-
-                else -> Case(FALLBACK_DISCRIMINATOR, 0)
-            }
+            // Priority: unique-keyed branches outrank first-required-keyed ones,
+            // which outrank the all-optional fallback (0).
+            val priority = if (unique.isNotEmpty()) 100 + info.required.size else info.required.size
+            Case(discriminatorExpr(unique, info.required), priority)
         }
 
         // Resolve collisions: two branches keyed identically means one is
@@ -418,16 +425,8 @@ class UnionGenerator(private val resolver: TypeResolver) {
             val others = all.filter { it !== b }.flatMap { it.required }.toSet()
             val unique = b.required - others
             val serializer = "${b.typeName}.serializer() $cast"
-            when {
-                unique.isNotEmpty() ->
-                    Case("\"${unique.first()}\" in obj -> $serializer", 100 + b.required.size)
-
-                b.required.isNotEmpty() ->
-                    Case("\"${b.required.first()}\" in obj -> $serializer", b.required.size)
-
-                else ->
-                    Case("$FALLBACK_DISCRIMINATOR -> $serializer", 0)
-            }
+            val priority = if (unique.isNotEmpty()) 100 + b.required.size else b.required.size
+            Case("${discriminatorExpr(unique, b.required)} -> $serializer", priority)
         }.sortedByDescending { it.priority }
 
         val w = CodeWriter()
@@ -798,12 +797,7 @@ class UnionGenerator(private val resolver: TypeResolver) {
                 .flatMap { it.value.properties.filter { p -> !p.optional }.map { p -> p.name } }
                 .toSet()
             val unique = required - others
-            val discriminator = unique.firstOrNull() ?: required.firstOrNull()
-            if (discriminator != null) {
-                w.line("\"$discriminator\" in obj -> $branchName.serializer() $cast")
-            } else {
-                w.line("/* fallback */ obj.isNotEmpty() -> $branchName.serializer() $cast")
-            }
+            w.line("${discriminatorExpr(unique, required)} -> $branchName.serializer() $cast")
         }
     }
 
