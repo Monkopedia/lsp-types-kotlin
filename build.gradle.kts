@@ -217,7 +217,8 @@ val koverSummary by tasks.registering {
             val children: org.w3c.dom.NodeList = el.childNodes
             for (i in 0 until children.length) {
                 val n = children.item(i)
-                if (n is org.w3c.dom.Element && n.tagName == "counter" &&
+                if (n is org.w3c.dom.Element &&
+                    n.tagName == "counter" &&
                     n.getAttribute("type") == type
                 ) {
                     return Counter(
