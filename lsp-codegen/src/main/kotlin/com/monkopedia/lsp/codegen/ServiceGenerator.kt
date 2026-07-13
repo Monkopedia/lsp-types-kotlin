@@ -378,24 +378,26 @@ class ServiceGenerator(private val resolver: TypeResolver, private val model: Me
 }
 
 /**
+ * Split a wire method name into its path segments, dropping the leading `$/`
+ * prefix (e.g. "textDocument/hover" → [textDocument, hover]; "$/progress" →
+ * [progress]). The single source of truth for how a wire method decomposes —
+ * shared by every method-name derivation ([toMethodName], [toMethodConstName],
+ * and Main's `toContextName`) so they stay in lock-step.
+ */
+internal fun String.wireMethodSegments(): List<String> = removePrefix("$/").split("/")
+
+/**
  * Convert an LSP method name like "textDocument/hover" to a Kotlin method name like "textDocumentHover".
  */
-private fun String.toMethodName(): String {
-    // Handle $/ prefix (e.g., "$/cancelRequest" → "cancelRequest")
-    val cleaned = removePrefix("$/")
-    return cleaned.split("/").mapIndexed { i, part ->
-        if (i == 0) part else part.replaceFirstChar { it.uppercase() }
-    }.joinToString("")
-}
+private fun String.toMethodName(): String = wireMethodSegments().mapIndexed { i, part ->
+    if (i == 0) part else part.replaceFirstChar { it.uppercase() }
+}.joinToString("")
 
 /**
  * Convert an LSP method name like "textDocument/hover" or "$/progress" to an
  * UPPER_SNAKE_CASE constant name like `TEXT_DOCUMENT_HOVER` or `PROGRESS`.
  */
-private fun String.toMethodConstName(): String {
-    val cleaned = removePrefix("$/")
-    return cleaned.split("/").joinToString("_") { part ->
-        // camelCase → CAMEL_CASE
-        part.replace(Regex("([a-z])([A-Z])"), "$1_$2").uppercase()
-    }
+private fun String.toMethodConstName(): String = wireMethodSegments().joinToString("_") { part ->
+    // camelCase → CAMEL_CASE
+    part.replace(Regex("([a-z])([A-Z])"), "$1_$2").uppercase()
 }
