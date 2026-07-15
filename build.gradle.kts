@@ -35,6 +35,18 @@ plugins {
 
 group = "com.monkopedia.lsp"
 
+// Kotlin 2.4.10 defaults its managed Node.js to 25.0.0 for the JS/Wasm toolchains,
+// but that odd (non-LTS) release is rejected by npm deps the Wasm test tooling pulls
+// on a fresh resolve (nanoid@6 requires Node `^22 || ^24 || >=26` — 25 is excluded),
+// which breaks `:kotlinWasmNpmInstall`. Pin both the JS and Wasm managed Node to the
+// 22.x LTS: every current npm dep accepts it and the Kotlin toolchain fully supports it.
+plugins.withType<org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsPlugin> {
+    the<org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsEnvSpec>().version.set("22.11.0")
+}
+plugins.withType<org.jetbrains.kotlin.gradle.targets.wasm.nodejs.WasmNodeJsPlugin> {
+    the<org.jetbrains.kotlin.gradle.targets.wasm.nodejs.WasmNodeJsEnvSpec>().version.set("22.11.0")
+}
+
 apiValidation {
     @OptIn(kotlinx.validation.ExperimentalBCVApi::class)
     klib {
