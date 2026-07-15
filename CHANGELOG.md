@@ -8,11 +8,15 @@ trace the path to it.
 ## [1.2.1] - 2026-07-15
 
 ### Changed
-- Bumped ksrpc to **1.1.4** (from 1.1.1), Kotlin to **2.4.10** (from 2.4.0), and
-  kotlinx-coroutines to **1.11.0** (from 1.10.2), aligning with the ksrpc 1.1.4
-  release train. No public-API or wire-format change; klib ABI unchanged.
+- Bumped ksrpc to **1.1.5** (from 1.1.1), Kotlin to **2.4.10** (from 2.4.0), and
+  kotlinx-coroutines to **1.11.0** (from 1.10.2), aligning with the ksrpc release
+  train. No public-API or wire-format change; klib ABI unchanged.
 
 ### Internal
+- Pinned the Kotlin-managed Node.js (JS + Wasm toolchains) to the 22.x LTS.
+  Kotlin 2.4.10 defaults its managed Node to 25.0.0, which some transitive npm
+  deps reject; the pin keeps `:kotlinWasmNpmInstall` deterministic across
+  toolchain updates. Build-only; no effect on published artifacts.
 - Codegen generator cleanups (generated output byte-identical — no API/behavior
   change): removed a dead/duplicate `BooleanOr` branch and two identical-branch
   conditionals (#107); factored the triplicated union-branch discrimination
