@@ -254,29 +254,25 @@ class ServiceGenerator(private val resolver: TypeResolver, private val model: Me
         w.block("interface $name : $baseName, RpcService") {
             for (req in requests) {
                 line()
-                generateKsrpcRequestOverride(this, req, baseName)
+                generateKsrpcRequestOverride(this, req)
             }
             for (notif in notifications) {
                 line()
-                generateKsrpcNotificationOverride(this, notif, baseName)
+                generateKsrpcNotificationOverride(this, notif)
             }
         }
         return w.toString()
     }
 
-    private fun generateKsrpcRequestOverride(w: CodeWriter, req: Request, baseName: String) {
+    private fun generateKsrpcRequestOverride(w: CodeWriter, req: Request) {
         // ksrpc compiler plugin doesn't resolve const val references — use string
-        // literal here. The matching const val on the [baseName] companion still
-        // documents the wire name for users who want to reference it.
+        // literal here. The matching const val on the base interface's companion
+        // still documents the wire name for users who want to reference it.
         w.line("@KsMethod(\"${req.method}\")")
         emitMethodSignature(w, req.method, req.result, req.params, prefix = "override suspend fun ")
     }
 
-    private fun generateKsrpcNotificationOverride(
-        w: CodeWriter,
-        notif: Notification,
-        baseName: String
-    ) {
+    private fun generateKsrpcNotificationOverride(w: CodeWriter, notif: Notification) {
         w.line("@KsMethod(\"${notif.method}\")")
         w.line("@KsNotification")
         emitMethodSignature(w, notif.method, null, notif.params, prefix = "override suspend fun ")
