@@ -69,6 +69,33 @@ enum class UnionCategory {
 }
 
 /**
+ * Categories whose [UnionGenerator.resolveUnion] emits a sealed interface *named after*
+ * the union's context (or, for a top-level `typeAlias`, after the alias itself) and
+ * resolves to that name.
+ *
+ * A top-level alias in one of these categories must NOT also emit a `typealias` — the
+ * sealed interface owns the name, so the two would collide.
+ */
+val NAME_KEYED_SEALED_CATEGORIES = setOf(
+    UnionCategory.NAMED_REFERENCES,
+    UnionCategory.LITERAL_UNION,
+    UnionCategory.MIXED_REF_LITERAL,
+    UnionCategory.STRUCT_OR_ENUM,
+    UnionCategory.REF_PLUS_SINGLE_ARRAY,
+    UnionCategory.ARRAY_REF_UNION
+)
+
+/**
+ * Categories that must be visited during pre-classification so the types they generate
+ * are registered before any file is written.
+ *
+ * That is every [NAME_KEYED_SEALED_CATEGORIES] entry plus [UnionCategory.BOOLEAN_OR_OPTIONS],
+ * which registers its option types but resolves to a `BooleanOr<T>` wrapper rather than
+ * taking over the context/alias name — so it still needs a `typealias`.
+ */
+val PRE_CLASSIFIED_CATEGORIES = NAME_KEYED_SEALED_CATEGORIES + UnionCategory.BOOLEAN_OR_OPTIONS
+
+/**
  * Result of classifying a union type. Carries metadata needed by the generator.
  */
 data class UnionClassification(
