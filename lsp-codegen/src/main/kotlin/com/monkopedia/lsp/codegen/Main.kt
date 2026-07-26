@@ -301,14 +301,7 @@ private fun preClassifyUnions(model: MetaModel, resolver: TypeResolver, unionGen
         when (type) {
             is LspType.Or -> {
                 val cls = classifyUnion(type, resolver)
-                if (cls.category == UnionCategory.NAMED_REFERENCES ||
-                    cls.category == UnionCategory.LITERAL_UNION ||
-                    cls.category == UnionCategory.MIXED_REF_LITERAL ||
-                    cls.category == UnionCategory.STRUCT_OR_ENUM ||
-                    cls.category == UnionCategory.REF_PLUS_SINGLE_ARRAY ||
-                    cls.category == UnionCategory.ARRAY_REF_UNION ||
-                    cls.category == UnionCategory.BOOLEAN_OR_OPTIONS
-                ) {
+                if (cls.category in PRE_CLASSIFIED_CATEGORIES) {
                     unionGen.resolveUnion(type, contextName, topLevelAliasName)
                 }
                 // Recurse into the union's items in case nested unions exist.

@@ -19,9 +19,8 @@ package com.monkopedia.lsp.codegen
  * Generates typealiases or sealed-interface wrappers for LSP type aliases.
  *
  * - Simple aliases (reference, base, array) → Kotlin `typealias`.
- * - Union aliases (`or`) where the classifier produces a sealed interface
- *   (NAMED_REFERENCES, LITERAL_UNION) → no typealias — the sealed interface
- *   itself IS the type, emitted by [UnionGenerator].
+ * - Union aliases (`or`) in [NAME_KEYED_SEALED_CATEGORIES] → no typealias — the sealed
+ *   interface itself IS the type, emitted by [UnionGenerator] under the alias name.
  * - Other unions (BOOLEAN_OR_OPTIONS, T_OR_ARRAY_T, STRING_OR, INT_OR_STRING) →
  *   typealias to the wrapper type (e.g., `typealias Definition = SingleOrArray<Location>`).
  */
@@ -36,12 +35,7 @@ class TypeAliasGenerator(private val resolver: TypeResolver) {
             val cls = classifyUnion(alias.type, resolver)
             // Categories that produce a sealed interface keyed on the alias name —
             // skip emitting a typealias entirely (the interface IS the type).
-            if (cls.category == UnionCategory.NAMED_REFERENCES ||
-                cls.category == UnionCategory.LITERAL_UNION ||
-                cls.category == UnionCategory.MIXED_REF_LITERAL ||
-                cls.category == UnionCategory.STRUCT_OR_ENUM ||
-                cls.category == UnionCategory.REF_PLUS_SINGLE_ARRAY
-            ) {
+            if (cls.category in NAME_KEYED_SEALED_CATEGORIES) {
                 resolver.topLevelAliasName = alias.name
                 resolver.resolve(alias.type, alias.name)
                 // No typealias emitted — UnionGenerator owns this name.
