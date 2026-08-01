@@ -42,7 +42,7 @@ class LifecycleState {
     val phase: Phase get() = _phase.value
 
     /** The phase as an observable stream; replays the current value on collection. */
-    val phases: StateFlow<Phase> get() = _phase.asStateFlow()
+    val phases: StateFlow<Phase> = _phase.asStateFlow()
 
     /** Suspends until the lifecycle reaches [target] (returns immediately if already there). */
     suspend fun awaitPhase(target: Phase) {

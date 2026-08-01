@@ -103,7 +103,7 @@ class ProgressTokenRegistry {
      * server.textDocumentReferences(ReferenceParams(workDoneToken = token, ...))
      * ```
      */
-    val events: SharedFlow<ProgressParams> get() = incoming.asSharedFlow()
+    val events: SharedFlow<ProgressParams> = incoming.asSharedFlow()
 
     /**
      * Observe `$/progress` notifications for [token]. The flow emits each matching
