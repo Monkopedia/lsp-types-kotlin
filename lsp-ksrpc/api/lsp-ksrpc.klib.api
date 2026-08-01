@@ -276,6 +276,9 @@ final class com.monkopedia.lsp.ksrpc/LifecycleState { // com.monkopedia.lsp.ksrp
 final class com.monkopedia.lsp.ksrpc/ProgressTokenRegistry { // com.monkopedia.lsp.ksrpc/ProgressTokenRegistry|null[0]
     constructor <init>() // com.monkopedia.lsp.ksrpc/ProgressTokenRegistry.<init>|<init>(){}[0]
 
+    final val events // com.monkopedia.lsp.ksrpc/ProgressTokenRegistry.events|{}events[0]
+        final fun <get-events>(): kotlinx.coroutines.flow/SharedFlow<com.monkopedia.lsp/ProgressParams> // com.monkopedia.lsp.ksrpc/ProgressTokenRegistry.events.<get-events>|<get-events>(){}[0]
+
     final fun allocateToken(): com.monkopedia.lsp/IntOrString // com.monkopedia.lsp.ksrpc/ProgressTokenRegistry.allocateToken|allocateToken(){}[0]
     final fun allocateToken(kotlin/String): com.monkopedia.lsp/IntOrString // com.monkopedia.lsp.ksrpc/ProgressTokenRegistry.allocateToken|allocateToken(kotlin.String){}[0]
     final fun observe(com.monkopedia.lsp/IntOrString): kotlinx.coroutines.flow/Flow<com.monkopedia.lsp/ProgressParams> // com.monkopedia.lsp.ksrpc/ProgressTokenRegistry.observe|observe(com.monkopedia.lsp.IntOrString){}[0]

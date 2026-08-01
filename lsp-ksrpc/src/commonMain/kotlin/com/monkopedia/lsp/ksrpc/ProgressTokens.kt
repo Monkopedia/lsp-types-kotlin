@@ -19,6 +19,8 @@ import com.monkopedia.lsp.IntOrString
 import com.monkopedia.lsp.ProgressParams
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.filter
 
 /**
@@ -43,13 +45,20 @@ import kotlinx.coroutines.flow.filter
  * val registry = ProgressTokenRegistry()
  * val token = registry.allocateToken()
  *
- * // Subscribe before issuing the request that will emit progress.
+ * // Subscribe before issuing the request that will emit progress. The registry is
+ * // hot, so wait until the subscription is actually registered — `onSubscription`
+ * // on [events], not `onStart` on [observe], is what guarantees that.
+ * val subscribed = CompletableDeferred<Unit>()
  * launch {
- *     registry.observe(token).collect { p ->
- *         // p.value is JsonElement — decode as WorkDoneProgressBegin/Report/End
- *         println("progress: $p")
- *     }
+ *     registry.events
+ *         .onSubscription { subscribed.complete(Unit) }
+ *         .filter { it.token == token }
+ *         .collect { p ->
+ *             // p.value is JsonElement — decode as WorkDoneProgressBegin/Report/End
+ *             println("progress: $p")
+ *         }
  * }
+ * subscribed.await()
  *
  * server.textDocumentReferences(
  *     ReferenceParams(workDoneToken = token, ...)
@@ -74,9 +83,34 @@ class ProgressTokenRegistry {
         IntOrString.StringValue("$prefix-${tokenCounter.next()}")
 
     /**
+     * Every `$/progress` notification passed to [dispatch], unfiltered.
+     *
+     * This is the same hot stream [observe] filters, exposed so a subscriber can
+     * apply [kotlinx.coroutines.flow.onSubscription] — the only way to know the
+     * subscription is actually registered. [observe] returns a *filtered* flow, and
+     * `onStart` on it runs **before** the upstream subscription exists, so gating a
+     * request on `onStart` still races the response:
+     *
+     * ```
+     * val subscribed = CompletableDeferred<Unit>()
+     * launch {
+     *     registry.events
+     *         .onSubscription { subscribed.complete(Unit) }
+     *         .filter { it.token == token }
+     *         .collect { ... }
+     * }
+     * subscribed.await()   // now the stream is live — safe to trigger the work
+     * server.textDocumentReferences(ReferenceParams(workDoneToken = token, ...))
+     * ```
+     */
+    val events: SharedFlow<ProgressParams> get() = incoming.asSharedFlow()
+
+    /**
      * Observe `$/progress` notifications for [token]. The flow emits each matching
      * `ProgressParams` until the consumer cancels. The registry is hot — events
-     * emitted before subscription are not replayed.
+     * emitted before subscription are not replayed, so if you must not miss the
+     * first event, subscribe via [events] and wait for `onSubscription` before
+     * triggering the work that reports progress.
      */
     fun observe(token: IntOrString): Flow<ProgressParams> = incoming.filter { it.token == token }
 

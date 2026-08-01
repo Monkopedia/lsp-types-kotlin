@@ -47,7 +47,8 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
@@ -157,10 +158,17 @@ class InMemoryLspIntegrationTest : JvmIntegrationTestBase() {
             // collector is actually subscribed so we don't trigger the server's
             // $/progress emit while the launched collector is still unscheduled —
             // that race timed out under CI load (it only manifested remotely).
+            //
+            // This must be `onSubscription` on the raw `events` flow, NOT `onStart`
+            // on the filtered `observe(token)`: `onStart` runs *before* the upstream
+            // subscription is registered, so it opens the gate a beat too early and
+            // the emit can still land in the gap. Measured at ~2 drops per 1000 on
+            // an idle machine; under CI load it went red.
             val subscribed = CompletableDeferred<Unit>()
-            val collectorJob = kotlinx.coroutines.GlobalScope.launch(Dispatchers.Default) {
-                registry.observe(token)
-                    .onStart { subscribed.complete(Unit) }
+            val collectorJob = launch(Dispatchers.Default) {
+                registry.events
+                    .onSubscription { subscribed.complete(Unit) }
+                    .filter { it.token == token }
                     .collect { received.complete(it) }
             }
 
