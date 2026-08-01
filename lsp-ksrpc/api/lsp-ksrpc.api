@@ -961,6 +961,7 @@ public final class com/monkopedia/lsp/ksrpc/ProgressTokenRegistry {
 	public final fun allocateToken ()Lcom/monkopedia/lsp/IntOrString;
 	public final fun allocateToken (Ljava/lang/String;)Lcom/monkopedia/lsp/IntOrString;
 	public final fun dispatch (Lcom/monkopedia/lsp/ProgressParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun getEvents ()Lkotlinx/coroutines/flow/SharedFlow;
 	public final fun observe (Lcom/monkopedia/lsp/IntOrString;)Lkotlinx/coroutines/flow/Flow;
 }
 
