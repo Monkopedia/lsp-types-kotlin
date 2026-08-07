@@ -164,19 +164,41 @@ jobs:
       - name: Run mingwX64 tests
         run: ./gradlew :lsp:mingwX64Test :lsp-ksrpc:mingwX64Test
 
-      # Executed-count evidence: BUILD SUCCESSFUL is printed identically by a
-      # run of N tests and a run of zero, so record what actually ran.
-      - name: Report executed test counts
+      # Executed-count evidence, and it ENFORCES rather than reports.
+      #
+      # BUILD SUCCESSFUL is printed identically by a run of N tests and a run of
+      # zero, so the count is the only real signal. An earlier version of this
+      # step only PRINTED "nothing executed" and left the job green — a guard
+      # that is green in exactly the failure it exists to catch. It now fails.
+      #
+      # The total is DERIVED from the XML, never hardcoded: a hardcoded count is
+      # wrong the day the suite grows and then gets edited downward by whoever
+      # hits it, which is how a floor becomes a rubber stamp. Parsing avoids
+      # `grep` under `set -e` (a grep matching nothing exits 1 and reddens the
+      # job with a misleading message); `sed -n …p` returns empty instead.
+      - name: Verify tests actually executed
         if: always()
         shell: bash
         run: |
+          set -uo pipefail
           shopt -s globstar nullglob
-          found=0
+          total=0; files=0
           for f in **/build/test-results/**/*.xml; do
-            found=1
-            echo "$f: $(grep -o 'tests="[0-9]*"' "$f" | head -1)"
+            files=$((files + 1))
+            n=$(sed -n 's/.*<testsuite[^>]*tests="\([0-9]*\)".*/\1/p' "$f" | head -1)
+            n=${n:-0}
+            total=$((total + n))
+            echo "  $f: $n"
           done
-          [ "$found" = 1 ] || echo "NO test-results XML produced — nothing executed."
+          echo "files=$files total_tests=$total"
+          if [ "$files" -eq 0 ]; then
+            echo "::error::No test-results XML produced — mingwX64Test executed NOTHING."
+            exit 1
+          fi
+          if [ "$total" -eq 0 ]; then
+            echo "::error::$files result files but 0 test executions — the suite reported without running."
+            exit 1
+          fi
 
       - name: Upload test reports
         if: failure()
