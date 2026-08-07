@@ -117,14 +117,72 @@ jobs:
       # (defined in the library convention plugin) compiles every Apple target and
       # runs the simulator/host tests, skipping the redundant JVM/JS/Wasm/ktlint/
       # codegen work the ubuntu leg already does.
+      # SPIKE (#132): the Apple leg runs LspProcessRealServerTest via
+      # macos*Test -> nativeJsonrpcTest, but installed no clangd and set no gate,
+      # so its skip path (a bare early return) reported as an ordinary PASS. A
+      # green apple job could not distinguish "drove real clangd" from "did
+      # nothing". Install clangd and arm the gate so the result means something.
+      - name: Install clangd (for the native real-server test)
+        run: |
+          brew install llvm
+          echo "$(brew --prefix llvm)/bin" >> "$GITHUB_PATH"
+
+      - name: Show clangd (proves it is on PATH before the gate is armed)
+        run: clangd --version
+
       - name: Build + test Apple targets
-        run: ./gradlew :lsp:appleCheck :lsp-ksrpc:appleCheck
+        run: ./gradlew :lsp:appleCheck :lsp-ksrpc:appleCheck -Plsp.requireRealServers=true
 
       - name: Upload test reports
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: test-reports-macos
+          path: "**/build/reports/tests/"
+
+  # SPIKE (#129): mingwX64 is a PUBLISHED coordinate
+  # (com.monkopedia.lsp:lsp-ksrpc-mingwx64, live on Central at 1.2.1) and
+  # `mingwX64Test` EXISTS as a Gradle task — but CI has only ubuntu and macos
+  # runners, so that task has never executed anywhere. This job answers the
+  # open question: does it actually pass?
+  windows:
+    name: Windows / mingwX64 (SPIKE)
+    runs-on: windows-latest
+    timeout-minutes: 30
+    if: github.event_name != 'schedule'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Run mingwX64 tests
+        run: ./gradlew :lsp:mingwX64Test :lsp-ksrpc:mingwX64Test
+
+      # Executed-count evidence: BUILD SUCCESSFUL is printed identically by a
+      # run of N tests and a run of zero, so record what actually ran.
+      - name: Report executed test counts
+        if: always()
+        shell: bash
+        run: |
+          shopt -s globstar nullglob
+          found=0
+          for f in **/build/test-results/**/*.xml; do
+            found=1
+            echo "$f: $(grep -o 'tests="[0-9]*"' "$f" | head -1)"
+          done
+          [ "$found" = 1 ] || echo "NO test-results XML produced — nothing executed."
+
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports-windows
           path: "**/build/reports/tests/"
 
   nightly:
