@@ -176,6 +176,13 @@ jobs:
       # hits it, which is how a floor becomes a rubber stamp. Parsing avoids
       # `grep` under `set -e` (a grep matching nothing exits 1 and reddens the
       # job with a misleading message); `sed -n …p` returns empty instead.
+      # ⚠️ TEMPORARY COUNTERFACTUAL — proves the guard below can FAIL.
+      # Deletes the results so the next step sees the "tests never ran" state.
+      # THIS COMMIT IS REVERTED IMMEDIATELY AFTER THE RED RUN IS OBSERVED.
+      - name: "COUNTERFACTUAL: simulate tests never running"
+        shell: bash
+        run: rm -rf lsp/build/test-results lsp-ksrpc/build/test-results
+
       - name: Verify tests actually executed
         if: always()
         shell: bash
