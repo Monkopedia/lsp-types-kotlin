@@ -235,30 +235,35 @@ private fun runGeneration(args: Array<String>) {
         println("Generated services in ${servicesPackageDir.absolutePath}")
     }
 
-    // Emit any remaining inline literals that weren't emitted with their parent
-    if (resolver.inlineLiterals.isNotEmpty()) {
-        writeFile(packageDir, "InlineLiterals.kt") {
-            appendLine(fileHeader(LSP_PACKAGE, imports = structureImports))
-            for ((name, props) in resolver.inlineLiterals.toMap()) {
-                val w = CodeWriter()
-                structGen.generateClass(w, name, props, null, null)
-                appendLine(w.toString())
-                appendLine()
-            }
+    // Emit any remaining inline literals that weren't emitted with their parent.
+    //
+    // ⚠️ Written UNCONDITIONALLY. These two files used to be skipped when their map
+    // was empty, which left the PREVIOUS run's file on disk — generated output that
+    // no longer corresponds to the model. That is invisible until a name collides:
+    // regenerating against LSP 3.18 left a stale 3.17 `UnionBranches.kt` declaring
+    // types the new model had promoted to real structures (redeclaration) and one
+    // implementing a sealed interface the new model no longer emits (unresolved
+    // reference). The generator must fully determine its own output, so an empty
+    // map means an empty file, not a preserved one.
+    writeFile(packageDir, "InlineLiterals.kt") {
+        appendLine(fileHeader(LSP_PACKAGE, imports = structureImports))
+        for ((name, props) in resolver.inlineLiterals.toMap()) {
+            val w = CodeWriter()
+            structGen.generateClass(w, name, props, null, null)
+            appendLine(w.toString())
+            appendLine()
         }
-        resolver.inlineLiterals.clear()
     }
+    resolver.inlineLiterals.clear()
 
     // --- Generated literal-branch data classes (for LITERAL_UNION sealed interfaces) ---
-    if (unionGen.literalBranches.isNotEmpty()) {
-        writeFile(packageDir, "UnionBranches.kt") {
-            appendLine(fileHeader(LSP_PACKAGE, imports = structureImports))
-            for ((name, props) in unionGen.literalBranches.toMap()) {
-                val w = CodeWriter()
-                structGen.generateClass(w, name, props, null, null)
-                appendLine(w.toString())
-                appendLine()
-            }
+    writeFile(packageDir, "UnionBranches.kt") {
+        appendLine(fileHeader(LSP_PACKAGE, imports = structureImports))
+        for ((name, props) in unionGen.literalBranches.toMap()) {
+            val w = CodeWriter()
+            structGen.generateClass(w, name, props, null, null)
+            appendLine(w.toString())
+            appendLine()
         }
     }
 
