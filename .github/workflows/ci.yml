@@ -27,9 +27,9 @@ jobs:
     if: github.event_name != 'schedule'
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 21
@@ -37,7 +37,7 @@ jobs:
       - name: Install clangd (for real-server integration tests)
         run: sudo apt-get install -y clangd
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
 
       - name: Lint
         run: ./gradlew ktlintCheck
@@ -80,7 +80,7 @@ jobs:
 
       - name: Upload test reports
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-reports-ubuntu
           path: "**/build/reports/tests/"
@@ -90,7 +90,7 @@ jobs:
       # summary.md is the artifact actually read in the PR review.
       - name: Upload Kover report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: kover-report-ubuntu
           path: lsp/build/reports/kover/
@@ -104,14 +104,14 @@ jobs:
     if: github.event_name != 'schedule'
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 21
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
 
       # The macOS leg only covers what ubuntu can't: the Apple klibs. `appleCheck`
       # (defined in the library convention plugin) compiles every Apple target and
@@ -122,7 +122,7 @@ jobs:
 
       - name: Upload test reports
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-reports-macos
           path: "**/build/reports/tests/"
@@ -151,14 +151,14 @@ jobs:
       RUST_ANALYZER_VERSION: "2024-12-16"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 21
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
 
       # --- External language servers ---------------------------------------
       # Each install is best-effort: `continue-on-error` keeps one broken
@@ -178,7 +178,7 @@ jobs:
 
       - name: Setup Node (for npm-based servers)
         continue-on-error: true
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 20
 
@@ -196,7 +196,7 @@ jobs:
 
       - name: Setup Go (for gopls)
         continue-on-error: true
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v7
         with:
           go-version: "1.23"
 
@@ -247,7 +247,7 @@ jobs:
 
       - name: Upload test reports
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-reports-nightly
           path: "**/build/reports/tests/"
