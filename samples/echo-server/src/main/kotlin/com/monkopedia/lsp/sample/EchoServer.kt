@@ -60,7 +60,6 @@ fun main(): Unit = runBlocking(Dispatchers.IO) {
 
     val server = object : DefaultLanguageServer() {
         override suspend fun initialize(params: InitializeParams): InitializeResult {
-            state.transitionTo(LifecycleState.Phase.INITIALIZED)
             return InitializeResult(
                 capabilities = ServerCapabilities(
                     textDocumentSync = TextDocumentSyncKind.FULL,
@@ -95,18 +94,21 @@ fun main(): Unit = runBlocking(Dispatchers.IO) {
         }
 
         override suspend fun shutdown(): Nothing? {
-            state.transitionTo(LifecycleState.Phase.SHUTTING_DOWN)
             return null
         }
 
         override suspend fun exit() {
-            state.transitionTo(LifecycleState.Phase.EXITED)
             kotlin.system.exitProcess(0)
         }
     }
 
     val connection = stdInLspConnection()
-    client = connection.connectAsLspServer(server)
+    // The 2-arg overload drives `state` through the lifecycle phases itself —
+    // to INITIALIZED on the `initialized` notification, SHUTTING_DOWN on
+    // `shutdown`, and EXITED on `exit` — so the server impl above no longer
+    // hand-rolls the transitions. Observe `state.phases` if you need to react
+    // to phase changes.
+    client = connection.connectAsLspServer(server, state)
 
     // Keep `main` alive while the connection serves requests. The JSON-RPC read pump
     // now runs in a connection-owned scope (issue #87 hardening) rather than as a child
