@@ -59,8 +59,8 @@ fun main(): Unit = runBlocking(Dispatchers.IO) {
     val documents = mutableMapOf<String, String>()
 
     val server = object : DefaultLanguageServer() {
-        override suspend fun initialize(params: InitializeParams): InitializeResult {
-            return InitializeResult(
+        override suspend fun initialize(params: InitializeParams): InitializeResult =
+            InitializeResult(
                 capabilities = ServerCapabilities(
                     textDocumentSync = TextDocumentSyncKind.FULL,
                     hoverProvider = BooleanOr(true)
@@ -70,7 +70,6 @@ fun main(): Unit = runBlocking(Dispatchers.IO) {
                     version = "0.1.0"
                 )
             )
-        }
 
         override suspend fun initialized(params: InitializedParams) {
             client?.windowLogMessage(
@@ -93,9 +92,7 @@ fun main(): Unit = runBlocking(Dispatchers.IO) {
             )
         }
 
-        override suspend fun shutdown(): Nothing? {
-            return null
-        }
+        override suspend fun shutdown(): Nothing? = null
 
         override suspend fun exit() {
             kotlin.system.exitProcess(0)
