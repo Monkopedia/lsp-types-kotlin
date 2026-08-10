@@ -28,8 +28,6 @@ class TypeResolver(private val model: MetaModel) {
     /** Inline literal classes discovered during resolution, keyed by generated name. */
     val inlineLiterals = mutableMapOf<String, List<Property>>()
 
-    /** Names already emitted — prevents duplicate emission across parent/child structures. */
-    val emittedLiterals = mutableSetOf<String>()
     private var literalCounter = 0
 
     /**
@@ -152,9 +150,8 @@ class TypeResolver(private val model: MetaModel) {
 
     private fun resolveLiteral(type: LspType.Literal, context: String): String {
         val name = if (context.isNotEmpty()) context else "AnonymousLiteral${literalCounter++}"
-        if (name !in emittedLiterals) {
-            inlineLiterals.putIfAbsent(name, type.value.properties)
-        }
+        // No dedup guard needed: putIfAbsent is already idempotent on a repeat key.
+        inlineLiterals.putIfAbsent(name, type.value.properties)
         return name
     }
 
