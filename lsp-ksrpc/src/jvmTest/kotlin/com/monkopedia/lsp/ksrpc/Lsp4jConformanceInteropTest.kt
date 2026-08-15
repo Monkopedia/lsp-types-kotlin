@@ -34,6 +34,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlin.test.fail
+import kotlin.time.TimeSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -814,8 +816,22 @@ class Lsp4jConformanceInteropTest : JvmIntegrationTestBase() {
 
             // The fixture's own record of the calls it issued must reflect what
             // we observed on the wire — every method name in ClientMethods.ALL.
+            // issuedClientCalls is appended from a different coroutine than the
+            // client's receive path polled above, so give it a bounded window to
+            // catch up rather than asserting immediately.
+            val expectedClientCalls = ConformanceLanguageServer.ClientMethods.ALL.toSet()
+            val startNs = TimeSource.Monotonic.markNow()
+            while (fixture.issuedClientCalls.toSet() != expectedClientCalls) {
+                if (startNs.elapsedNow().inWholeMilliseconds > ISSUED_CALLS_TIMEOUT_MS) {
+                    fail(
+                        "fixture did not record all issued client calls in " +
+                            "$ISSUED_CALLS_TIMEOUT_MS ms; saw ${fixture.issuedClientCalls}"
+                    )
+                }
+                Thread.sleep(50)
+            }
             assertEquals(
-                ConformanceLanguageServer.ClientMethods.ALL.toSet(),
+                expectedClientCalls,
                 fixture.issuedClientCalls.toSet(),
                 "fixture should record every issued server-initiated call"
             )
@@ -1110,5 +1126,6 @@ class Lsp4jConformanceInteropTest : JvmIntegrationTestBase() {
         const val TIMEOUT_S = 15L
         const val PIPE_BUFFER = 1 shl 20
         const val EXPECTED_REFRESH_COUNT = 6
+        const val ISSUED_CALLS_TIMEOUT_MS = 10_000L
     }
 }
