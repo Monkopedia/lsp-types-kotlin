@@ -177,7 +177,7 @@ jobs:
       # `grep` under `set -e` (a grep matching nothing exits 1 and reddens the
       # job with a misleading message); `sed -n …p` returns empty instead.
       - name: Verify tests actually executed
-        if: always()
+        if: success() || failure()
         shell: bash
         run: |
           set -uo pipefail
