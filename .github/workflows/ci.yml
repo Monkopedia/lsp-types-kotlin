@@ -127,6 +127,77 @@ jobs:
           name: test-reports-macos
           path: "**/build/reports/tests/"
 
+  # SPIKE: GitHub's `macos-latest` moved to Apple Silicon (image
+  # `macos-26-arm64`). On the `apple` job above, every *Arm64Test /
+  # *SimulatorArm64Test target now runs, but the matching x64 target
+  # (macosX64Test, iosX64Test, tvosX64Test, watchosX64Test) is SKIPPED — its
+  # source set is empty on an arm64 host, so Gradle reports the task as
+  # up-to-date/skipped rather than failing. Those four x64 klibs are still
+  # PUBLISHED to Maven Central, so this answers: does a macos-13 (Intel)
+  # runner actually execute them, and do they pass? `macos-13` is the last
+  # GitHub-hosted Intel macOS image before Apple Silicon-only removal.
+  apple-x64-spike:
+    name: Apple x64 targets (macos-13 SPIKE)
+    runs-on: macos-13
+    timeout-minutes: 30
+    if: github.event_name != 'schedule'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      # :lsp targets macosX64/iosX64/tvosX64/watchosX64. :lsp-ksrpc targets a
+      # smaller Apple set (macosArm64/macosX64/iosArm64/iosSimulatorArm64/
+      # iosX64 — no tvos/watchos), so only macosX64Test/iosX64Test apply
+      # there; see lsp-ksrpc/build.gradle.kts.
+      - name: Run x64 Apple tests
+        run: ./gradlew :lsp:macosX64Test :lsp:iosX64Test :lsp:tvosX64Test :lsp:watchosX64Test :lsp-ksrpc:macosX64Test :lsp-ksrpc:iosX64Test
+
+      # Executed-count evidence, and it ENFORCES rather than reports.
+      #
+      # BUILD SUCCESSFUL is printed identically by a run of N tests and a run
+      # of zero, so the count is the only real signal — this is exactly the
+      # ambiguity that hid the arm64-only `apple` job's silent x64 skips.
+      # `if: success() || failure()`, NOT `always()` — `always()` also fires
+      # on cancellation, and a cancelled run reporting "executed NOTHING"
+      # would misrepresent a cancellation as a genuine zero-test result.
+      - name: Verify tests actually executed
+        if: success() || failure()
+        shell: bash
+        run: |
+          set -uo pipefail
+          shopt -s globstar nullglob
+          total=0; files=0
+          for f in **/build/test-results/**/*.xml; do
+            files=$((files + 1))
+            n=$(sed -n 's/.*<testsuite[^>]*tests="\([0-9]*\)".*/\1/p' "$f" | head -1)
+            n=${n:-0}
+            total=$((total + n))
+            echo "  $f: $n"
+          done
+          echo "files=$files total_tests=$total"
+          if [ "$files" -eq 0 ]; then
+            echo "::error::No test-results XML produced — the x64 Apple tests executed NOTHING."
+            exit 1
+          fi
+          if [ "$total" -eq 0 ]; then
+            echo "::error::$files result files but 0 test executions — the suite reported without running."
+            exit 1
+          fi
+
+      - name: Upload test reports
+        if: success() || failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports-macos13-x64
+          path: "**/build/reports/tests/"
+
   nightly:
     name: Nightly real-server matrix (ubuntu)
     runs-on: ubuntu-latest
