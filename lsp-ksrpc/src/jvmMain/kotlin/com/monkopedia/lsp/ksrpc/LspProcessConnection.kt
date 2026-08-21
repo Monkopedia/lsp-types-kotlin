@@ -86,6 +86,29 @@ suspend fun stdInLspConnection(
 ): SingleChannelConnection<String> = (System.`in` to System.out).asLspConnection(env)
 
 /**
+ * Start this builder with the child's stdin/stdout piped back to us — the stdio wiring
+ * every LSP child process needs, in one place.
+ *
+ * Sets stdin and stdout only. It does NOT touch stderr, which therefore stays at
+ * `ProcessBuilder`'s default of `PIPE` — not `INHERIT` — and nothing in this library
+ * ever reads `process.errorStream`. So a spawned server's stderr goes into a pipe that
+ * no one drains: once the OS buffer fills (~64 KB on Linux) the child blocks on its
+ * next stderr write and silently stops servicing LSP requests. Servers this library
+ * targets (clangd, rust-analyzer, pyright) all log to stderr, so this is reachable in a
+ * long editor session.
+ *
+ * That is issue #165 — a pre-existing bug that this helper centralizes rather than
+ * causes. It is deliberately left unfixed here so the fix is not smuggled into a
+ * refactor, and this is now the single place it needs to land.
+ *
+ * Command, environment and working directory stay the caller's business, carried on the
+ * receiver.
+ */
+private fun ProcessBuilder.startPiped(): Process = redirectInput(ProcessBuilder.Redirect.PIPE)
+    .redirectOutput(ProcessBuilder.Redirect.PIPE)
+    .start()
+
+/**
  * Spawn a child process and open an LSP-compatible JSON-RPC connection over its
  * stdin/stdout streams. Useful for client code that talks to a real LSP server like
  * `ruff server` or `typescript-language-server`.
@@ -99,9 +122,7 @@ suspend fun stdInLspConnection(
 suspend fun ProcessBuilder.asLspConnection(
     env: KsrpcEnvironment<String> = lspKsrpcEnvironment()
 ): SingleChannelConnection<String> {
-    val process = redirectInput(ProcessBuilder.Redirect.PIPE)
-        .redirectOutput(ProcessBuilder.Redirect.PIPE)
-        .start()
+    val process = startPiped()
     return (process.inputStream to process.outputStream).asLspConnection(env)
 }
 
@@ -161,10 +182,7 @@ public actual suspend fun spawnLspServer(
     env: KsrpcEnvironment<String>
 ): LspServerProcess {
     require(command.isNotEmpty()) { "command must not be empty" }
-    val process = ProcessBuilder(command)
-        .redirectInput(ProcessBuilder.Redirect.PIPE)
-        .redirectOutput(ProcessBuilder.Redirect.PIPE)
-        .start()
+    val process = ProcessBuilder(command).startPiped()
     val connection = (process.inputStream to process.outputStream).asLspConnection(env)
     return JvmLspServerProcess(process, connection)
 }
