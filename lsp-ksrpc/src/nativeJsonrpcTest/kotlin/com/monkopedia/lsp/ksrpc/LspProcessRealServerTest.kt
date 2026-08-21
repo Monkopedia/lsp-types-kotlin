@@ -199,7 +199,19 @@ private fun requireRealServerOrSkipNative(message: String) {
     if (getenv("LSP_REQUIRE_REAL_SERVERS")?.toKString() == "true") {
         error("Real-server precondition not met (LSP_REQUIRE_REAL_SERVERS): $message")
     }
-    // Otherwise skip cleanly — the caller returns green.
+    // Otherwise skip cleanly — the caller still returns green, and that has NOT
+    // changed here. Kotlin/Native's test runner has no `Assume`, so a skip must
+    // be hand-rolled as an early return: it emits no `<skipped/>`, and every
+    // NUMBER in the result XML (tests/skipped/failures/time) is identical to a
+    // run that drove clangd for real. Counting the XML proves a test executed,
+    // never that it asserted anything.
+    //
+    // So this marker is the ONLY field that distinguishes the two, and it is
+    // what makes the skip detectable at all — CI keys its verify step off it
+    // (and arms LSP_REQUIRE_REAL_SERVERS above so a missing clangd is a hard
+    // failure there). Locally, or on any ungated run, the log line is the whole
+    // of the signal: the test itself still passes.
+    println("LSP_SKIP: real-server native test skipped — $message")
 }
 
 private fun tmpDir(): String = getenv("TMPDIR")?.toKString()?.trimEnd('/') ?: "/tmp"

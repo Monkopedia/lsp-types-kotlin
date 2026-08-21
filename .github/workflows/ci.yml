@@ -136,8 +136,92 @@ jobs:
       # (defined in the library convention plugin) compiles every Apple target and
       # runs the simulator/host tests, skipping the redundant JVM/JS/Wasm/ktlint/
       # codegen work the ubuntu leg already does.
+      # The Apple leg runs LspProcessRealServerTest (real clangd over a posix
+      # stdio pipe) via macos*Test -> nativeJsonrpcTest, but it installed no
+      # clangd and armed no gate — and the native skip path is a bare early
+      # return that reports as an ordinary PASS, not a <skipped/>. So a green
+      # apple job could not distinguish "drove real clangd" from "did nothing"
+      # on macosArm64, a published coordinate (#132). (Only macosArm64 — the
+      # macosX64 test task reports SKIPPED on this runner and has never run at
+      # all, which is a different gap, tracked separately in #144.)
+      #
+      # MEASURED, not assumed: clangd IS on the macos-latest default PATH today.
+      # A probe run of this job with the install removed and the gate armed went
+      # green, with the test executing and no skip marker — so the test has been
+      # driving a real clangd all along, by accident of the runner image.
+      #
+      # That is the SECOND of the two possibilities #132 said it could not
+      # distinguish between, and it is the one that still needs fixing: an
+      # incidental dependency on an unpinned image tool, which would start
+      # silently no-op'ing the day the image drops it. So install clangd
+      # explicitly (own the dependency rather than inherit it) and prove it is
+      # on PATH in its own step, before anything depends on it — a missing
+      # binary then fails here, with an obvious cause, instead of surfacing as
+      # an opaque failure inside a six-minute Gradle run.
+      - name: Install clangd (for the native real-server test)
+        run: |
+          brew install llvm
+          echo "$(brew --prefix llvm)/bin" >> "$GITHUB_PATH"
+
+      - name: Show clangd (proves it is on PATH before the gate is armed)
+        run: clangd --version
+
       - name: Build + test Apple targets
-        run: ./gradlew :lsp:appleCheck :lsp-ksrpc:appleCheck
+        run: ./gradlew :lsp:appleCheck :lsp-ksrpc:appleCheck -Plsp.requireRealServers=true
+
+      # Executed evidence for the test this job exists to make interpretable.
+      # Arming the gate turns a MISSING clangd into a hard failure, but it
+      # cannot tell you the test ran at all — if the class ever stops being
+      # wired into macos*Test there is nothing for the gate to fire on and the
+      # leg is green-and-vacuous again. So assert the result XML positively.
+      #
+      # Two independent checks, because neither alone is sufficient:
+      #   * the XML must exist and report tests > 0 — catches "not wired in";
+      #   * its captured output must NOT carry the LSP_SKIP marker — catches
+      #     the skip path, which is otherwise INVISIBLE here.
+      #
+      # On that second check: counting XML proves a test EXECUTED, never that
+      # it ASSERTED anything. Any test whose body can skip itself defeats the
+      # count, on any platform — Kotlin/Native just forces the situation, since
+      # it has no `Assume` and a skip must be hand-rolled as an early return.
+      # The two cases are not literally byte-identical (the ran case's
+      # <system-out> carries clangd's own stderr) but every NUMBER in the file
+      # is the same, which is what makes the instrument blind. The marker the
+      # guard prints is the only field that differs on purpose. Do not swap
+      # this for a duration check: K/N reports ~0.0s for every native suite,
+      # including ones observed driving a child process.
+      #
+      # `sed -n '/<testsuite/{…;q;}'` rather than `sed … | head -1`: under
+      # GitHub's default `bash -eo pipefail`, head exiting early SIGPIPEs sed,
+      # pipefail makes the pipeline 141, and -e then kills the step with NO
+      # message — silently, and only once some file grows a second <testsuite>.
+      # Quitting inside sed has no pipe to break. (Same hazard as #152.)
+      - name: Verify the real-server native test actually executed
+        if: success() || failure()
+        shell: bash
+        run: |
+          set -uo pipefail
+          shopt -s nullglob
+          found=0
+          for f in lsp-ksrpc/build/test-results/macosArm64Test/*LspProcessRealServerTest.xml; do
+            found=$((found + 1))
+            tests=$(sed -n '/<testsuite/{s/.*tests="\([0-9]*\)".*/\1/p;q;}' "$f")
+            tests=${tests:-0}
+            echo "  $f: tests=$tests"
+            if [ "$tests" -eq 0 ]; then
+              echo "::error::LspProcessRealServerTest reported 0 executions."
+              exit 1
+            fi
+            if grep -q "LSP_SKIP" "$f"; then
+              echo "::error::LspProcessRealServerTest SKIPPED (LSP_SKIP marker present) — it passed without driving clangd."
+              grep "LSP_SKIP" "$f"
+              exit 1
+            fi
+          done
+          if [ "$found" -eq 0 ]; then
+            echo "::error::No LspProcessRealServerTest result XML under lsp-ksrpc/build/test-results/macosArm64Test — the real-server test did NOT run on this leg."
+            exit 1
+          fi
 
       - name: Upload test reports
         if: failure()
