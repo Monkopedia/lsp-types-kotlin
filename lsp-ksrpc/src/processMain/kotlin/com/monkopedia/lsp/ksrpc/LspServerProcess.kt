@@ -88,6 +88,17 @@ public interface LspServerProcess {
  *     proc.close() // bounded kill + release; never hangs
  * }
  * ```
+ *
+ * ## stderr
+ *
+ * Only the child's stdin/stdout are captured (they carry the JSON-RPC framing). Its
+ * **stderr is inherited by this process** on every platform — a server's log output
+ * appears on the host's own stderr. That is part of the contract, not an accident of one
+ * platform: stderr must reach something that consumes it, or a server logging past the
+ * OS pipe buffer blocks on write and stops answering (issue #165). Callers who want the
+ * log elsewhere should redirect their own stderr, or use the JVM-only
+ * `ProcessBuilder.asLspConnection`, where the builder — and so the stderr policy — is
+ * theirs.
  */
 public expect suspend fun spawnLspServer(
     command: List<String>,

@@ -89,17 +89,22 @@ suspend fun stdInLspConnection(
  * Start this builder with the child's stdin/stdout piped back to us — the stdio wiring
  * every LSP child process needs, in one place.
  *
- * Sets stdin and stdout only. It does NOT touch stderr, which therefore stays at
- * `ProcessBuilder`'s default of `PIPE` — not `INHERIT` — and nothing in this library
- * ever reads `process.errorStream`. So a spawned server's stderr goes into a pipe that
- * no one drains: once the OS buffer fills (~64 KB on Linux) the child blocks on its
- * next stderr write and silently stops servicing LSP requests. Servers this library
- * targets (clangd, rust-analyzer, pyright) all log to stderr, so this is reachable in a
- * long editor session.
+ * Sets stdin and stdout only, and deliberately does NOT touch stderr — because its two
+ * call sites own their builder differently. [ProcessBuilder.asLspConnection] runs on a
+ * builder the CALLER configured, so forcing a redirect here would silently discard an
+ * explicit `redirectError(...)` choice; `ProcessBuilder.redirectError()` cannot tell
+ * "the caller chose `PIPE`" from "the caller left the default", so there is no honest
+ * way to override only the latter. [spawnLspServer] constructs its own builder and
+ * therefore sets its own stderr policy there, where the choice is genuinely ours.
  *
- * That is issue #165 — a pre-existing bug that this helper centralizes rather than
- * causes. It is deliberately left unfixed here so the fix is not smuggled into a
- * refactor, and this is now the single place it needs to land.
+ * Stdin/stdout are different: both call sites need them piped for the connection to
+ * exist at all, so they are not a caller policy to preserve.
+ *
+ * A builder arriving here with stderr at `ProcessBuilder`'s default — which is `PIPE`,
+ * not `INHERIT` — gives the child a pipe that nothing in this library drains
+ * (`process.errorStream` is never read). Once the OS buffer fills (~64 KB on Linux) the
+ * child blocks on its next stderr write and silently stops servicing LSP requests, so a
+ * caller-supplied builder should set `redirectError` explicitly (issue #165).
  *
  * Command, environment and working directory stay the caller's business, carried on the
  * receiver.
@@ -114,10 +119,24 @@ private fun ProcessBuilder.startPiped(): Process = redirectInput(ProcessBuilder.
  * `ruff server` or `typescript-language-server`.
  *
  * ```
- * val connection = ProcessBuilder("ruff", "server").asLspConnection()
+ * val connection = ProcessBuilder("ruff", "server")
+ *     .redirectError(ProcessBuilder.Redirect.INHERIT)
+ *     .asLspConnection()
  * val server = connection.connectAsLspClient(MyClientImpl)
  * val initResult = server.initialize(InitializeParams(...))
  * ```
+ *
+ * Stdin and stdout are piped (that is what the connection is built from). **Stderr is
+ * left exactly as configured on the receiver** — this function never overrides a choice
+ * the caller made. That means the caller owns it, including the consequences of
+ * `ProcessBuilder`'s default: the default is `PIPE`, not `INHERIT`, and nothing here
+ * drains `process.errorStream`, so a chatty server (clangd, rust-analyzer, pyright all
+ * log to stderr) blocks on its next stderr write once the OS pipe buffer fills — ~64 KB
+ * on Linux — and silently stops answering LSP requests (issue #165).
+ *
+ * So set `redirectError` before calling this: `INHERIT` to send the server's log to your
+ * own stderr (what [spawnLspServer] does), `DISCARD` to drop it, or `Redirect.to(file)`
+ * to capture it.
  */
 suspend fun ProcessBuilder.asLspConnection(
     env: KsrpcEnvironment<String> = lspKsrpcEnvironment()
@@ -176,13 +195,30 @@ private class JvmLspServerProcess(
  * stdin/stdout piped, builds the LSP connection over those streams with the existing
  * [Pair.asLspConnection] helper, and returns a [LspServerProcess] carrying the real
  * [java.lang.Process] handle.
+ *
+ * The child's **stderr is inherited**: its log output goes straight to this process's
+ * stderr. Two reasons, and they point the same way (issue #165):
+ *
+ * 1. This function builds the `ProcessBuilder` itself and exposes no parameter that
+ *    reaches `redirectError`, so a caller has NO way to fix a bad default here. Leaving
+ *    `ProcessBuilder`'s default of `PIPE` would hand the child a pipe nobody drains, and
+ *    the child would block on its next stderr write past the ~64 KB buffer and silently
+ *    stop answering — a hang with no diagnostic and no remedy.
+ * 2. It matches the posix `actual`, whose forked child `dup2`s only `STDIN_FILENO` and
+ *    `STDOUT_FILENO`, leaving fd 2 inherited from the parent. This makes the two
+ *    platforms mean the same thing rather than two things.
+ *
+ * `redirectErrorStream(true)` is NOT used and must not be: merging stderr into stdout
+ * would corrupt the `Content-Length` framing the connection is parsing.
  */
 public actual suspend fun spawnLspServer(
     command: List<String>,
     env: KsrpcEnvironment<String>
 ): LspServerProcess {
     require(command.isNotEmpty()) { "command must not be empty" }
-    val process = ProcessBuilder(command).startPiped()
+    val process = ProcessBuilder(command)
+        .redirectError(ProcessBuilder.Redirect.INHERIT)
+        .startPiped()
     val connection = (process.inputStream to process.outputStream).asLspConnection(env)
     return JvmLspServerProcess(process, connection)
 }
