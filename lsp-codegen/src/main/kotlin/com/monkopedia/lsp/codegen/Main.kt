@@ -235,57 +235,63 @@ private fun runGeneration(args: Array<String>) {
         println("Generated services in ${servicesPackageDir.absolutePath}")
     }
 
-    // Emit any remaining inline literals that weren't emitted with their parent
-    if (resolver.inlineLiterals.isNotEmpty()) {
-        writeFile(packageDir, "InlineLiterals.kt") {
-            appendLine(fileHeader(LSP_PACKAGE, imports = structureImports))
-            for ((name, props) in resolver.inlineLiterals.toMap()) {
-                val w = CodeWriter()
-                structGen.generateClass(w, name, props, null, null)
-                appendLine(w.toString())
-                appendLine()
-            }
+    // Emit any remaining inline literals that weren't emitted with their parent.
+    //
+    // Written unconditionally. This file, UnionBranches.kt and Unions.kt were each
+    // written only when their content was non-empty, which left the PREVIOUS run's
+    // file on disk — generated output that no longer corresponds to the model, still
+    // compiled as part of :lsp. The generator must fully determine its own output, so
+    // empty content means an empty file, not a preserved one.
+    writeFile(packageDir, "InlineLiterals.kt") {
+        appendLine(fileHeader(LSP_PACKAGE, imports = structureImports))
+        for ((name, props) in resolver.inlineLiterals.toMap()) {
+            val w = CodeWriter()
+            structGen.generateClass(w, name, props, null, null)
+            appendLine(w.toString())
+            appendLine()
         }
-        resolver.inlineLiterals.clear()
     }
+    resolver.inlineLiterals.clear()
 
     // --- Generated literal-branch data classes (for LITERAL_UNION sealed interfaces) ---
-    if (unionGen.literalBranches.isNotEmpty()) {
-        writeFile(packageDir, "UnionBranches.kt") {
-            appendLine(fileHeader(LSP_PACKAGE, imports = structureImports))
-            for ((name, props) in unionGen.literalBranches.toMap()) {
-                val w = CodeWriter()
-                structGen.generateClass(w, name, props, null, null)
-                appendLine(w.toString())
-                appendLine()
-            }
+    // Written unconditionally, for the reason given above InlineLiterals.kt.
+    writeFile(packageDir, "UnionBranches.kt") {
+        appendLine(fileHeader(LSP_PACKAGE, imports = structureImports))
+        for ((name, props) in unionGen.literalBranches.toMap()) {
+            val w = CodeWriter()
+            structGen.generateClass(w, name, props, null, null)
+            appendLine(w.toString())
+            appendLine()
         }
     }
 
     // --- Sealed interfaces and serializers for unions ---
+    // Written unconditionally, for the same reason as the two files above — and this
+    // one matters most. Unions.kt holds the sealed interfaces that the classes in
+    // InlineLiterals.kt and UnionBranches.kt implement, so a run that rewrites those
+    // two while leaving a stale Unions.kt behind leaves the halves disagreeing: branch
+    // classes implementing interfaces that the model no longer declares.
     val unionsSrc = unionGen.generateUnionsFile()
-    if (unionsSrc.isNotBlank()) {
-        writeFile(packageDir, "Unions.kt") {
-            appendLine(
-                fileHeader(
-                    LSP_PACKAGE,
-                    imports = listOf(
-                        "kotlin.jvm.JvmInline",
-                        "kotlinx.serialization.DeserializationStrategy",
-                        "kotlinx.serialization.SerializationException",
-                        "kotlinx.serialization.Serializable",
-                        "kotlinx.serialization.json.JsonArray",
-                        "kotlinx.serialization.json.JsonContentPolymorphicSerializer",
-                        "kotlinx.serialization.json.JsonElement",
-                        "kotlinx.serialization.json.JsonObject",
-                        "kotlinx.serialization.json.JsonPrimitive",
-                        "kotlinx.serialization.json.contentOrNull",
-                        "kotlinx.serialization.json.jsonObject"
-                    )
+    writeFile(packageDir, "Unions.kt") {
+        appendLine(
+            fileHeader(
+                LSP_PACKAGE,
+                imports = listOf(
+                    "kotlin.jvm.JvmInline",
+                    "kotlinx.serialization.DeserializationStrategy",
+                    "kotlinx.serialization.SerializationException",
+                    "kotlinx.serialization.Serializable",
+                    "kotlinx.serialization.json.JsonArray",
+                    "kotlinx.serialization.json.JsonContentPolymorphicSerializer",
+                    "kotlinx.serialization.json.JsonElement",
+                    "kotlinx.serialization.json.JsonObject",
+                    "kotlinx.serialization.json.JsonPrimitive",
+                    "kotlinx.serialization.json.contentOrNull",
+                    "kotlinx.serialization.json.jsonObject"
                 )
             )
-            appendLine(unionsSrc)
-        }
+        )
+        appendLine(unionsSrc)
     }
 
     println("Generated files in ${packageDir.absolutePath}")
