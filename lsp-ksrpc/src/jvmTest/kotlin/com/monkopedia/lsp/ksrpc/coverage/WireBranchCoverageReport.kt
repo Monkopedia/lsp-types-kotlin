@@ -52,8 +52,6 @@ internal object WireBranchCoverageReport {
 
     /** Render the Markdown report for the given coverage state. */
     fun render(state: CoverageState): String = buildString {
-        val totalBr = state.totalBranches
-        val coveredBr = state.coveredBranches
         appendLine("# LSP Wire-Branch Coverage Report")
         appendLine()
         appendLine(
@@ -65,7 +63,7 @@ internal object WireBranchCoverageReport {
         appendLine()
         appendLine("## Totals")
         appendLine()
-        appendLine("- branches: $coveredBr/$totalBr (${pct(coveredBr, totalBr)})")
+        appendLine("- branches: ${ratio(state.coveredBranches, state.totalBranches)}")
         appendLine("- unions fully covered: ${fullyCoveredUnions(state)}/${state.unions.size}")
         appendLine()
         appendLine("## Per-union coverage")
@@ -99,7 +97,4 @@ internal object WireBranchCoverageReport {
         state.unions.values.count { branches ->
             branches.isNotEmpty() && branches.all { it in state.observed }
         }
-
-    private fun pct(num: Int, denom: Int): String =
-        if (denom == 0) "n/a" else "%d%%".format(num * 100 / denom)
 }
