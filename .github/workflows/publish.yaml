@@ -32,8 +32,16 @@ jobs:
           distribution: 'temurin'
           java-version: 21
 
+      # `apt-get update` first (see #143): installing against a stale package
+      # index 404s once the indexed version is superseded on the mirror. In
+      # ci.yml that costs a red PR check; here it would abort a RELEASE from
+      # inside the one job whose job is to be trusted, reading as "the gate
+      # caught something" rather than "apt was stale". ci.yml's nightly job
+      # already does this.
       - name: Install clangd (for real-server integration tests)
-        run: sudo apt-get install -y clangd
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clangd
 
       - uses: gradle/actions/setup-gradle@v4
 
