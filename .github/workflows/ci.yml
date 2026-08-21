@@ -34,8 +34,27 @@ jobs:
           distribution: temurin
           java-version: 21
 
+      # `apt-get install` against a stale package index 404s when the indexed
+      # version has been superseded on the mirror. `nightly` and publish.yaml's
+      # `verify` already refresh first; this job did not.
+      #
+      # Deliberately NO `continue-on-error`. clangd sits behind BOTH gates, and
+      # the two behave differently in this job:
+      #   RealServerIntegrationTest:50   requireOrSkip           -> HARD-FAILS
+      #     here, because this job sets `-Plsp.requireIntegrationTests=true`.
+      #   LspProcessSpawnRealServerTest:77  requireRealServerOrSkip -> skips
+      #     silently here, because this job does NOT set `requireRealServers`.
+      # So a missing clangd both reddens the Test step AND silently thins the
+      # real-server coverage. Swallowing this step's failure would surface the
+      # first as a confusing test error 13 minutes later, and hide the second
+      # entirely -- the uninterpretable green tracked in #132.
+      #
+      # Retries cover the transient mirror errors that `update` newly exposes:
+      # the step runs under `bash -e`, so a failed refresh now aborts here.
       - name: Install clangd (for real-server integration tests)
-        run: sudo apt-get install -y clangd
+        run: |
+          sudo apt-get -o Acquire::Retries=3 update
+          sudo apt-get install -y clangd
 
       - uses: gradle/actions/setup-gradle@v4
 
