@@ -172,7 +172,7 @@ kover {
 // We DON'T touch the kover report paths themselves (that path would collide
 // with the subproject's own koverXmlReport — both modules have kover applied
 // for variant exposure), so we copy after the root reports finish.
-val koverPublishLspHtml by tasks.registering(Copy::class) {
+tasks.register<Copy>("koverPublishLspHtml") {
     group = "verification"
     description = "Copies the aggregated Kover HTML report into lsp/build/reports/kover/html."
     val rootHtml = tasks.named("koverHtmlReport")
@@ -180,7 +180,7 @@ val koverPublishLspHtml by tasks.registering(Copy::class) {
     from(layout.buildDirectory.dir("reports/kover/html"))
     into(layout.projectDirectory.dir("lsp/build/reports/kover/html"))
 }
-val koverPublishLspXml by tasks.registering(Copy::class) {
+tasks.register<Copy>("koverPublishLspXml") {
     group = "verification"
     description = "Copies the aggregated Kover XML report into lsp/build/reports/kover."
     val rootXml = tasks.named("koverXmlReport")
@@ -197,7 +197,7 @@ val koverPublishLspXml by tasks.registering(Copy::class) {
 // This summary is the artifact reviewers actually read; the HTML is for
 // drill-down. The task depends on the XML report so a single `koverSummary`
 // invocation produces both inputs and digest.
-val koverSummary by tasks.registering {
+tasks.register("koverSummary") {
     group = "verification"
     description = "Generates a Markdown digest of Kover coverage (top-10 lowest-covered classes)."
     val xmlReport = layout.buildDirectory.file("reports/kover/report.xml")

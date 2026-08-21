@@ -78,14 +78,14 @@ kotlin {
         // target except mingwX64. mingwX64Main is intentionally left attached to
         // commonMain only (via the default nativeMain hierarchy), so it gets the
         // interfaces but not the jsonrpc helpers.
-        val jsonrpcMain by creating {
+        val jsonrpcMain = create("jsonrpcMain") {
             dependsOn(commonMain.get())
             dependencies {
                 api(libs.ksrpc.jsonrpc)
             }
         }
-        val jsMain by getting { dependsOn(jsonrpcMain) }
-        val wasmJsMain by getting { dependsOn(jsonrpcMain) }
+        getByName("jsMain") { dependsOn(jsonrpcMain) }
+        getByName("wasmJsMain") { dependsOn(jsonrpcMain) }
 
         // Process-spawn tier. The unified cross-platform `spawnLspServer` /
         // `LspServerProcess` contract (the `expect suspend fun` + the
@@ -97,7 +97,7 @@ kotlin {
         // they get no `spawnLspServer` declaration (and thus no missing-actual error).
         // processMain itself needs no ksrpc-sockets; that's a posix-only (native
         // posix-fd ByteChannel) dependency kept on posixMain below.
-        val processMain by creating {
+        val processMain = create("processMain") {
             dependsOn(jsonrpcMain)
         }
         jvmMain.get().dependsOn(processMain)
@@ -108,14 +108,14 @@ kotlin {
         // posix-fd ByteChannel plumbing (ksrpc-sockets) live here. mingwX64 is
         // intentionally excluded: no posix process model, and ksrpc-jsonrpc
         // doesn't target it anyway (it stays interface-only via commonMain).
-        val posixMain by creating {
+        val posixMain = create("posixMain") {
             dependsOn(processMain)
             dependencies {
                 api(libs.ksrpc.sockets)
             }
         }
-        val appleMain by getting { dependsOn(posixMain) }
-        val linuxMain by getting { dependsOn(posixMain) }
+        getByName("appleMain") { dependsOn(posixMain) }
+        getByName("linuxMain") { dependsOn(posixMain) }
 
         // Shared native (linux + apple) test source set for the jsonrpc-transport
         // smoke. It depends only on commonTest (for the fixtures); the jsonrpc
@@ -125,12 +125,12 @@ kotlin {
         // jsonrpcMain (linuxMain / appleMain). Do NOT add an explicit
         // dependsOn(jsonrpcMain) here: a test set depending on a main set links
         // it twice and the native linker fails with "symbol already bound".
-        val nativeJsonrpcTest by creating {
+        val nativeJsonrpcTest = create("nativeJsonrpcTest") {
             dependsOn(commonTest.get())
         }
-        val linuxX64Test by getting { dependsOn(nativeJsonrpcTest) }
-        val macosArm64Test by getting { dependsOn(nativeJsonrpcTest) }
-        val macosX64Test by getting { dependsOn(nativeJsonrpcTest) }
+        getByName("linuxX64Test") { dependsOn(nativeJsonrpcTest) }
+        getByName("macosArm64Test") { dependsOn(nativeJsonrpcTest) }
+        getByName("macosX64Test") { dependsOn(nativeJsonrpcTest) }
     }
 }
 
