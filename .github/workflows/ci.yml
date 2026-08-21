@@ -129,6 +129,17 @@ jobs:
       # clangd is NOT on the macos-latest default PATH (the runner image ships
       # LLVM only under `$(brew --prefix llvm)/bin`), so it has to be installed
       # and put on PATH before the gate can mean anything.
+      - name: Install clangd (for the native real-server test)
+        run: |
+          brew install llvm
+          echo "$(brew --prefix llvm)/bin" >> "$GITHUB_PATH"
+
+      # Deliberately its own step, before anything depends on it: if clangd is
+      # not on PATH this fails HERE, with an obvious cause, rather than
+      # surfacing as an opaque test failure inside a 6-minute Gradle run.
+      - name: Show clangd (proves it is on PATH before the gate is armed)
+        run: clangd --version
+
       - name: Build + test Apple targets
         run: ./gradlew :lsp:appleCheck :lsp-ksrpc:appleCheck -Plsp.requireRealServers=true
 
