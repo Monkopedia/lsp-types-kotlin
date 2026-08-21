@@ -34,8 +34,14 @@ jobs:
           distribution: temurin
           java-version: 21
 
+      # `apt-get install` against a stale package index 404s when the indexed
+      # version has been superseded on the mirror. This job has no
+      # `continue-on-error`, so that 404 hard-fails the leg that gates every PR.
+      # `nightly` and publish.yaml's `verify` already refresh the index first.
       - name: Install clangd (for real-server integration tests)
-        run: sudo apt-get install -y clangd
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clangd
 
       - uses: gradle/actions/setup-gradle@v4
 
