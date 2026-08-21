@@ -74,14 +74,8 @@ internal object WireCoverageReport {
         appendLine()
         appendLine("## Totals")
         appendLine()
-        val sCov = state.serverCalled.size
-        val sTot = state.serverSurface.size
-        val cCov = state.clientCalled.size
-        val cTot = state.clientSurface.size
-        val sPct = pct(sCov, sTot)
-        val cPct = pct(cCov, cTot)
-        appendLine("- server: $sCov/$sTot ($sPct)")
-        appendLine("- client: $cCov/$cTot ($cPct)")
+        appendLine("- server: ${ratio(state.serverCalled.size, state.serverSurface.size)}")
+        appendLine("- client: ${ratio(state.clientCalled.size, state.clientSurface.size)}")
     }
 
     private fun appendSection(out: StringBuilder, surface: Set<String>, called: Set<String>) {
@@ -103,9 +97,6 @@ internal object WireCoverageReport {
             out.appendLine()
         }
     }
-
-    private fun pct(num: Int, denom: Int): String =
-        if (denom == 0) "n/a" else "%d%%".format(num * 100 / denom)
 
     /**
      * Snapshot of one suite run: the full surface (introspected) plus the set

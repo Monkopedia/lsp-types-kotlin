@@ -34,8 +34,27 @@ jobs:
           distribution: temurin
           java-version: 21
 
+      # `apt-get install` against a stale package index 404s when the indexed
+      # version has been superseded on the mirror. `nightly` and publish.yaml's
+      # `verify` already refresh first; this job did not.
+      #
+      # Deliberately NO `continue-on-error`. clangd sits behind BOTH gates, and
+      # the two behave differently in this job:
+      #   RealServerIntegrationTest:50   requireOrSkip           -> HARD-FAILS
+      #     here, because this job sets `-Plsp.requireIntegrationTests=true`.
+      #   LspProcessSpawnRealServerTest:77  requireRealServerOrSkip -> skips
+      #     silently here, because this job does NOT set `requireRealServers`.
+      # So a missing clangd both reddens the Test step AND silently thins the
+      # real-server coverage. Swallowing this step's failure would surface the
+      # first as a confusing test error 13 minutes later, and hide the second
+      # entirely -- the uninterpretable green tracked in #132.
+      #
+      # Retries cover the transient mirror errors that `update` newly exposes:
+      # the step runs under `bash -e`, so a failed refresh now aborts here.
       - name: Install clangd (for real-server integration tests)
-        run: sudo apt-get install -y clangd
+        run: |
+          sudo apt-get -o Acquire::Retries=3 update
+          sudo apt-get install -y clangd
 
       - uses: gradle/actions/setup-gradle@v4
 
@@ -209,6 +228,84 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-reports-macos
+          path: "**/build/reports/tests/"
+
+  # mingwX64 is a PUBLISHED coordinate (`com.monkopedia.lsp:lsp-mingwx64` and
+  # `:lsp-ksrpc-mingwx64` are live on Central) and `mingwX64Test` EXISTS as a
+  # Gradle task — but CI only had ubuntu and macos runners, so that task had
+  # never executed anywhere (#129). Everything read as covered: `allTests`
+  # passed on ubuntu, `appleCheck` on macOS, and `apiCheck` does gate mingw's
+  # ABI — so a Windows-only regression in the native path could ship to Central
+  # with nothing to catch it. This job points the instrument at it.
+  #
+  # Per-PR rather than nightly, chosen deliberately: the repo is public, so
+  # windows-latest minutes are free, and the job runs in ~7min IN PARALLEL with
+  # the ~13min ubuntu leg — it does not extend PR wall-clock.
+  windows:
+    name: Windows / mingwX64
+    runs-on: windows-latest
+    # ~7min healthy; 30 bounds any hang. See the build job for the rationale.
+    timeout-minutes: 30
+    if: github.event_name != 'schedule'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Run mingwX64 tests
+        run: ./gradlew :lsp:mingwX64Test :lsp-ksrpc:mingwX64Test
+
+      # Executed-count evidence, and it ENFORCES rather than reports.
+      #
+      # `BUILD SUCCESSFUL` is printed identically by a run of N tests and a run
+      # of zero, and a target whose tests silently stop running is exactly the
+      # failure this job exists to prevent — so the count is the only real
+      # signal. An earlier draft of this step only PRINTED "nothing executed"
+      # and left the job green: a guard that is green in precisely the failure
+      # it exists to catch. It now exits non-zero. That failure path was
+      # verified by counterfactual (a probe that suppressed the result XMLs
+      # turned this step red) rather than assumed from reading it.
+      #
+      # The total is DERIVED from the XML, never hardcoded: a hardcoded floor is
+      # wrong the day the suite changes and then gets edited to match by whoever
+      # hits it, which is how a floor becomes a rubber stamp. Parsing avoids
+      # `grep` under `set -e` (a grep matching nothing exits 1 and reddens the
+      # job with a misleading message); `sed -n …p` yields empty instead.
+      - name: Verify tests actually executed
+        if: success() || failure()
+        shell: bash
+        run: |
+          set -uo pipefail
+          shopt -s globstar nullglob
+          total=0; files=0
+          for f in **/build/test-results/**/*.xml; do
+            files=$((files + 1))
+            n=$(sed -n 's/.*<testsuite[^>]*tests="\([0-9]*\)".*/\1/p' "$f" | head -1)
+            n=${n:-0}
+            total=$((total + n))
+            echo "  $f: $n"
+          done
+          echo "files=$files total_tests=$total"
+          if [ "$files" -eq 0 ]; then
+            echo "::error::No test-results XML produced — mingwX64Test executed NOTHING."
+            exit 1
+          fi
+          if [ "$total" -eq 0 ]; then
+            echo "::error::$files result files but 0 test executions — the suite reported without running."
+            exit 1
+          fi
+
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports-windows
           path: "**/build/reports/tests/"
 
   nightly:
