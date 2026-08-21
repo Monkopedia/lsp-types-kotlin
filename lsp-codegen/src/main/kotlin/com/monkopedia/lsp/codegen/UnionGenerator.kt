@@ -164,6 +164,25 @@ class UnionGenerator(private val resolver: TypeResolver) {
      */
     val literalBranches = mutableMapOf<String, List<Property>>()
 
+    /**
+     * Register one literal branch of the sealed interface [parent].
+     *
+     * The branch name is synthesized from a discriminating field, so it can collide
+     * with a REAL structure of the same name: a spec revision may promote a previously
+     * anonymous inline literal into a named top-level structure and pick exactly the
+     * name this generator synthesizes.
+     *
+     * When that happens the structure is already emitted from `model.structures`, so
+     * synthesizing a second class for it is a redeclaration. Register the interface on
+     * the existing structure instead and skip the synthetic copy.
+     */
+    private fun registerLiteralBranch(branchName: String, lit: LspType.Literal, parent: String) {
+        if (resolver.getStructure(branchName) == null) {
+            literalBranches[branchName] = lit.value.properties
+        }
+        structureInterfaces.getOrPut(branchName) { mutableListOf() }.add(parent)
+    }
+
     private fun resolveBooleanOr(cls: UnionClassification, contextName: String): String {
         // Branches other than `boolean`. Could be one or many.
         val nonBoolean = cls.nonNullItems
@@ -405,8 +424,7 @@ class UnionGenerator(private val resolver: TypeResolver) {
             structureInterfaces.getOrPut(ref.name) { mutableListOf() }.add(name)
         }
         for ((branchName, lit) in literalNames.zip(literals)) {
-            literalBranches[branchName] = lit.value.properties
-            structureInterfaces.getOrPut(branchName) { mutableListOf() }.add(name)
+            registerLiteralBranch(branchName, lit, parent = name)
         }
 
         // Required-field sets per branch, for discrimination.
@@ -738,9 +756,7 @@ class UnionGenerator(private val resolver: TypeResolver) {
 
         // Register each branch as a class to be emitted alongside structures.
         for ((branchName, lit) in branchNames.zip(literals)) {
-            literalBranches[branchName] = lit.value.properties
-            // Each branch implements the parent sealed interface.
-            structureInterfaces.getOrPut(branchName) { mutableListOf() }.add(name)
+            registerLiteralBranch(branchName, lit, parent = name)
         }
 
         val w = CodeWriter()
