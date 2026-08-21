@@ -147,24 +147,8 @@ jobs:
       - name: Show clangd (proves it is on PATH before the gate is armed)
         run: clangd --version
 
-      # TEMP probe 2 of 2 — hide clangd from the NATIVE TEST PROCESS ONLY (the
-      # kexe is launched by absolute path, so it needs no PATH of its own) and
-      # drop the gate, so the test takes its silent skip path and PASSES.
-      # Gradle should go green and the verify step below should go RED on the
-      # LSP_SKIP marker. Reverted in the next commit.
-      - name: TEMP probe — hide clangd from the native test process
-        run: |
-          cat > /tmp/probe.init.gradle <<'EOF'
-          allprojects {
-              tasks.matching { it.name == 'macosArm64Test' }.configureEach { t ->
-                  t.environment('PATH', '/nonexistent-probe-dir')
-              }
-          }
-          EOF
-          cat /tmp/probe.init.gradle
-
       - name: Build + test Apple targets
-        run: ./gradlew :lsp:appleCheck :lsp-ksrpc:appleCheck -I /tmp/probe.init.gradle
+        run: ./gradlew :lsp:appleCheck :lsp-ksrpc:appleCheck -Plsp.requireRealServers=true
 
       # Executed evidence for the test this job exists to make interpretable.
       # Arming the gate turns a MISSING clangd into a hard failure, but it
