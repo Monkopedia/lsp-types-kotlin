@@ -35,7 +35,6 @@ import com.monkopedia.lsp.ksrpc.connectAsLspServer
 import com.monkopedia.lsp.ksrpc.stdInLspConnection
 import com.monkopedia.lsp.markdown
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.runBlocking
 
 /**
@@ -59,9 +58,8 @@ fun main(): Unit = runBlocking(Dispatchers.IO) {
     val documents = mutableMapOf<String, String>()
 
     val server = object : DefaultLanguageServer() {
-        override suspend fun initialize(params: InitializeParams): InitializeResult {
-            state.transitionTo(LifecycleState.Phase.INITIALIZED)
-            return InitializeResult(
+        override suspend fun initialize(params: InitializeParams): InitializeResult =
+            InitializeResult(
                 capabilities = ServerCapabilities(
                     textDocumentSync = TextDocumentSyncKind.FULL,
                     hoverProvider = BooleanOr(true)
@@ -71,7 +69,6 @@ fun main(): Unit = runBlocking(Dispatchers.IO) {
                     version = "0.1.0"
                 )
             )
-        }
 
         override suspend fun initialized(params: InitializedParams) {
             client?.windowLogMessage(
@@ -94,25 +91,29 @@ fun main(): Unit = runBlocking(Dispatchers.IO) {
             )
         }
 
-        override suspend fun shutdown(): Nothing? {
-            state.transitionTo(LifecycleState.Phase.SHUTTING_DOWN)
-            return null
-        }
+        // `shutdown` has no default — the base class throws until you implement it.
+        // Nothing to tear down here, so just acknowledge it; the phase change to
+        // SHUTTING_DOWN is the wrapper's job, not ours.
+        override suspend fun shutdown(): Nothing? = null
 
-        override suspend fun exit() {
-            state.transitionTo(LifecycleState.Phase.EXITED)
-            kotlin.system.exitProcess(0)
-        }
+        // No `exit` override: the base class no-ops it, the wrapper advances `state`
+        // to EXITED, and `main` (below) is watching for that.
     }
 
     val connection = stdInLspConnection()
-    client = connection.connectAsLspServer(server)
+    // Pass `state` to `connectAsLspServer` and the wiring layer keeps it current for
+    // you — INITIALIZED on the `initialized` notification, SHUTTING_DOWN on the
+    // `shutdown` request, EXITED on the `exit` notification. Doing it here rather than
+    // inside the handlers above is what makes the phases match the spec: `initialize`
+    // returning is *not* yet INITIALIZED, so a server that flips the phase from its own
+    // `initialize` body is a step ahead of the client.
+    client = connection.connectAsLspServer(server, state)
 
     // Keep `main` alive while the connection serves requests. The JSON-RPC read pump
-    // now runs in a connection-owned scope (issue #87 hardening) rather than as a child
-    // of this `runBlocking`, so wiring the server no longer implicitly blocks here — we
-    // must wait explicitly. The `exit` notification calls `exitProcess`, which tears the
-    // whole JVM down; until then we simply park. (Were `exit` not to exit the process,
-    // observing `state` reaching `EXITED` would be the place to return.)
-    awaitCancellation()
+    // runs in a connection-owned scope (issue #87 hardening) rather than as a child of
+    // this `runBlocking`, so wiring the server does not implicitly block here — we must
+    // wait explicitly. Waiting on the lifecycle rather than parking forever is the
+    // payoff for tracking it: `exit` drives `state` to EXITED, this returns, and the
+    // process ends on its own instead of being killed with `exitProcess`.
+    state.awaitPhase(LifecycleState.Phase.EXITED)
 }
