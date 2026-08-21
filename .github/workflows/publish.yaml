@@ -4,7 +4,114 @@ on:
     types: [created]
   workflow_dispatch:
 jobs:
+  # ── The gate ────────────────────────────────────────────────────────────────
+  # Maven Central publishes are IRREVERSIBLE, `main` is unprotected, and the
+  # release ref can be any commit — so "CI was green on main at some point" is a
+  # signal, not a gate. These two jobs re-run the same bar CI applies to a PR,
+  # against the EXACT commit being published (`actions/checkout` with no `ref:`
+  # resolves to the same `github.sha` in every job of this run), and the publish
+  # job `needs:` them. A failure here leaves `publish` in the `skipped` state, so
+  # nothing is uploaded and no staging repository is opened.
+  #
+  # Keep in sync with the `build` / `apple` jobs in ci.yml — same tasks, same
+  # flags. Deliberately NOT a `workflow_call` into ci.yml: the `nightly` job
+  # there fires on `workflow_dispatch`, and a reusable call would drag the
+  # flaky external-language-server matrix into every manual release.
+  verify:
+    name: Verify JVM / JS / Wasm / Linux (ubuntu)
+    runs-on: ubuntu-latest
+    # Backstop against an unbounded hang; matches the ci.yml rationale. Without
+    # it a wedged test would hold the release open for GitHub's 6h default.
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 21
+
+      # `apt-get update` first (see #143): installing against a stale package
+      # index 404s once the indexed version is superseded on the mirror. In
+      # ci.yml that costs a red PR check; here it would abort a RELEASE from
+      # inside the one job whose job is to be trusted, reading as "the gate
+      # caught something" rather than "apt was stale". ci.yml's nightly job
+      # already does this.
+      - name: Install clangd (for real-server integration tests)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clangd
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Lint
+        run: ./gradlew ktlintCheck
+
+      - name: Codegen reproducibility
+        run: |
+          ./gradlew :lsp-codegen:generate
+          ./gradlew :lsp:ktlintFormat :lsp-ksrpc:ktlintFormat
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "::error::Generated code is out of date. Regenerate with ':lsp-codegen:generate', then ':lsp:ktlintFormat :lsp-ksrpc:ktlintFormat', and commit the result."
+            git status --porcelain
+            git --no-pager diff
+            exit 1
+          fi
+
+      - name: Build
+        run: ./gradlew build
+
+      - name: API compatibility (JVM + klib ABI)
+        run: ./gradlew apiCheck
+
+      - name: Test
+        run: ./gradlew allTests -Plsp.requireIntegrationTests=true
+
+      - name: Kover (coverage + baseline gate)
+        run: ./gradlew koverVerify -Plsp.requireIntegrationTests=true
+
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports-release-ubuntu
+          path: "**/build/reports/tests/"
+
+  verify-apple:
+    name: Verify Apple targets (macOS)
+    runs-on: macos-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 21
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      # Covers what the ubuntu leg can't: the Apple klibs and their
+      # simulator/host tests. `apiCheck` stays on the ubuntu leg only — BCV
+      # infers the Apple ABI there, and the committed baseline is host-independent.
+      - name: Build + test Apple targets
+        run: ./gradlew :lsp:appleCheck :lsp-ksrpc:appleCheck
+
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports-release-macos
+          path: "**/build/reports/tests/"
+
   publish:
+    # Blocked by the gate above: if either verify job fails or is cancelled,
+    # this job is skipped and NOTHING reaches Central. There is deliberately no
+    # `if:` on this job — an `always()`/`!cancelled()` condition here would
+    # re-enable publishing over a red verify, which is the whole defect.
+    needs: [verify, verify-apple]
     # macOS host so the Apple klibs (macos/ios/watchos/tvos) are built and
     # published alongside the JVM/JS/Wasm/Linux/mingw/androidNative targets —
     # the full multiplatform set ships from a single runner.
