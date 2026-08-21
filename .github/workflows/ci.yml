@@ -35,12 +35,23 @@ jobs:
           java-version: 21
 
       # `apt-get install` against a stale package index 404s when the indexed
-      # version has been superseded on the mirror. This job has no
-      # `continue-on-error`, so that 404 hard-fails the leg that gates every PR.
-      # `nightly` and publish.yaml's `verify` already refresh the index first.
+      # version has been superseded on the mirror. `nightly` and publish.yaml's
+      # `verify` already refresh first; this job did not.
+      #
+      # Deliberately NO `continue-on-error` here, and the reason is not that the
+      # tests would fail without clangd -- they would not. This job sets only
+      # `-Plsp.requireIntegrationTests`, never `-Plsp.requireRealServers`, so a
+      # missing clangd makes RealServerClientRoleTest skip cleanly via
+      # `assumeTrue` and the leg stays green (see its KDoc). That is precisely
+      # why this step must stay loud: its exit code is the ONLY signal that
+      # clangd is absent. Swallowing it would turn a visible install failure
+      # into a silently reduced test run -- the uninterpretable green in #132.
+      #
+      # Retries cover the transient mirror errors that `update` newly exposes:
+      # the step runs under `bash -e`, so a failed refresh now aborts here.
       - name: Install clangd (for real-server integration tests)
         run: |
-          sudo apt-get update
+          sudo apt-get -o Acquire::Retries=3 update
           sudo apt-get install -y clangd
 
       - uses: gradle/actions/setup-gradle@v4
