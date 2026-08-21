@@ -76,6 +76,25 @@ class LifecycleStateTest {
     }
 
     @Test
+    fun `shutdown is allowed only while INITIALIZED`() {
+        val initializing = LifecycleState()
+        assertFalse(initializing.allowsMethod("shutdown"))
+
+        val initialized = LifecycleState()
+        initialized.transitionTo(LifecycleState.Phase.INITIALIZED)
+        assertTrue(initialized.allowsMethod("shutdown"))
+
+        val shuttingDown = LifecycleState()
+        shuttingDown.transitionTo(LifecycleState.Phase.INITIALIZED)
+        shuttingDown.transitionTo(LifecycleState.Phase.SHUTTING_DOWN)
+        assertFalse(shuttingDown.allowsMethod("shutdown"))
+
+        val exited = LifecycleState()
+        exited.transitionTo(LifecycleState.Phase.EXITED)
+        assertFalse(exited.allowsMethod("shutdown"))
+    }
+
+    @Test
     fun `illegal transition throws`() {
         val state = LifecycleState()
         // Cannot go directly to SHUTTING_DOWN from INITIALIZING

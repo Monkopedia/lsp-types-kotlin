@@ -24,10 +24,11 @@ import kotlinx.coroutines.flow.first
  * Tracks the LSP connection lifecycle as defined by the spec:
  *
  * 1. **Initializing** — server is up but client hasn't sent `initialize` yet.
- *    Only `initialize` and `exit` may be processed.
+ *    Only `initialize`, `initialized`, `exit`, and `$/`-prefixed methods may be processed.
  * 2. **Initialized** — `initialize` request returned and `initialized` notification was sent.
  *    All methods are allowed.
- * 3. **ShuttingDown** — `shutdown` request received. Only `exit` may follow.
+ * 3. **ShuttingDown** — `shutdown` request received. Only `exit` and `$/`-prefixed
+ *    methods may follow.
  * 4. **Exited** — `exit` notification received. Connection should be closed.
  *
  * Use [allowsMethod] before dispatching incoming requests/notifications, and
@@ -55,11 +56,16 @@ class LifecycleState {
     /**
      * Returns `true` if the given method is allowed in the current state.
      *
-     * - Always allows `initialize`, `initialized`, `shutdown`, `exit` (the lifecycle methods).
-     * - Always allows `$/`-prefixed methods (transport-level, e.g. `$/cancelRequest`, `$/progress`).
-     * - In [Phase.INITIALIZING] — only lifecycle and `$/`-prefixed methods.
+     * No method is allowed unconditionally — not even a lifecycle one. `shutdown` is
+     * accepted only in [Phase.INITIALIZED], and [Phase.EXITED] rejects everything,
+     * `exit` and `$/`-prefixed methods included. Per phase:
+     *
+     * - In [Phase.INITIALIZING] — `initialize`, `initialized`, `exit`, and `$/`-prefixed
+     *   methods (transport-level, e.g. `$/cancelRequest`, `$/progress`). `shutdown` is
+     *   rejected; the spec only permits it once initialization has completed.
      * - In [Phase.INITIALIZED] — everything.
-     * - In [Phase.SHUTTING_DOWN] — only `exit` and `$/`-prefixed methods.
+     * - In [Phase.SHUTTING_DOWN] — only `exit` and `$/`-prefixed methods; a second
+     *   `shutdown` is rejected.
      * - In [Phase.EXITED] — nothing.
      */
     fun allowsMethod(method: String): Boolean = when (phase) {
