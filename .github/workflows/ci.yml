@@ -126,17 +126,24 @@ jobs:
       # macosX64 test task reports SKIPPED on this runner and has never run at
       # all, which is a different gap, tracked separately in #144.)
       #
-      # clangd is NOT on the macos-latest default PATH (the runner image ships
-      # LLVM only under `$(brew --prefix llvm)/bin`), so it has to be installed
-      # and put on PATH before the gate can mean anything.
+      # MEASURED, not assumed: clangd IS on the macos-latest default PATH today.
+      # A probe run of this job with the install removed and the gate armed went
+      # green, with the test executing and no skip marker — so the test has been
+      # driving a real clangd all along, by accident of the runner image.
+      #
+      # That is the SECOND of the two possibilities #132 said it could not
+      # distinguish between, and it is the one that still needs fixing: an
+      # incidental dependency on an unpinned image tool, which would start
+      # silently no-op'ing the day the image drops it. So install clangd
+      # explicitly (own the dependency rather than inherit it) and prove it is
+      # on PATH in its own step, before anything depends on it — a missing
+      # binary then fails here, with an obvious cause, instead of surfacing as
+      # an opaque failure inside a six-minute Gradle run.
       - name: Install clangd (for the native real-server test)
         run: |
           brew install llvm
           echo "$(brew --prefix llvm)/bin" >> "$GITHUB_PATH"
 
-      # Deliberately its own step, before anything depends on it: if clangd is
-      # not on PATH this fails HERE, with an obvious cause, rather than
-      # surfacing as an opaque test failure inside a 6-minute Gradle run.
       - name: Show clangd (proves it is on PATH before the gate is armed)
         run: clangd --version
 
