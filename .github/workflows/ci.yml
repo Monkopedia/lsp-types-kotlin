@@ -117,8 +117,75 @@ jobs:
       # (defined in the library convention plugin) compiles every Apple target and
       # runs the simulator/host tests, skipping the redundant JVM/JS/Wasm/ktlint/
       # codegen work the ubuntu leg already does.
+      # The Apple leg runs LspProcessRealServerTest (real clangd over a posix
+      # stdio pipe) via macos*Test -> nativeJsonrpcTest, but it installed no
+      # clangd and armed no gate — and the native skip path is a bare early
+      # return that reports as an ordinary PASS, not a <skipped/>. So a green
+      # apple job could not distinguish "drove real clangd" from "did nothing"
+      # on macosArm64/macosX64, both published coordinates (#132).
+      #
+      # clangd is NOT on the macos-latest default PATH (the runner image ships
+      # LLVM only under `$(brew --prefix llvm)/bin`), so it has to be installed
+      # and put on PATH before the gate can mean anything.
+      - name: Install clangd (for the native real-server test)
+        run: |
+          brew install llvm
+          echo "$(brew --prefix llvm)/bin" >> "$GITHUB_PATH"
+
+      # Deliberately its own step, before anything depends on it: if clangd is
+      # not on PATH this fails HERE, with an obvious cause, rather than
+      # surfacing as an opaque test failure inside a 6-minute Gradle run.
+      - name: Show clangd (proves it is on PATH before the gate is armed)
+        run: clangd --version
+
       - name: Build + test Apple targets
-        run: ./gradlew :lsp:appleCheck :lsp-ksrpc:appleCheck
+        run: ./gradlew :lsp:appleCheck :lsp-ksrpc:appleCheck -Plsp.requireRealServers=true
+
+      # Executed evidence for the test this job exists to make interpretable.
+      # Arming the gate turns a MISSING clangd into a hard failure, but it
+      # cannot tell you the test ran at all — if the class ever stops being
+      # wired into macos*Test, the gate has nothing to fire on and the leg is
+      # green-and-vacuous again. So assert the result XML positively.
+      #
+      # Two independent checks, because neither alone is sufficient:
+      #   * the XML must exist and report tests > 0 — catches "not wired in";
+      #   * its captured output must NOT carry the LSP_SKIP marker — catches
+      #     the skip path, which is otherwise INVISIBLE here. Kotlin/Native's
+      #     runner has no `Assume`, so a skip emits no `<skipped/>` and is
+      #     byte-identical in the XML to a test that ran; the marker printed by
+      #     the guard is the only thing that distinguishes them. Do not replace
+      #     this with a duration check: K/N reports ~0.0s for every suite
+      #     including ones that demonstrably drove a child process.
+      #
+      # Parsing avoids `grep` under `set -e` (a grep matching nothing exits 1
+      # and reddens the job with a misleading message); `sed -n …p` yields
+      # empty instead, which is then checked explicitly.
+      - name: Verify the real-server native test actually executed
+        if: success() || failure()
+        shell: bash
+        run: |
+          set -uo pipefail
+          shopt -s nullglob
+          found=0
+          for f in lsp-ksrpc/build/test-results/macosArm64Test/*LspProcessRealServerTest.xml; do
+            found=$((found + 1))
+            tests=$(sed -n 's/.*<testsuite[^>]*tests="\([0-9]*\)".*/\1/p' "$f" | head -1)
+            tests=${tests:-0}
+            echo "  $f: tests=$tests"
+            if [ "$tests" -eq 0 ]; then
+              echo "::error::LspProcessRealServerTest reported 0 executions."
+              exit 1
+            fi
+            if sed -n '/LSP_SKIP/p' "$f" | head -1 | grep -q .; then
+              echo "::error::LspProcessRealServerTest SKIPPED (LSP_SKIP marker present) — it passed without driving clangd."
+              sed -n '/LSP_SKIP/p' "$f"
+              exit 1
+            fi
+          done
+          if [ "$found" -eq 0 ]; then
+            echo "::error::No LspProcessRealServerTest result XML under lsp-ksrpc/build/test-results/macosArm64Test — the real-server test did NOT run on this leg."
+            exit 1
+          fi
 
       - name: Upload test reports
         if: failure()

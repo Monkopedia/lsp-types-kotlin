@@ -199,7 +199,13 @@ private fun requireRealServerOrSkipNative(message: String) {
     if (getenv("LSP_REQUIRE_REAL_SERVERS")?.toKString() == "true") {
         error("Real-server precondition not met (LSP_REQUIRE_REAL_SERVERS): $message")
     }
-    // Otherwise skip cleanly — the caller returns green.
+    // Otherwise skip cleanly — the caller returns green. Kotlin/Native's test
+    // runner has no `Assume`, so this skip emits no `<skipped/>` and is
+    // indistinguishable in the result XML from a test that ran and passed.
+    // Print a distinctive marker so at least the LOG says which one happened;
+    // CI arms the gate above so the ambiguity never reaches a green result
+    // there, but a local or ungated run should still be able to tell.
+    println("LSP_SKIP: real-server native test skipped — $message")
 }
 
 private fun tmpDir(): String = getenv("TMPDIR")?.toKString()?.trimEnd('/') ?: "/tmp"
