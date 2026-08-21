@@ -25,9 +25,9 @@ jobs:
     timeout-minutes: 30
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: 21
@@ -43,7 +43,17 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y clangd
 
-      - uses: gradle/actions/setup-gradle@v4
+      # Deliberately v5, NOT the latest v6 (see #130). v5 is the last release
+      # under the plain MIT terms: gradle/actions@v6 extracted the caching
+      # implementation into `gradle-actions-caching`, a closed-source component
+      # governed by https://gradle.com/legal/terms-of-use/ , and that component
+      # loads whenever caching is enabled — which is the default, and what every
+      # job here uses. Upgrading would silently accept those terms on the
+      # project's behalf, which is an owner decision, not a dep bump. v5 already
+      # gets us what #130 is about (node24 runtime, no deprecation warning), and
+      # v6 additionally dropped the configuration-cache support this repo
+      # doesn't use.
+      - uses: gradle/actions/setup-gradle@v5
 
       - name: Lint
         run: ./gradlew ktlintCheck
@@ -73,7 +83,7 @@ jobs:
 
       - name: Upload test reports
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-reports-release-ubuntu
           path: "**/build/reports/tests/"
@@ -84,14 +94,15 @@ jobs:
     timeout-minutes: 30
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: 21
 
-      - uses: gradle/actions/setup-gradle@v4
+      # v5 not v6 on purpose - see the note in ci.yml (#130).
+      - uses: gradle/actions/setup-gradle@v5
 
       # Covers what the ubuntu leg can't: the Apple klibs and their
       # simulator/host tests. `apiCheck` stays on the ubuntu leg only — BCV
@@ -101,7 +112,7 @@ jobs:
 
       - name: Upload test reports
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-reports-release-macos
           path: "**/build/reports/tests/"
@@ -117,14 +128,15 @@ jobs:
     # the full multiplatform set ships from a single runner.
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Set up Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: 21
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        # v5 not v6 on purpose - see the note in ci.yml (#130).
+        uses: gradle/actions/setup-gradle@v5
 
       - id: install-secret-key
         name: Install gpg secret key
