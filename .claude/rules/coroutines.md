@@ -18,14 +18,22 @@ concurrency refused to let `runBlocking` return until it finished (#87).
 
 **When you construct a `CoroutineScope(...)`, you must be able to state both:**
 
-1. **What ends its work** — EOF, stream close, an explicit `cancel()`.
-2. **Why it cannot keep the caller or the process alive** — a daemon dispatcher
-   (`Dispatchers.IO`/`Default` on JVM), or something that definitely cancels it.
+1. **What ends its work** — EOF, stream close, an explicit `cancel()`. A loop whose exit
+   depends on a blocking read returning counts only if closing the stream definitely
+   unblocks that read.
+2. **Why it is not a child of the caller's job** — which is the reason you are
+   constructing one at all. `CoroutineScope(SupervisorJob() + ...)` gives it its own
+   job, so the caller's teardown never waits on it.
 
-**A violation is a constructed scope where you cannot name (1) or (2).** If the honest
+**A violation is a constructed scope where you cannot name either one.** If the honest
 answer to *"what stops this?"* is *"nothing"* or *"it gets garbage-collected"*, that is
-the violation. Both conditions are answerable by reading the construction site; if
-answering needs repo-wide context, treat that as a smell in the code, not in the rule.
+the violation. Both are answerable at the construction site.
+
+**Dispatcher choice is a separate obligation.** `Dispatchers.IO` and `Dispatchers.Default`
+run on daemon threads, so work left parked on them can never hold the process open. A
+dispatcher with non-daemon threads — `newSingleThreadContext`, a custom executor — **can**,
+so a scope using one **must** be explicitly cancelled. Inheriting the caller's dispatcher
+is fine: it cannot outlive resources the caller already owns.
 
 **Never `GlobalScope`.** It gives you detachment with no owner and **no way to cancel
 if you later need one** — a constructed scope gives the same detachment and strictly
