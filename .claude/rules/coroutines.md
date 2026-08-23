@@ -24,10 +24,15 @@ That is context, not a third test. The two questions below are the whole test.
      **`cancel()` does not interrupt a blocking syscall.** A coroutine parked in
      `read(2)` stays parked through cancellation, so "we cancel it" is not an answer
      for a blocking read; or
-   - **the work may park forever, and that is acceptable because nothing awaits it and
-     it cannot hold the process open** — a daemon dispatcher on JVM, process exit
-     elsewhere. Say so explicitly. This is the honest answer for a pump parked on a
-     dead fd, and pretending such a read has a terminator would be worse.
+   - **the work may BLOCK forever awaiting input that never arrives**, and that is
+     acceptable because nothing awaits it and it cannot hold the process open — a daemon
+     dispatcher on JVM, process exit elsewhere. Say so explicitly. This is the honest
+     answer for a pump parked on a dead fd, and pretending such a read has a terminator
+     would be worse.
+     **This branch is for work that is BLOCKED, not work that is BUSY.** A loop that
+     keeps doing something — `while (true) { delay(1.seconds); flush() }` — is not
+     parked; it runs forever, and "nothing awaits it" does not excuse it. That needs a
+     real terminator from the first branch.
 2. **Why it is not a child of the caller's job** — which is the reason you are
    constructing one at all. `CoroutineScope(SupervisorJob() + ...)` gives it its own
    job, so the caller's teardown never waits on it.
@@ -48,10 +53,17 @@ comment rather than in the code.
 **Dispatcher choice is a separate obligation.** `Dispatchers.IO` and `Dispatchers.Default`
 run on daemon threads, so work left parked on them can never hold the process open. A
 dispatcher with non-daemon threads — `newSingleThreadContext`, a custom executor — **can**,
-so a scope using one **must** be explicitly cancelled. **And if its work blocks in a
-syscall, cancellation will not free the thread** — so a non-daemon dispatcher plus a
-blocking read is a process hang whether or not you cancel it; use a daemon dispatcher. Inheriting the caller's dispatcher
-is fine: it cannot outlive resources the caller already owns.
+so a scope that **chooses** one **must** be explicitly cancelled. **And if its work
+blocks in a syscall, cancellation will not free the thread** — so choosing a non-daemon
+dispatcher for a blocking read is a process hang whether or not you cancel it. Use a
+daemon dispatcher.
+
+**Inheriting the caller's dispatcher is different from choosing one, and the difference
+is the whole point.** When you inherit, your answer is *"no worse than the caller"* — the
+scope runs wherever the caller already runs, so it cannot outlive resources the caller
+had anyway. That is legitimate, and checkable at the site: you can see that you
+inherited. **It is not a claim that the dispatcher is daemon, and must not be written as
+one.**
 
 **Never `GlobalScope`.** It gives you detachment with no owner and **no way to cancel
 if you later need one** — a constructed scope gives the same detachment and strictly
