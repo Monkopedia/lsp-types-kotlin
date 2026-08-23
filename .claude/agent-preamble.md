@@ -10,10 +10,6 @@ Read this once when launched. Apply to every agent task in this repo.
 
 ## What to NOT touch
 
-- **⛔ GENERATED SOURCE — 49 files carrying `// Auto-generated from LSP metaModel.json`.** Editing one **silently loses your work**: the next `:lsp-codegen:generate` overwrites it with no error, no conflict, and nothing to notice in a diff. Fix `:lsp-codegen`, never the output.
-  **It is NOT "`:lsp` is generated, `:lsp-ksrpc` is hand-written."** The generator writes into **both**. `:lsp-ksrpc/src/commonMain/kotlin/com/monkopedia/lsp/` contains five generated files —
-  `DefaultLanguageClient.kt`, `DefaultLanguageServer.kt`, `KsrpcLanguageClient.kt`, `KsrpcLanguageServer.kt`, `LifecycleTrackingLanguageServer.kt` —
-  sitting beside hand-written wiring and reading exactly like it. **Grep for the header before editing any file under `:lsp-ksrpc`'s `commonMain`.**
 - Anything under `.claude/` (rules, agent-preamble, project memory): triggers approval prompts and blocks autonomous work. If you genuinely need a rule change, surface it to the user first.
 - Build outputs (`build/`, `.gradle/`, etc).
 

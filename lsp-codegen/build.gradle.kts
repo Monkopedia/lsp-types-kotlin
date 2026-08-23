@@ -45,15 +45,9 @@ tasks.register<Exec>("downloadMetaModel") {
     }
 }
 
-// Generate LSP types into BOTH :lsp and :lsp-ksrpc.
-//
-// The third arg below is :lsp-ksrpc's commonMain — the generator writes five service
-// files there (DefaultLanguageClient/Server, KsrpcLanguageClient/Server,
-// LifecycleTrackingLanguageServer) alongside hand-written wiring. Editing any of them
-// by hand is silently overwritten on the next run; fix this generator instead.
-//
+// Generate LSP types into :lsp module.
 // Usage: ./gradlew :lsp-codegen:generate
-// Then:  ./gradlew :lsp:ktlintFormat :lsp-ksrpc:ktlintFormat   (both, not just :lsp)
+// Then run: ./gradlew :lsp:ktlintFormat to auto-format the output.
 tasks.register<JavaExec>("generate") {
     dependsOn("classes")
     mainClass.set("com.monkopedia.lsp.codegen.MainKt")
