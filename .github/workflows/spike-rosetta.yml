@@ -74,11 +74,26 @@ jobs:
           sudo softwareupdate --install-rosetta --agree-to-license
           /tmp/probe_x64 && echo "ROSETTA_AFTER_INSTALL=yes" || echo "ROSETTA_AFTER_INSTALL=no"
 
-      - name: Simulator inventory (for the iosX64 / tvosX64 / watchosX64 tasks)
+      # Resolve a concrete simulator UDID per family. KGP normally supplies a
+      # device convention, but only for a task it considers enabled — so once we
+      # force-enable an x64 simulator task we have to supply one ourselves.
+      # UDIDs rather than device NAMES on purpose: names drift with the image
+      # ("Apple TV 4K (3rd generation)"), and a guessed name fails identically
+      # to a simulator that cannot run x86_64 — which is the answer we are here
+      # to measure and must not confuse with a typo.
+      - name: Simulator inventory + resolve device UDIDs
+        id: sims
         continue-on-error: true
         run: |
+          set -u
           xcrun simctl list runtimes
-          xcrun simctl list devicetypes | head -60
+          for fam in iOS tvOS watchOS; do
+            udid=$(xcrun simctl list devices available -j \
+                     | python3 .github/spike/pick_sim_udid.py "$fam")
+            key=$(echo "$fam" | tr "[:upper:]" "[:lower:]")
+            echo "SPIKE_UDID_$key=$udid"
+            echo "${key}=${udid}" >> "$GITHUB_OUTPUT"
+          done
 
       # Baseline in the SAME run: an arm64 task that is known to execute today.
       # Its SPIKE_ARCH marker must read ARM64 — that is what makes the x64
@@ -107,7 +122,10 @@ jobs:
             ":lsp:tvosX64Test" \
             ":lsp:watchosX64Test" ; do
             echo "::group::gradle $t"
-            ./gradlew "$t" --init-script .github/spike/rosetta.init.gradle
+            ./gradlew "$t" --init-script .github/spike/rosetta.init.gradle \
+              -Pspike.device.ios="${{ steps.sims.outputs.ios }}" \
+              -Pspike.device.tvos="${{ steps.sims.outputs.tvos }}" \
+              -Pspike.device.watchos="${{ steps.sims.outputs.watchos }}"
             echo "SPIKE_TASK_EXIT $t = $?"
             echo "::endgroup::"
           done

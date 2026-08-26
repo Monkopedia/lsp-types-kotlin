@@ -44,6 +44,27 @@ if (gradle.parent == null) {
                 if (t.hasProperty('testLogging')) {
                     t.testLogging.showStandardStreams = true
                 }
+                // KGP's `configureDeviceId` sets the `device` convention ONLY
+                // when the task is already enabled — `isEnabled` is the first
+                // thing it checks. So flipping `enabled` afterwards leaves a
+                // simulator task with no device, and it dies in task validation
+                // ("property 'device' doesn't have a configured value") before
+                // any binary is exec'd. Measured: all four simulator targets
+                // failed that way, none of them for a Rosetta reason. Supplying
+                // the device is what turns those four into a real answer.
+                if (t.hasProperty('device')) {
+                    def fam = null
+                    if (t.name.startsWith('ios')) fam = 'ios'
+                    else if (t.name.startsWith('tvos')) fam = 'tvos'
+                    else if (t.name.startsWith('watchos')) fam = 'watchos'
+                    def udid = fam == null ? null : gradle.rootProject.findProperty("spike.device.$fam")
+                    if (udid) {
+                        t.device.set(udid.toString())
+                        println "SPIKE_DEVICE ${t.name} -> ${udid}"
+                    } else {
+                        println "SPIKE_DEVICE ${t.name} -> <none supplied>"
+                    }
+                }
             }
         }
         println "SPIKE_BUILD=" + gradle.rootProject.name
