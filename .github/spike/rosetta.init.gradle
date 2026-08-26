@@ -10,30 +10,51 @@
 // in `taskGraph.whenReady` — after ALL configuration, so nothing can re-disable
 // it, and the graph (including the link tasks a disabled task still depends on)
 // is already populated.
-def forced = [] as Set
-def seen = [] as Set
+//
+// ⚠️ An init script applies to EVERY build in the tree, and `settings.gradle.kts`
+// has `includeBuild("convention-plugins")`. That included build is built FIRST
+// and its graph legitimately contains no *X64Test task. The first version of
+// this script threw its "override never applied" guard there and aborted the
+// whole invocation before the main build's graph was ever populated — every
+// target reported failure without one test binary being asked to run. Two
+// changes keep that from recurring:
+//   * `gradle.parent == null` — act only on the top-level build;
+//   * the guard is keyed to what was REQUESTED on the command line, so an
+//     invocation that legitimately asks for no x64 target (the arm64 baseline)
+//     is not a failure.
+if (gradle.parent == null) {
 
-gradle.taskGraph.whenReady { graph ->
-    graph.allTasks.each { t ->
-        if (t.name ==~ /^(macos|ios|tvos|watchos)X64Test$/) {
-            seen << "${t.project.path}:${t.name}".toString()
-            if (!t.enabled) {
-                forced << "${t.project.path}:${t.name}".toString()
-            }
-            t.enabled = true
-            // Put the test binary's own stdout in the job log, not only in the
-            // result XML — the arch marker the probe test prints is the whole
-            // point of this spike.
-            if (t.hasProperty('testLogging')) {
-                t.testLogging.showStandardStreams = true
+    def requested = gradle.startParameter.taskNames.findAll {
+        it ==~ /^:?.*(macos|ios|tvos|watchos)X64Test$/
+    }
+
+    gradle.taskGraph.whenReady { graph ->
+        def seen = [] as Set
+        def forced = [] as Set
+        graph.allTasks.each { t ->
+            if (t.name ==~ /^(macos|ios|tvos|watchos)X64Test$/) {
+                seen << "${t.project.path}:${t.name}".toString()
+                if (!t.enabled) {
+                    forced << "${t.project.path}:${t.name}".toString()
+                }
+                t.enabled = true
+                // Put the test binary's own stdout in the job log, not only in
+                // the result XML — the arch marker the probe test prints is the
+                // whole point of this spike.
+                if (t.hasProperty('testLogging')) {
+                    t.testLogging.showStandardStreams = true
+                }
             }
         }
-    }
-    println "SPIKE_X64_TASKS_IN_GRAPH=" + (seen as List).sort().join(",")
-    println "SPIKE_X64_TASKS_FORCED_ENABLED=" + (forced as List).sort().join(",")
-    if (seen.isEmpty()) {
-        throw new GradleException(
-            "SPIKE: no *X64Test task reached the task graph — the override never applied."
-        )
+        println "SPIKE_BUILD=" + gradle.rootProject.name
+        println "SPIKE_REQUESTED_X64=" + requested.sort().join(",")
+        println "SPIKE_X64_TASKS_IN_GRAPH=" + (seen as List).sort().join(",")
+        println "SPIKE_X64_TASKS_FORCED_ENABLED=" + (forced as List).sort().join(",")
+        if (!requested.isEmpty() && seen.isEmpty()) {
+            throw new GradleException(
+                "SPIKE: requested ${requested} but no *X64Test task reached the " +
+                    "task graph — the override never applied."
+            )
+        }
     }
 }
