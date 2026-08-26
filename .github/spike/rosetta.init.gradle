@@ -1,0 +1,39 @@
+// Spike for #144 — force Kotlin/Native's x64 Apple test tasks to run on an
+// arm64 macOS host.
+//
+// KGP 2.4.10 disables them at configuration time:
+//   KotlinNativeHostTestRunFactory      -> enabled = konanTarget.isCurrentHost
+//   KotlinNativeSimulatorTestRunFactory -> enabled = HostManager.hostIsMac &&
+//                                          HostManager.host.architecture ==
+//                                          target.konanTarget.architecture
+// Both are a plain `Task.enabled` boolean, so they can be flipped back. We do it
+// in `taskGraph.whenReady` — after ALL configuration, so nothing can re-disable
+// it, and the graph (including the link tasks a disabled task still depends on)
+// is already populated.
+def forced = [] as Set
+def seen = [] as Set
+
+gradle.taskGraph.whenReady { graph ->
+    graph.allTasks.each { t ->
+        if (t.name ==~ /^(macos|ios|tvos|watchos)X64Test$/) {
+            seen << "${t.project.path}:${t.name}".toString()
+            if (!t.enabled) {
+                forced << "${t.project.path}:${t.name}".toString()
+            }
+            t.enabled = true
+            // Put the test binary's own stdout in the job log, not only in the
+            // result XML — the arch marker the probe test prints is the whole
+            // point of this spike.
+            if (t.hasProperty('testLogging')) {
+                t.testLogging.showStandardStreams = true
+            }
+        }
+    }
+    println "SPIKE_X64_TASKS_IN_GRAPH=" + (seen as List).sort().join(",")
+    println "SPIKE_X64_TASKS_FORCED_ENABLED=" + (forced as List).sort().join(",")
+    if (seen.isEmpty()) {
+        throw new GradleException(
+            "SPIKE: no *X64Test task reached the task graph — the override never applied."
+        )
+    }
+}
