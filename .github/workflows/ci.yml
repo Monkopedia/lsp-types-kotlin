@@ -187,9 +187,20 @@ jobs:
       # leg is green-and-vacuous again. So assert the result XML positively.
       #
       # Two independent checks, because neither alone is sufficient:
-      #   * the XML must exist and report tests > 0 — catches "not wired in";
+      #   * the XML must exist and report tests − skipped > 0 — catches
+      #     "not wired in", and any skip JUnit XML records as <skipped/>;
       #   * its captured output must NOT carry the LSP_SKIP marker — catches
       #     the skip path, which is otherwise INVISIBLE here.
+      #
+      # Keep BOTH. They cover different SHAPES of skip and neither subsumes the
+      # other. `tests` is the TOTAL testcase count and `skipped` is a SUBSET of
+      # it, so an all-@Ignore'd suite reports tests="12" skipped="12" and the
+      # arithmetic is the only thing that sees it. But a Kotlin/Native
+      # hand-rolled skip is an early `return` from a test that PASSES: it emits
+      # no <skipped/> at all (#151), leaves tests="1" skipped="0", and is
+      # arithmetically indistinguishable from a real run. The LSP_SKIP marker
+      # the test prints on that path is the only field that differs. Deleting
+      # either check re-opens a hole the other cannot reach.
       #
       # On that second check: counting XML proves a test EXECUTED, never that
       # it ASSERTED anything. Any test whose body can skip itself defeats the
@@ -202,11 +213,27 @@ jobs:
       # this for a duration check: K/N reports ~0.0s for every native suite,
       # including ones observed driving a child process.
       #
-      # `sed -n '/<testsuite/{…;q;}'` rather than `sed … | head -1`: under
-      # GitHub's default `bash -eo pipefail`, head exiting early SIGPIPEs sed,
-      # pipefail makes the pipeline 141, and -e then kills the step with NO
-      # message — silently, and only once some file grows a second <testsuite>.
-      # Quitting inside sed has no pipe to break. (Same hazard as #152.)
+      # `sed … | awk '{n += $1}'` rather than `sed … | head -1`: awk consumes
+      # its whole input, so there is no early reader to SIGPIPE sed the way
+      # `head -1` does (#152), and it SUMS every <testsuite> element instead of
+      # reading the first and discarding the rest. Both properties hold by
+      # construction rather than by remembering a `q`. `awk` prints 0 on empty
+      # input, so a file with no <testsuite> at all scores 0 and lands in the
+      # red branch below.
+      #
+      # ⚠️ THE SPACE IN `<testsuite ` IS LOAD-BEARING — do not "tidy" it out.
+      # It is what excludes the `<testsuites>` ROOT element, which in a nested
+      # file carries its OWN aggregate of the children below it. Measured on
+      # `<testsuites tests="10" skipped="4">` wrapping suites of 6/2 and 4/2:
+      #     with the space:  recorded=10 skipped=4  executed=6   (correct)
+      #     space removed:   recorded=20 skipped=8  executed=12  (root double-
+      #                      counted with its children)
+      # That inflates the executed figure, so it breaks the gate in the
+      # direction that PASSES — on a suite that is half skipped. Removing a
+      # space inside a regex reads as a no-op nit; it is not one.
+      # The same space also fixes a false RED in the old `/<testsuite/` form,
+      # which matched `<testsuites>`, found no attributes on it, quit, and
+      # scored the whole file 0 even though its suites had really run.
       - name: Verify the real-server native test actually executed
         if: success() || failure()
         shell: bash
@@ -216,11 +243,12 @@ jobs:
           found=0
           for f in lsp-ksrpc/build/test-results/macosArm64Test/*LspProcessRealServerTest.xml; do
             found=$((found + 1))
-            tests=$(sed -n '/<testsuite/{s/.*tests="\([0-9]*\)".*/\1/p;q;}' "$f")
-            tests=${tests:-0}
-            echo "  $f: tests=$tests"
-            if [ "$tests" -eq 0 ]; then
-              echo "::error::LspProcessRealServerTest reported 0 executions."
+            recorded=$(sed -n 's/.*<testsuite [^>]*tests="\([0-9]*\)".*/\1/p' "$f" | awk '{ n += $1 } END { print n + 0 }')
+            skipped=$(sed -n 's/.*<testsuite [^>]*skipped="\([0-9]*\)".*/\1/p' "$f" | awk '{ n += $1 } END { print n + 0 }')
+            executed=$(( ${recorded:-0} - ${skipped:-0} ))
+            echo "  $f: tests=$recorded skipped=$skipped executed=$executed"
+            if [ "$executed" -le 0 ]; then
+              echo "::error::LspProcessRealServerTest executed 0 tests ($recorded recorded, $skipped skipped)."
               exit 1
             fi
             if grep -q "LSP_SKIP" "$f"; then
@@ -289,27 +317,52 @@ jobs:
       # hits it, which is how a floor becomes a rubber stamp. Parsing avoids
       # `grep` under `set -e` (a grep matching nothing exits 1 and reddens the
       # job with a misleading message); `sed -n …p` yields empty instead.
+      #
+      # EXECUTED = tests − skipped. In JUnit XML `tests` is the TOTAL testcase
+      # count and `skipped` is a SUBSET of it, sitting right there in the same
+      # tag: an all-@Ignore'd suite writes tests="12" skipped="12" and a guard
+      # reading only `tests` scores that as 12 executions. Verified against this
+      # repo's own output — every result file it emits carries both attributes.
+      #
+      # `| awk '{n += $1}'` rather than `| head -1`: head exits after one line,
+      # SIGPIPEs sed, and under `pipefail` the substitution yields empty, which
+      # `${n:-0}` then counts as ZERO — silently under-counting the moment a
+      # file grows a second <testsuite> (#152). awk consumes all of its input,
+      # so nothing is left to break the pipe, and it SUMS every <testsuite>
+      # rather than reading one and discarding the rest. awk prints 0 on empty
+      # input, so a file with no <testsuite> scores 0 and reddens the guard.
+      #
+      # ⚠️ THE SPACE IN `<testsuite ` IS LOAD-BEARING — do not "tidy" it out.
+      # It excludes the `<testsuites>` ROOT element, which in a nested file
+      # carries its own aggregate of the children below it. Measured on
+      # `<testsuites tests="10" skipped="4">` over suites of 6/2 and 4/2:
+      # with the space, executed=6 (correct); without it, executed=12, because
+      # the root is summed alongside its own children. That INFLATES the count,
+      # so it breaks this gate in the direction that PASSES. Removing a space
+      # inside a regex reads as a no-op nit; here it is a false green.
       - name: Verify tests actually executed
         if: success() || failure()
         shell: bash
         run: |
           set -uo pipefail
           shopt -s globstar nullglob
-          total=0; files=0
+          total=0; skips=0; files=0
           for f in **/build/test-results/**/*.xml; do
             files=$((files + 1))
-            n=$(sed -n 's/.*<testsuite[^>]*tests="\([0-9]*\)".*/\1/p' "$f" | head -1)
-            n=${n:-0}
-            total=$((total + n))
-            echo "  $f: $n"
+            n=$(sed -n 's/.*<testsuite [^>]*tests="\([0-9]*\)".*/\1/p' "$f" | awk '{ n += $1 } END { print n + 0 }')
+            s=$(sed -n 's/.*<testsuite [^>]*skipped="\([0-9]*\)".*/\1/p' "$f" | awk '{ n += $1 } END { print n + 0 }')
+            total=$((total + ${n:-0}))
+            skips=$((skips + ${s:-0}))
+            echo "  $f: tests=$n skipped=$s"
           done
-          echo "files=$files total_tests=$total"
+          executed=$((total - skips))
+          echo "files=$files total_tests=$total skipped=$skips executed=$executed"
           if [ "$files" -eq 0 ]; then
             echo "::error::No test-results XML produced — mingwX64Test executed NOTHING."
             exit 1
           fi
-          if [ "$total" -eq 0 ]; then
-            echo "::error::$files result files but 0 test executions — the suite reported without running."
+          if [ "$executed" -le 0 ]; then
+            echo "::error::$files result files recorded $total testcase(s), $skips of them skipped — 0 tests actually EXECUTED."
             exit 1
           fi
 
