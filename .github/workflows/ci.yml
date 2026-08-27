@@ -215,11 +215,21 @@ jobs:
       #
       # `sed … | awk '{n += $1}'` rather than `sed … | head -1`: awk consumes
       # its whole input, so there is no early reader to SIGPIPE sed the way
-      # `head -1` does (#152), and it SUMS every <testsuite> element instead of
-      # reading the first and discarding the rest. Both properties hold by
+      # `head -1` does (#152), and it sums ONE <testsuite> PER LINE instead of
+      # reading the first line and discarding the rest. Both properties hold by
       # construction rather than by remembering a `q`. `awk` prints 0 on empty
       # input, so a file with no <testsuite> at all scores 0 and lands in the
       # red branch below.
+      #
+      # "One per line", precisely — `sed s///p` substitutes once per LINE and
+      # the greedy `.*` keeps the LAST match on it, so two <testsuite> tags
+      # sharing a line would score only the second. Measured: 6/2 and 4/2 on
+      # one line yields recorded=4 skipped=2 executed=2, not 10/4/6. Gradle
+      # does not write that — every <testsuite> in all 83 result files this
+      # repo emits sits alone on its own line, checked — and the miss is
+      # SAFE-DIRECTIONED anyway: it can only shrink `executed`, i.e. push this
+      # gate toward RED, never toward a false green. Worth knowing before the
+      # word "under-count" alarms anyone.
       #
       # ⚠️ THE SPACE IN `<testsuite ` IS LOAD-BEARING — do not "tidy" it out.
       # It is what excludes the `<testsuites>` ROOT element, which in a nested
@@ -324,13 +334,28 @@ jobs:
       # reading only `tests` scores that as 12 executions. Verified against this
       # repo's own output — every result file it emits carries both attributes.
       #
-      # `| awk '{n += $1}'` rather than `| head -1`: head exits after one line,
-      # SIGPIPEs sed, and under `pipefail` the substitution yields empty, which
-      # `${n:-0}` then counts as ZERO — silently under-counting the moment a
-      # file grows a second <testsuite> (#152). awk consumes all of its input,
-      # so nothing is left to break the pipe, and it SUMS every <testsuite>
-      # rather than reading one and discarding the rest. awk prints 0 on empty
-      # input, so a file with no <testsuite> scores 0 and reddens the guard.
+      # `| awk '{n += $1}'` rather than `| head -1`, which is #152: head exits
+      # after one line and SIGPIPEs sed, `pipefail` makes the pipeline 141, and
+      # `-e` KILLS THE STEP THERE — it never reaches the next line. Measured on
+      # a 20 000-suite file:
+      #     bash --noprofile --norc -eo pipefail  -> exit 141, EMPTY log
+      #     bash --noprofile --norc  -o pipefail  -> n=1, exit 0
+      # The first is what runs here: Actions invokes `shell: bash` as
+      # `bash --noprofile --norc -eo pipefail {0}`, and the `set -uo pipefail`
+      # below does NOT clear that `-e`. So the failure is a hard abort with no
+      # message, not a quiet zero — and note the substitution does not come
+      # back empty either way, since head prints its line before dying.
+      #
+      # awk consumes all of its input, so nothing is left to break the pipe,
+      # and it sums ONE <testsuite> PER LINE rather than reading one line and
+      # discarding the rest. `sed s///p` substitutes once per LINE and greedy
+      # `.*` keeps the LAST match, so two tags sharing a line score only the
+      # second — measured, 6/2 and 4/2 on one line gives executed=2, not 6.
+      # Gradle puts each <testsuite> alone on its own line in all 83 result
+      # files this repo emits (checked), and the miss can only SHRINK
+      # `executed`, so it pushes this gate toward RED, never toward a false
+      # green. awk prints 0 on empty input, so a file with no <testsuite>
+      # scores 0 and reddens the guard.
       #
       # ⚠️ THE SPACE IN `<testsuite ` IS LOAD-BEARING — do not "tidy" it out.
       # It excludes the `<testsuites>` ROOT element, which in a nested file
