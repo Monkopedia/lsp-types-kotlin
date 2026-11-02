@@ -21,6 +21,7 @@ import com.monkopedia.ksrpc.KsrpcEnvironment
 import com.monkopedia.ksrpc.channels.SingleChannelConnection
 import com.monkopedia.ksrpc.sockets.posixFileReadChannel
 import com.monkopedia.ksrpc.sockets.posixFileWriteChannel
+import io.ktor.utils.io.ByteWriteChannel
 import kotlinx.cinterop.CArrayPointer
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.IntVar
@@ -62,8 +63,7 @@ private class PosixLspServerProcess(
     /** Native posix pid_t (Int); widened to Long for the interface [pid]. */
     private val nativePid: Int,
     override val connection: SingleChannelConnection<String>,
-    private val stdinWriteFd: Int,
-    private val stdoutReadFd: Int
+    private val output: ByteWriteChannel
 ) : LspServerProcess {
 
     override val pid: Long
@@ -104,20 +104,19 @@ private class PosixLspServerProcess(
     }
 
     /**
-     * Tear down: [kill] the child (if still running) and close the parent pipe fds.
-     * Killing the child EOFs both pipes, which ends ksrpc's posix reader/writer
-     * threads (each closes its own fd on exit, ksrpc >= 1.1.0 #201), so teardown
-     * terminates deterministically rather than wedging on a blocked `read(2)`.
+     * Tear down: [kill] the child (if still running) and cancel the write channel.
+     * The ksrpc posix channel threads own the parent pipe fds and each closes its own
+     * on exit (ksrpc >= 1.1.0 #201): killing the child EOFs the reader, and the writer
+     * exits once its channel is cancelled (it is parked on the channel, not on the fd,
+     * so the child's death alone never ends it).
      *
-     * The explicit [close] calls here are a belt-and-suspenders prompt-close in case
-     * a channel thread hasn't yet observed EOF; they may race that thread's own close
-     * of the same fd. Call this exactly once during teardown (it is not safe to call
-     * repeatedly: a second call could close an unrelated fd that reused the number).
+     * This never calls `close(2)` itself: a stored fd number may already belong to an
+     * unrelated file the kernel has since reused it for (#181). Cancelling an already
+     * cancelled channel is a no-op, so this is idempotent.
      */
     override fun close() {
         kill()
-        close(stdinWriteFd)
-        close(stdoutReadFd)
+        output.cancel(null)
     }
 
     private companion object {
@@ -192,8 +191,7 @@ public actual suspend fun spawnLspServer(
                 return PosixLspServerProcess(
                     nativePid = pid,
                     connection = connection,
-                    stdinWriteFd = childStdinWrite,
-                    stdoutReadFd = childStdoutRead
+                    output = output
                 )
             }
         }
