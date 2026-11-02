@@ -61,8 +61,9 @@ public interface LspServerProcess {
 
     /**
      * Tear down: [kill] the child (if still running) and release the connection /
-     * process resources. Bounded — it must never block indefinitely. Call this exactly
-     * once during teardown.
+     * process resources. Bounded — it must never block indefinitely. Idempotent on every
+     * platform: a repeat call is a no-op and never releases a resource this handle no
+     * longer owns (such as an fd number the kernel has since reused).
      */
     public fun close()
 }
