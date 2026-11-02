@@ -176,8 +176,8 @@ private class JvmLspServerProcess(
 
     /**
      * Tear down: close the child's stdio streams (so the ksrpc pump observes EOF and
-     * winds down) and [kill] the child. Bounded — never an unbounded `waitFor`. Call
-     * this exactly once during teardown.
+     * winds down) and [kill] the child. Bounded — never an unbounded `waitFor`.
+     * Idempotent, per the [LspServerProcess.close] contract.
      */
     override fun close() {
         runCatching { process.outputStream.close() }
