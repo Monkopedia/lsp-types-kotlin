@@ -112,23 +112,23 @@ dependencies {
 // fed into koverVerify rules below.
 val koverBaseline: Pair<Int, Int> = run {
     val baselineFile = layout.projectDirectory.file("lsp/kover-baseline.txt").asFile
-    if (!baselineFile.exists()) {
-        0 to 0
-    } else {
-        val props = baselineFile.readLines()
-            .map { it.trim() }
-            .filter { it.isNotEmpty() && !it.startsWith("#") }
-            .mapNotNull { line ->
-                val idx = line.indexOf(':')
-                if (idx < 0) {
-                    null
-                } else {
-                    line.substring(0, idx).trim() to line.substring(idx + 1).trim()
-                }
-            }.toMap()
-        (props["line-coverage-min"]?.toIntOrNull() ?: 0) to
-            (props["branch-coverage-min"]?.toIntOrNull() ?: 0)
+    check(baselineFile.exists()) {
+        "lsp/kover-baseline.txt missing — the coverage floor cannot be read"
     }
+    val props = baselineFile.readLines()
+        .map { it.trim() }
+        .filter { it.isNotEmpty() && !it.startsWith("#") }
+        .mapNotNull { line ->
+            val idx = line.indexOf(':')
+            if (idx < 0) {
+                null
+            } else {
+                line.substring(0, idx).trim() to line.substring(idx + 1).trim()
+            }
+        }.toMap()
+    fun floor(key: String): Int = props[key]?.toIntOrNull()
+        ?: error("lsp/kover-baseline.txt: '$key' missing or not an integer")
+    floor("line-coverage-min") to floor("branch-coverage-min")
 }
 
 kover {
