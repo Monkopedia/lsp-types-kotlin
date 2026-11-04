@@ -99,6 +99,49 @@ jobs:
       - name: Test
         run: ./gradlew allTests -Plsp.requireIntegrationTests=true
 
+      # LspProcessRealServerTest also runs here, on linuxX64 (a published
+      # coordinate), and until now unarmed: its native skip is an early return
+      # that passes, so a missing clangd went green (#178). Arm it for THIS task
+      # only. `-Plsp.requireRealServers=true` must NOT go on the allTests line:
+      # it also reaches jvmTest, where it hard-fails every RealServerClientRoleTest
+      # server this job does not install (pyright, gopls, ...). `--rerun`
+      # because the Build step already ran this task unarmed, and whether clangd
+      # is on PATH is not a task input: measured locally, an armed run with
+      # clangd removed reported UP-TO-DATE and green off an earlier result.
+      - name: Test linuxX64 real-server native test (gate armed)
+        run: ./gradlew :lsp-ksrpc:linuxX64Test --rerun -Plsp.requireRealServers=true
+
+      # Same check as the apple job's macosArm64 step; the rationale is there.
+      - name: Verify the real-server native test actually executed
+        if: success() || failure()
+        shell: bash
+        env:
+          RESULTS: lsp-ksrpc/build/test-results/linuxX64Test
+        run: &verify-real-server-executed |
+          set -uo pipefail
+          shopt -s nullglob
+          found=0
+          for f in "$RESULTS"/*LspProcessRealServerTest.xml; do
+            found=$((found + 1))
+            recorded=$(sed -n 's/.*<testsuite [^>]*tests="\([0-9]*\)".*/\1/p' "$f" | awk '{ n += $1 } END { print n + 0 }')
+            skipped=$(sed -n 's/.*<testsuite [^>]*skipped="\([0-9]*\)".*/\1/p' "$f" | awk '{ n += $1 } END { print n + 0 }')
+            executed=$(( ${recorded:-0} - ${skipped:-0} ))
+            echo "  $f: tests=$recorded skipped=$skipped executed=$executed"
+            if [ "$executed" -le 0 ]; then
+              echo "::error::LspProcessRealServerTest executed 0 tests ($recorded recorded, $skipped skipped)."
+              exit 1
+            fi
+            if grep -q "LSP_SKIP" "$f"; then
+              echo "::error::LspProcessRealServerTest SKIPPED (LSP_SKIP marker present) — it passed without driving clangd."
+              grep "LSP_SKIP" "$f"
+              exit 1
+            fi
+          done
+          if [ "$found" -eq 0 ]; then
+            echo "::error::No LspProcessRealServerTest result XML under $RESULTS — the real-server test did NOT run on this leg."
+            exit 1
+          fi
+
       # Kover instruments :lsp and aggregates JVM execution from
       # :lsp-ksrpc:jvmTest (already run by the step above, so this is fast).
       # `koverVerify` fails the build if line/branch coverage drops below the
@@ -244,33 +287,15 @@ jobs:
       # The same space also fixes a false RED in the old `/<testsuite/` form,
       # which matched `<testsuites>`, found no attributes on it, quit, and
       # scored the whole file 0 even though its suites had really run.
+      # The script is defined once, on the ubuntu leg's linuxX64 check, and
+      # reused here by the `verify-real-server-executed` YAML anchor; RESULTS
+      # selects the leg. This comment is the rationale for both.
       - name: Verify the real-server native test actually executed
         if: success() || failure()
         shell: bash
-        run: |
-          set -uo pipefail
-          shopt -s nullglob
-          found=0
-          for f in lsp-ksrpc/build/test-results/macosArm64Test/*LspProcessRealServerTest.xml; do
-            found=$((found + 1))
-            recorded=$(sed -n 's/.*<testsuite [^>]*tests="\([0-9]*\)".*/\1/p' "$f" | awk '{ n += $1 } END { print n + 0 }')
-            skipped=$(sed -n 's/.*<testsuite [^>]*skipped="\([0-9]*\)".*/\1/p' "$f" | awk '{ n += $1 } END { print n + 0 }')
-            executed=$(( ${recorded:-0} - ${skipped:-0} ))
-            echo "  $f: tests=$recorded skipped=$skipped executed=$executed"
-            if [ "$executed" -le 0 ]; then
-              echo "::error::LspProcessRealServerTest executed 0 tests ($recorded recorded, $skipped skipped)."
-              exit 1
-            fi
-            if grep -q "LSP_SKIP" "$f"; then
-              echo "::error::LspProcessRealServerTest SKIPPED (LSP_SKIP marker present) — it passed without driving clangd."
-              grep "LSP_SKIP" "$f"
-              exit 1
-            fi
-          done
-          if [ "$found" -eq 0 ]; then
-            echo "::error::No LspProcessRealServerTest result XML under lsp-ksrpc/build/test-results/macosArm64Test — the real-server test did NOT run on this leg."
-            exit 1
-          fi
+        env:
+          RESULTS: lsp-ksrpc/build/test-results/macosArm64Test
+        run: *verify-real-server-executed
 
       - name: Upload test reports
         if: failure()
