@@ -47,7 +47,11 @@ def check(path: str) -> bool:
         err(f"{path}: directory exists but contains NO XML — the task produced no report.")
         return False
 
-    total, parsed, bad, archs = 0, 0, [], set()
+    # `total` counts EXECUTED tests = tests - skipped (as ci.yml does since #175):
+    # a file whose every test is skipped executed nothing. `failed` collects any
+    # file reporting failures or errors — a run containing a failure is not a
+    # pass, however many tests it executed (#177).
+    total, parsed, bad, archs, failed = 0, 0, [], set(), []
     for f in files:
         try:
             root = ET.parse(f).getroot()
@@ -58,11 +62,21 @@ def check(path: str) -> bool:
         n = None
         for s in suites:
             if s.get("tests") is not None:
-                try:
-                    n = int(s.get("tests"), 10)
-                except ValueError:
-                    bad.append(f"{f.name}: tests={s.get('tests')!r} is not an integer")
-                    n = None
+                counts = {}
+                for attr in ("tests", "skipped", "failures", "errors"):
+                    raw = s.get(attr, "0" if attr != "tests" else None)
+                    try:
+                        counts[attr] = int(raw, 10)
+                    except ValueError:
+                        bad.append(f"{f.name}: {attr}={raw!r} is not an integer")
+                        counts = None
+                        break
+                if counts is not None:
+                    n = counts["tests"] - counts["skipped"]
+                    if counts["failures"] or counts["errors"]:
+                        failed.append(
+                            f"{f.name}: failures={counts['failures']} errors={counts['errors']}"
+                        )
                 break
         if n is None:
             bad.append(f"{f.name}: no <testsuite tests=...> attribute")
@@ -86,8 +100,14 @@ def check(path: str) -> bool:
             err(f"  {b}")
         return False
 
-    if total == 0:
-        err(f"{task}: {len(files)} file(s) parsed cleanly and report ZERO tests executed.")
+    if failed:
+        err(f"{task}: {len(failed)} file(s) report failing or erroring tests — NOT a pass.")
+        for b in failed[:5]:
+            err(f"  {b}")
+        return False
+
+    if total <= 0:
+        err(f"{task}: {len(files)} file(s) parsed cleanly and report ZERO tests executed (tests − skipped).")
         return False
 
     arch_str = ",".join(sorted(archs)) if archs else "<no SPIKE_ARCH marker>"
