@@ -22,14 +22,18 @@ Every one carries this header:
 **⚠️ It is NOT "`:lsp` is generated, `:lsp-ksrpc` is hand-written." That shorthand is false in the direction that loses work.** The generator writes into **both** modules (`lsp-codegen/build.gradle.kts` passes two output roots):
 
 ```
-lsp/src/commonMain/kotlin/...                        44 generated files
-lsp-ksrpc/src/commonMain/kotlin/com/monkopedia/lsp/    5 generated files:
-    DefaultLanguageClient.kt   DefaultLanguageServer.kt
-    KsrpcLanguageClient.kt     KsrpcLanguageServer.kt
-    LifecycleTrackingLanguageServer.kt
+lsp/src/commonMain/kotlin/...                             44 generated files
+lsp-ksrpc/src/commonMain/kotlin/com/monkopedia/lsp/        5 generated files  (package com.monkopedia.lsp)
+lsp-ksrpc/src/commonMain/kotlin/com/monkopedia/lsp/ksrpc/  hand-written       (package com.monkopedia.lsp.ksrpc)
 ```
 
-Those five sit next to hand-written wiring code and read like ordinary wiring. **Check for the header before editing any file under `:lsp-ksrpc`'s `commonMain`.**
+**In `:lsp-ksrpc` the split is a package boundary:** generated output lives only in package
+`com.monkopedia.lsp`; hand-written wiring lives elsewhere (today, `com.monkopedia.lsp.ksrpc`).
+The rule holds because the generator hard-codes its services dir to `com/monkopedia/lsp`
+(`lsp-codegen/src/main/kotlin/com/monkopedia/lsp/codegen/Main.kt:195`) — so don't put
+hand-written files in that package. The count (5) is a cross-check; if it changes, find out why.
+The generated files read like ordinary wiring, so **the header is the authority: check for it
+before editing any file under `:lsp-ksrpc`'s `commonMain`.**
 
 To regenerate:
 

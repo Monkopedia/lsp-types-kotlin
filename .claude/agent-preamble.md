@@ -11,9 +11,8 @@ Read this once when launched. Apply to every agent task in this repo.
 ## What to NOT touch
 
 - **⛔ GENERATED SOURCE — 49 files carrying `// Auto-generated from LSP metaModel.json`.** Editing one **silently loses your work**: the next `:lsp-codegen:generate` overwrites it with no error, no conflict, and nothing to notice in a diff. Fix `:lsp-codegen`, never the output.
-  **It is NOT "`:lsp` is generated, `:lsp-ksrpc` is hand-written."** The generator writes into **both**. `:lsp-ksrpc/src/commonMain/kotlin/com/monkopedia/lsp/` contains five generated files —
-  `DefaultLanguageClient.kt`, `DefaultLanguageServer.kt`, `KsrpcLanguageClient.kt`, `KsrpcLanguageServer.kt`, `LifecycleTrackingLanguageServer.kt` —
-  sitting beside hand-written wiring and reading exactly like it. **Grep for the header before editing any file under `:lsp-ksrpc`'s `commonMain`.**
+  **It is NOT "`:lsp` is generated, `:lsp-ksrpc` is hand-written."** The generator writes into **both**. In `:lsp-ksrpc` the split is a **package boundary**: generated output lives only in package `com.monkopedia.lsp` (`lsp-ksrpc/src/commonMain/kotlin/com/monkopedia/lsp/`, 5 files as a cross-check); hand-written wiring lives elsewhere (`com.monkopedia.lsp.ksrpc`). It holds because the generator hard-codes that services dir (`lsp-codegen/.../codegen/Main.kt:195`), so don't add hand-written files to that package.
+  The generated files read exactly like wiring, so **the header is the authority: grep for it before editing any file under `:lsp-ksrpc`'s `commonMain`.**
 - Anything under `.claude/` (rules, agent-preamble, project memory): triggers approval prompts and blocks autonomous work. If you genuinely need a rule change, surface it to the user first.
 - Build outputs (`build/`, `.gradle/`, etc).
 
