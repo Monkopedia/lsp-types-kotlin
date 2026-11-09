@@ -384,10 +384,14 @@ private suspend fun runWithLspConnection(
  * so it is NOT a child of the test's job: a receiver parked on a channel must not keep
  * the test's `runBlocking` from returning (#87).
  *
- * What ends its work: the helper that constructs it closes both [ByteChannel]s and then
- * calls `cancel()` on it in `finally`. The server's work is suspending reads on in-memory
- * channels, never a blocking syscall, so the close unblocks those reads and `cancel()`
- * reaches them at their suspension points. Nothing here occupies a non-daemon thread
- * ([Dispatchers.Default] is daemon-backed), so even a straggler cannot hold the process.
+ * What ends its work, in `finally` of the helper that constructs it:
+ *  - **Closing both [ByteChannel]s** ends the read pump. `asLspConnection()` hosts that pump in
+ *    its own detached scope (`LspConnection.kt`), NOT in this one, so `cancel()` below never
+ *    reaches it. The close is the only terminator, and it fires: the pump's reads suspend on
+ *    these in-memory channels (never a blocking syscall) and end once the channel is closed.
+ *  - **`cancel()`** ends this scope's own coroutine, the one that calls `connectAsLspServer`.
+ *
+ * Nothing here occupies a non-daemon thread ([Dispatchers.Default] is daemon-backed), so even a
+ * straggler cannot hold the process.
  */
 private fun serverScope(): CoroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
