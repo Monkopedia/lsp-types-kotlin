@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:OptIn(DelicateCoroutinesApi::class)
-
 package com.monkopedia.lsp.ksrpc
 
 import com.monkopedia.lsp.BooleanOr
@@ -41,11 +39,12 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.onSubscription
@@ -59,9 +58,10 @@ import kotlinx.coroutines.withTimeout
  * wire (Content-Length framing, generated `@KsService` interfaces,
  * `@KsNotification` dispatch).
  *
- * Server side runs on `GlobalScope.launch(Dispatchers.Default)` to mirror the
- * pattern used by ksrpc's own JSON-RPC tests — the server's receiver coroutine
- * runs independently and is shut down by closing the channels.
+ * Server side runs in a scope each connection helper constructs and owns
+ * ([serverScope]), detached from the test's job so the server's receiver
+ * coroutine cannot hold up the test's own teardown (#87). Each helper closes
+ * the channels and cancels that scope when [block] returns.
  */
 class InMemoryLspIntegrationTest : JvmIntegrationTestBase() {
 
@@ -328,7 +328,8 @@ private suspend fun runWithLspConnectionCapturingClient(
     val clientToServer = ByteChannel(autoFlush = true)
     val serverToClient = ByteChannel(autoFlush = true)
 
-    GlobalScope.launch(Dispatchers.Default) {
+    val scope = serverScope()
+    scope.launch {
         val conn = (clientToServer to serverToClient).asLspConnection()
         serverSideClient.complete(conn.connectAsLspServer(server))
     }
@@ -341,14 +342,16 @@ private suspend fun runWithLspConnectionCapturingClient(
     } finally {
         clientToServer.close()
         serverToClient.close()
+        scope.cancel()
     }
 }
 
 /**
  * Wire a [KsrpcLanguageServer] and [KsrpcLanguageClient] together over a pair of in-memory
- * byte channels. The server runs on `GlobalScope` so its receiver coroutine
- * doesn't block scope completion. [block] runs against the server stub from
- * the client side. Channels are closed when [block] returns.
+ * byte channels. The server runs in a [serverScope] owned by this call, detached
+ * from the caller's job so its receiver coroutine doesn't block scope completion.
+ * [block] runs against the server stub from the client side. Channels are closed
+ * and the server scope cancelled when [block] returns.
  */
 private suspend fun runWithLspConnection(
     server: KsrpcLanguageServer,
@@ -358,7 +361,8 @@ private suspend fun runWithLspConnection(
     val clientToServer = ByteChannel(autoFlush = true)
     val serverToClient = ByteChannel(autoFlush = true)
 
-    GlobalScope.launch(Dispatchers.Default) {
+    val scope = serverScope()
+    scope.launch {
         val conn = (clientToServer to serverToClient).asLspConnection()
         conn.connectAsLspServer(server)
     }
@@ -371,5 +375,23 @@ private suspend fun runWithLspConnection(
     } finally {
         clientToServer.close()
         serverToClient.close()
+        scope.cancel()
     }
 }
+
+/**
+ * A scope for the server side of one in-memory connection, with its own [SupervisorJob]
+ * so it is NOT a child of the test's job: a receiver parked on a channel must not keep
+ * the test's `runBlocking` from returning (#87).
+ *
+ * What ends its work, in `finally` of the helper that constructs it:
+ *  - **Closing both [ByteChannel]s** ends the read pump. `asLspConnection()` hosts that pump in
+ *    its own detached scope (`LspConnection.kt`), NOT in this one, so `cancel()` below never
+ *    reaches it. The close is the only terminator, and it fires: the pump's reads suspend on
+ *    these in-memory channels (never a blocking syscall) and end once the channel is closed.
+ *  - **`cancel()`** ends this scope's own coroutine, the one that calls `connectAsLspServer`.
+ *
+ * Nothing here occupies a non-daemon thread ([Dispatchers.Default] is daemon-backed), so even a
+ * straggler cannot hold the process.
+ */
+private fun serverScope(): CoroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
