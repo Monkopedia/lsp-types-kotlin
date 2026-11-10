@@ -56,7 +56,7 @@ import kotlinx.coroutines.withTimeout
  * This entry point returns a connection and no process handle, so the child is found
  * test-side: the `clangd` children of this JVM that appear across the call. The
  * `finally` destroys exactly those, waits a bounded time for each to exit, and asserts
- * the set of `clangd` children is back to what it was before the test.
+ * none of them is still alive.
  *
  * ## Gating
  *
@@ -86,10 +86,12 @@ class ProcessBuilderRealServerTest : JvmIntegrationTestBase() {
                 }
             }
         }
-        assertEquals(
-            before.map { it.pid() }.toSet(),
-            clangdChildren().map { it.pid() }.toSet(),
-            "clangd child left running after teardown"
+        // Check only the child THIS test spawned. Comparing the whole set of clangd children
+        // against `before` would fail spuriously if an earlier test's clangd, still exiting
+        // when `before` was taken, finished exiting during this test.
+        assertTrue(
+            spawned.none { it.isAlive },
+            "clangd child left running after teardown: ${spawned.filter { it.isAlive }}"
         )
     }
 
