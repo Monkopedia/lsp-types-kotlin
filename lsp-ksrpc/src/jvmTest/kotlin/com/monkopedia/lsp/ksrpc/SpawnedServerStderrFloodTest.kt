@@ -23,7 +23,12 @@ import com.monkopedia.lsp.LogMessageParams
 import com.monkopedia.lsp.PublishDiagnosticsParams
 import com.monkopedia.lsp.ShowMessageParams
 import java.io.File
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.util.concurrent.TimeUnit
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CompletableDeferred
@@ -78,6 +83,51 @@ class SpawnedServerStderrFloodTest : JvmIntegrationTestBase() {
     }
 
     /**
+     * The flood test above pins "does not wedge", which `redirectError(DISCARD)` would
+     * satisfy just as well while throwing the server's diagnostics away and re-diverging
+     * from the posix `actual` (issue #168). This pins "inherits": the spawned child's fd 2
+     * must be the very same open file as this JVM's fd 2.
+     *
+     * It is observed, not inferred from configuration: on Linux `/proc/<pid>/fd/2` names the
+     * file a process's stderr actually refers to (`pipe:[ino]`, `/dev/pts/N`, a path, ...).
+     * `DISCARD` would show `/dev/null`; the `PIPE` default a fresh `pipe:[ino]` of its own.
+     * Linux-only: skipped where `/proc` is absent, hard-failed under
+     * `-Plsp.requireIntegrationTests` (CI's ubuntu job).
+     */
+    @Test
+    fun `spawnLspServer hands the child this process's own stderr`() {
+        val ownStderr = Paths.get("/proc/self/fd/2")
+        requireOrSkip("Linux /proc required to observe a child's fd 2", Files.exists(ownStderr))
+        requireOrSkip("POSIX /bin/sh required for the child", SH.canExecute())
+        val parentTarget = Files.readSymbolicLink(ownStderr).toString()
+        // If this JVM's own stderr were /dev/null, DISCARD would compare equal and the test
+        // could not tell the two apart, so refuse to report green in that case.
+        assertNotEquals(
+            DEV_NULL,
+            parentTarget,
+            "test JVM's stderr is $DEV_NULL; cannot distinguish INHERIT from DISCARD"
+        )
+        runBlocking(Dispatchers.IO) {
+            driveBounded {
+                // `exec cat` parks on stdin; close() closes stdin, so it ends on EOF.
+                val proc = spawnLspServer(listOf(SH.path, "-c", "exec cat"))
+                try {
+                    val childTarget =
+                        Files.readSymbolicLink(Paths.get("/proc/${proc.pid}/fd/2")).toString()
+                    assertEquals(
+                        parentTarget,
+                        childTarget,
+                        "spawned child's stderr is not this process's stderr: " +
+                            "spawnLspServer no longer inherits fd 2"
+                    )
+                } finally {
+                    proc.close()
+                }
+            }
+        }
+    }
+
+    /**
      * The counterpart guarantee for the caller-owned entry point: `asLspConnection` is
      * called on a `ProcessBuilder` the caller configured, so the library must **not**
      * override the caller's stderr choice. Here the caller redirects stderr to a file; the
@@ -89,12 +139,19 @@ class SpawnedServerStderrFloodTest : JvmIntegrationTestBase() {
         val script = echoServerScriptOrSkip()
         val stderrLog = File.createTempFile("lsp-stderr-flood", ".log")
         stderrLog.deleteOnExit()
-        runBlocking(Dispatchers.IO) {
-            driveBounded {
-                val builder = ProcessBuilder(floodThenExec(script))
-                    .redirectError(ProcessBuilder.Redirect.to(stderrLog))
-                assertInitializes(builder.asLspConnection())
+        // asLspConnection returns no process handle, so reap the child from this side: any
+        // descendant that did not exist before the test is one it spawned.
+        val before = descendantPids()
+        try {
+            runBlocking(Dispatchers.IO) {
+                driveBounded {
+                    val builder = ProcessBuilder(floodThenExec(script))
+                        .redirectError(ProcessBuilder.Redirect.to(stderrLog))
+                    assertInitializes(builder.asLspConnection())
+                }
             }
+        } finally {
+            destroyDescendantsExcept(before)
         }
         assertTrue(
             stderrLog.length() >= FLOOD_BYTES,
@@ -143,9 +200,23 @@ class SpawnedServerStderrFloodTest : JvmIntegrationTestBase() {
             }
         }
         try {
-            done.await()
+            withTimeout(DRIVE_BUDGET_MS) { done.await() }
         } finally {
             driveScope.cancel()
+        }
+    }
+
+    private fun descendantPids(): Set<Long> =
+        ProcessHandle.current().descendants().map { it.pid() }.toList().toSet()
+
+    private fun destroyDescendantsExcept(keep: Set<Long>) {
+        val spawned = ProcessHandle.current().descendants()
+            .filter { it.pid() !in keep }
+            .toList()
+        spawned.forEach { it.destroy() }
+        spawned.forEach { handle ->
+            runCatching { handle.onExit().get(GRACE_MS, TimeUnit.MILLISECONDS) }
+            if (handle.isAlive) handle.destroyForcibly()
         }
     }
 
@@ -198,5 +269,11 @@ class SpawnedServerStderrFloodTest : JvmIntegrationTestBase() {
         const val FLOOD_BYTES = LINE_LENGTH * FLOOD_LINES
 
         const val BUDGET_MS = 45_000L
+
+        /** Bounds [driveBounded] itself: the inner [BUDGET_MS] plus room for spawn/teardown. */
+        const val DRIVE_BUDGET_MS = BUDGET_MS + 15_000L
+
+        const val GRACE_MS = 2_000L
+        const val DEV_NULL = "/dev/null"
     }
 }
