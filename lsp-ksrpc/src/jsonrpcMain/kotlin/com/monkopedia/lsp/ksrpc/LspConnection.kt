@@ -80,20 +80,23 @@ suspend fun Pair<ByteReadChannel, ByteWriteChannel>.asLspConnection(
     // JS/wasm event loop has no `Dispatchers.IO`).
     //
     // What stops this scope's work (#171)? Nothing ever calls `cancel()` on
-    // `pumpScope`. ksrpc (1.1.5) runs two coroutines in it:
+    // `pumpScope`. ksrpc 1.1.5, the pinned version, runs two kinds of coroutine
+    // in it:
     // - the read loop, which ends on a signal: it loops while the read channel is
     //   not closed for read, so it ends at EOF, when the channel's owner closes or
     //   cancels it, or when a read throws. That channel belongs to the caller, so
     //   whether the signal fires is up to the caller.
-    // - the notification worker, which ends only when the connection is `close()`d
-    //   (ksrpc closes its queue there). Clean EOF does NOT close it.
-    // Either one can therefore stay parked forever, and that is what has to be
-    // harmless. Nothing awaits them: the caller awaits only `built`, never this
+    // - one handler per incoming request or notification, which ends when the
+    //   hosted service's method returns, or when ksrpc cancels it (on
+    //   `$/cancelRequest` or on connection `close()`). How long that takes is the
+    //   hosted service's business, not this scope's.
+    // The read loop can therefore stay parked forever, and that is what has to be
+    // harmless. Nothing awaits it: the caller awaits only `built`, never this
     // scope. And what matters is not the caller's `runBlocking` but the PROCESS,
     // which a parked coroutine holds open only by occupying a non-daemon thread.
-    // Both park in SUSPENSION, not in a blocking call: the worker on a coroutine
-    // `Channel`, the read loop on ktor `ByteReadChannel` reads. A suspended
-    // coroutine occupies no thread, whatever dispatcher it inherited.
+    // The read loop parks in SUSPENSION on ktor `ByteReadChannel` reads, not in a
+    // blocking call, and a suspended coroutine occupies no thread, whatever
+    // dispatcher it inherited.
     //
     // **That the `ByteReadChannel` read suspends rather than blocking a thread is
     // verified on JVM only.** It has not been checked on the other 23 targets, and
