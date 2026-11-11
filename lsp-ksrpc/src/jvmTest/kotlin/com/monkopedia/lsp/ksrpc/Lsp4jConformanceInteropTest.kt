@@ -98,6 +98,12 @@ import org.eclipse.lsp4j.services.LanguageClient
  */
 class Lsp4jConformanceInteropTest : JvmIntegrationTestBase() {
 
+    // What stops this scope (#171): its work ends on its own. Each `serverJob` only
+    // builds the server connection and registers the fixture, then returns. Those are
+    // suspending calls with no blocking read, because the connection's read pumps run
+    // in `asLspConnection`'s own detached scopes, not here. If one is still suspended
+    // at teardown, `serverJob?.cancel()` / `scope.cancel()` reaches that suspension
+    // point. Nothing joins this scope, and its `Dispatchers.IO` threads are daemon.
     private val scope = CoroutineScope(Dispatchers.IO + Job())
     private var serverJob: Job? = null
     private val pipes = mutableListOf<java.io.Closeable>()
