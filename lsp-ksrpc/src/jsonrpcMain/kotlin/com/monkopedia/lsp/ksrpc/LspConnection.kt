@@ -72,20 +72,34 @@ suspend fun Pair<ByteReadChannel, ByteWriteChannel>.asLspConnection(
     // The JSON-RPC connection launches a long-lived read pump (it reads framed
     // messages off the channel for the connection's whole life). ksrpc's
     // `asJsonRpcConnection` hosts that pump in `CoroutineScope(coroutineContext)`,
-    // i.e. parented to whatever job is active when this `suspend fun` runs. If the
-    // caller drives this from a `runBlocking { ... }`, the pump becomes a CHILD of
-    // that `runBlocking` job — and under structured concurrency `runBlocking` will
-    // not return until all its children complete. A pump parked on a dead/half-open
-    // stream that never reaches clean EOF then wedges the caller's `runBlocking`
-    // forever (issue #87, the production-facing form of the #79 test hang).
+    // i.e. parented to whatever job is active when this `suspend fun` runs. Parented
+    // to a caller's `runBlocking { ... }`, a pump that never reaches clean EOF kept
+    // that `runBlocking` from returning (issue #87, the production-facing form of
+    // the #79 test hang). So the pump gets its own `SupervisorJob`, NOT a child of
+    // the caller's job. We keep the caller's *dispatcher* (the single-threaded
+    // JS/wasm event loop has no `Dispatchers.IO`).
     //
-    // Break that parent/child edge: host the pump in a fresh, connection-owned
-    // `SupervisorJob` that is NOT a child of the caller's job. We keep the caller's
-    // *dispatcher* (so the pump runs on the same threading model — important for the
-    // single-threaded JS/wasm event loop, which has no `Dispatchers.IO`), but the
-    // new Job means the pump's lifecycle is the connection's, not the caller's. The
-    // caller's `runBlocking` returns as soon as the caller's own work finishes; a
-    // wedged pump can no longer hold it open.
+    // What stops this scope's work (#171)? Nothing ever calls `cancel()` on
+    // `pumpScope`. ksrpc (1.1.5) runs two coroutines in it:
+    // - the read loop, which ends on a signal: it loops while the read channel is
+    //   not closed for read, so it ends at EOF, when the channel's owner closes or
+    //   cancels it, or when a read throws. That channel belongs to the caller, so
+    //   whether the signal fires is up to the caller.
+    // - the notification worker, which ends only when the connection is `close()`d
+    //   (ksrpc closes its queue there). Clean EOF does NOT close it.
+    // Either one can therefore stay parked forever, and that is what has to be
+    // harmless. Nothing awaits them: the caller awaits only `built`, never this
+    // scope. And what matters is not the caller's `runBlocking` but the PROCESS,
+    // which a parked coroutine holds open only by occupying a non-daemon thread.
+    // Both park in SUSPENSION, not in a blocking call: the worker on a coroutine
+    // `Channel`, the read loop on ktor `ByteReadChannel` reads. A suspended
+    // coroutine occupies no thread, whatever dispatcher it inherited.
+    //
+    // **That the `ByteReadChannel` read suspends rather than blocking a thread is
+    // verified on JVM only.** It has not been checked on the other 23 targets, and
+    // this comment makes no claim for them. A blocking read FEEDING the channel
+    // (e.g. `InputStream.toByteReadChannel` in the JVM stream overload) runs in its
+    // producer's own scope, which answers for itself.
     //
     // ksrpc launches the pump as a CHILD of the coroutine that runs
     // `asJsonRpcConnection` (it does `CoroutineScope(coroutineContext).launch { }`).

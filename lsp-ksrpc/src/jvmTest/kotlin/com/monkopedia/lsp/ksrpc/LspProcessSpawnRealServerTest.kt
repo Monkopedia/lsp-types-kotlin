@@ -80,8 +80,15 @@ class LspProcessSpawnRealServerTest : JvmIntegrationTestBase() {
 
     /**
      * Drive in a scope detached from the enclosing `runBlocking`, awaiting only a
-     * [CompletableDeferred] the drive completes — never joining the detached scope whose
-     * children include the (possibly wedged) ksrpc stdout pump (issue #79).
+     * [CompletableDeferred] the drive completes, never joining the detached scope
+     * (issue #79).
+     *
+     * What stops this scope (#171): [drive] ends on its own. Every wire call is under
+     * [withTimeout], which cancels at the suspended await, and teardown
+     * ([LspServerProcess.close]) is bounded. The ksrpc read pumps are not children of
+     * this scope: they run in `asLspConnection`'s own detached scopes. `driveScope.cancel()`
+     * in `finally` then ends the scope. Nothing joins it, and its `Dispatchers.IO`
+     * threads are daemon, so it cannot keep the worker JVM alive.
      */
     private suspend fun driveBounded() {
         val driveScope = CoroutineScope(Dispatchers.IO + SupervisorJob())

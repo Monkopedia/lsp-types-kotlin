@@ -765,12 +765,16 @@ private object RelayTransport : Transport {
 }
 
 /**
- * A standalone scope for the server receive loop, deliberately *not* a child of
- * the calling [withContext] job. The server's transport read pump can block on an
- * uninterruptible socket/stream read that does not unwind promptly on cancel;
- * parenting it to the test scope would make [withContext] await it forever. As a
- * detached scope it is cancelled (best-effort) in teardown and never awaited
- * unbounded.
+ * A standalone scope for building the server side of a session, deliberately *not*
+ * a child of the calling [withContext] job, so [withContext] never awaits it.
+ *
+ * What stops this scope (#171): its one `launch` builds the server connection (for
+ * TCP, after a suspending `accept()`), registers the fixture, and returns. The
+ * transport read pumps are not its children: they run in `asLspConnection`'s own
+ * detached scopes. Teardown is [boundedCancel], which cancels the scope, joins it for
+ * at most `TEARDOWN_MS`, and then abandons whatever is left. Anything abandoned
+ * stays on daemon `Dispatchers.IO` threads, awaited by nothing, so it cannot keep the
+ * test JVM alive.
  */
 private fun standaloneServerScope(): CoroutineScope =
     CoroutineScope(Dispatchers.IO + SupervisorJob())

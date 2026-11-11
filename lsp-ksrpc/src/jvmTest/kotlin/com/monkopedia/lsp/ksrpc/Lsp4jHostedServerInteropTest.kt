@@ -119,11 +119,16 @@ class Lsp4jHostedServerInteropTest : JvmIntegrationTestBase() {
         )
         val listening = launcher.startListening()
 
-        // Host the connection (and its stdout-pump coroutine) in a scope that is
-        // NOT a child of this runBlocking, so the pump can't keep runBlocking
-        // parked after the body finishes. We tear it down explicitly in `finally`.
-        // The stub is published via a Deferred; the hosting `launch` stays alive
-        // (its pump child keeps it running) until we cancel the scope.
+        // Build the connection in a scope that is NOT a child of this runBlocking;
+        // the stub is published via a Deferred and the scope is never joined.
+        //
+        // What stops this scope (#171): its one `launch` ends on its own, once
+        // `serverStub` is completed. It only builds the connection and registers the
+        // client, which are suspending calls with no blocking read. The read pumps
+        // are not its children: they run in `asLspConnection`'s own detached scopes.
+        // If the launch is still suspended at teardown, `connectionScope.cancel()`
+        // in `finally` reaches that suspension point. Its `Dispatchers.IO` threads
+        // are daemon threads.
         val connectionScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
         val serverStub = CompletableDeferred<com.monkopedia.lsp.KsrpcLanguageServer>()
         connectionScope.launch {
@@ -168,9 +173,8 @@ class Lsp4jHostedServerInteropTest : JvmIntegrationTestBase() {
                 server.exit()
             }
         } finally {
-            // Tear down the connection scope (kills the stdout-pump), stop the
-            // lsp4j listener, then close the pipes. Cancelling the scope is what
-            // lets the test terminate rather than hang on the pump.
+            // Cancel the connection scope, stop the lsp4j listener, then close the
+            // pipes.
             connectionScope.cancel()
             listening.cancel(true)
             launcher.shutdown()

@@ -187,6 +187,14 @@ class SpawnedServerStderrFloodTest : JvmIntegrationTestBase() {
      * Drive in a scope detached from the enclosing `runBlocking`, awaiting only a
      * [CompletableDeferred] — a wedged ksrpc pump must not keep the worker JVM alive
      * (issue #79), which matters here because the RED case of this test is a wedge.
+     *
+     * What stops this scope (#171): [block] ends on its own. Its wire call is under
+     * [withTimeout], which cancels at the suspended await. In the RED case the child is
+     * the one wedged, and our side is suspended waiting for its reply. Teardown is
+     * bounded too. The ksrpc read pumps are not children of this scope: they run in
+     * `asLspConnection`'s own detached scopes. The caller awaits `done` for at most
+     * [DRIVE_BUDGET_MS], then cancels the scope. Nothing joins it, and its
+     * `Dispatchers.IO` threads are daemon, so it cannot keep the worker JVM alive.
      */
     private suspend fun driveBounded(block: suspend () -> Unit) {
         val driveScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
