@@ -86,10 +86,13 @@ suspend fun Pair<ByteReadChannel, ByteWriteChannel>.asLspConnection(
     //   not closed for read, so it ends at EOF, when the channel's owner closes or
     //   cancels it, or when a read throws. That channel belongs to the caller, so
     //   whether the signal fires is up to the caller.
-    // - one handler per incoming request or notification, which ends when the
-    //   hosted service's method returns, or when ksrpc cancels it (on
-    //   `$/cancelRequest` or on connection `close()`). How long that takes is the
-    //   hosted service's business, not this scope's.
+    // - one handler per incoming request, which ends when the hosted service's
+    //   method returns, or when ksrpc cancels it (on `$/cancelRequest` or on
+    //   connection `close()`).
+    // - one handler per incoming notification. ksrpc never registers these (only
+    //   handlers with an id are registered), so nothing cancels them: they end only
+    //   when the hosted service's method returns. That is the hosted service's
+    //   business, not this scope's.
     // The read loop can therefore stay parked forever, and that is what has to be
     // harmless. Nothing awaits it: the caller awaits only `built`, never this
     // scope. And what matters is not the caller's `runBlocking` but the PROCESS,
