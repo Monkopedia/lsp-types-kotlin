@@ -30,6 +30,8 @@ import kotlinx.cinterop.cstr
 import kotlinx.cinterop.get
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.toCValues
+import platform.posix.ECHILD
+import platform.posix.EINTR
 import platform.posix.SIGKILL
 import platform.posix.SIGTERM
 import platform.posix.STDIN_FILENO
@@ -38,6 +40,7 @@ import platform.posix.WNOHANG
 import platform.posix._exit
 import platform.posix.close
 import platform.posix.dup2
+import platform.posix.errno
 import platform.posix.execvp
 import platform.posix.fork
 import platform.posix.kill
@@ -70,19 +73,30 @@ private class PosixLspServerProcess(
         get() = nativePid.toLong()
 
     /**
+     * True once `waitpid` has reaped the child (or reported it is not our child). From
+     * then on the kernel may hand [nativePid] to an unrelated process, so this handle
+     * must never signal it again (#193).
+     */
+    private var reaped = false
+
+    /**
      * Signal the child to terminate. Sends SIGTERM, and if the process is still
-     * alive after a short grace window, SIGKILL. Bounded and non-suspending: safe
-     * to call from a `finally` during teardown. Idempotent.
+     * alive after a short grace window, SIGKILL, then reaps it. Bounded and
+     * non-suspending: safe to call from a `finally` during teardown.
+     *
+     * Idempotent: once the child has been reaped this returns without sending any
+     * signal, because the pid number is no longer ours and may already belong to an
+     * unrelated process (#193).
      */
     override fun kill() {
-        if (nativePid <= 0) return
-        kill(nativePid, SIGTERM)
+        if (nativePid <= 0 || reaped) return
+        posixSignal(nativePid, SIGTERM)
         // Short bounded grace, then force-kill. We poll waitpid(WNOHANG) rather
         // than block, so this can never hang even if the child ignores SIGTERM.
         memScoped {
             val status = allocArray<IntVar>(1)
             if (!waitBounded(status)) {
-                kill(nativePid, SIGKILL)
+                posixSignal(nativePid, SIGKILL)
                 // Reap so we don't leak a zombie. Final bounded poll window.
                 waitBounded(status)
             }
@@ -91,28 +105,39 @@ private class PosixLspServerProcess(
 
     /**
      * Poll `waitpid(WNOHANG)` up to [GRACE_POLLS] times with a short sleep between.
-     * Returns true once the child is reaped (or already gone), false if the bounded
-     * window elapsed with the child still alive. Never blocks indefinitely.
+     * Returns true, and sets [reaped], once `waitpid` returns [nativePid] (reaped) or
+     * fails with `ECHILD` (already reaped; not our child). `EINTR` reaped nothing, so
+     * it keeps polling. Any other error returns false without setting [reaped].
+     * Returns false if the bounded window elapsed with the child still alive. Never
+     * blocks indefinitely.
      */
     private fun waitBounded(status: CArrayPointer<IntVar>): Boolean {
         repeat(GRACE_POLLS) {
-            // Non-zero means reaped (pid) or no such child (-1) — either way, done.
-            if (waitpid(nativePid, status, WNOHANG) != 0) return true
+            val result = waitpid(nativePid, status, WNOHANG)
+            val err = if (result == -1) errno else 0
+            if (result == nativePid || err == ECHILD) {
+                reaped = true
+                return true
+            }
+            // 0: still running. EINTR: interrupted before reaping anything. Poll again.
+            if (result == -1 && err != EINTR) return false
             spinWait()
         }
         return false
     }
 
     /**
-     * Tear down: [kill] the child (if still running) and cancel the write channel.
+     * Tear down: [kill] the child (if not yet reaped) and cancel the write channel.
      * The ksrpc posix channel threads own the parent pipe fds and each closes its own
      * on exit (ksrpc >= 1.1.0 #201): killing the child EOFs the reader, and the writer
      * exits once its channel is cancelled (it is parked on the channel, not on the fd,
      * so the child's death alone never ends it).
      *
      * This never calls `close(2)` itself: a stored fd number may already belong to an
-     * unrelated file the kernel has since reused it for (#181). Cancelling an already
-     * cancelled channel is a no-op, so this is idempotent.
+     * unrelated file the kernel has since reused it for (#181). For the same reason a
+     * repeat call sends no signal: [kill] returns early once the child is reaped, since
+     * the pid may have been reused too (#193). Cancelling an already cancelled channel
+     * is a no-op, so this is idempotent.
      */
     override fun close() {
         kill()
@@ -197,6 +222,12 @@ public actual suspend fun spawnLspServer(
         }
     }
 }
+
+/**
+ * Sends `kill(2)` signals on behalf of [PosixLspServerProcess]. A test seam only: tests
+ * swap it to count signals (#193). Production never reassigns it.
+ */
+internal var posixSignal: (pid: Int, sig: Int) -> Int = { pid, sig -> kill(pid, sig) }
 
 /** Returns `(readFd, writeFd)` for a fresh pipe. */
 private fun posixPipe(): Pair<Int, Int> = memScoped {
