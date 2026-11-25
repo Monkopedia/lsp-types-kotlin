@@ -5,6 +5,86 @@ All notable changes to lsp-types-kotlin are documented here. The format follows
 stable under semantic versioning as of 1.0.0; the `1.0.0-RC*` entries below
 trace the path to it.
 
+## [1.3.0] - 2026-11-25
+
+### Changed
+- **The published `-jvm` artifacts (`lsp-jvm`, `lsp-ksrpc-jvm`) now target Java 11**
+  (class-file major 55, down from 65 / Java 21), so consumers on JDK 11 or 17 can
+  load them (kodemirror#308). Main code is compiled with `jvmTarget = 11` plus
+  `-Xjdk-release=11`, so no JDK 12+ API can slip in, and a new
+  `verifyJvmBytecodeVersion` check fails the build if any published class is not
+  major 55 (#195). Class 55 still runs on JDK 21. No public API or ABI change.
+  One side effect: below target 17 Kotlin does not emit the JVM
+  `PermittedSubclasses` attribute, so **Java** 17+ consumers lose JVM-level
+  sealed exhaustiveness over the generated sealed types. Kotlin consumers read
+  Kotlin metadata and are unaffected.
+- **`spawnLspServer` on the JVM now inherits the child's stderr** instead of
+  leaving it on an undrained pipe (#167). Previously a server that wrote more
+  than the OS pipe buffer (~64 KB on Linux) to stderr blocked on its next write
+  and silently stopped answering LSP requests. The server's stderr now appears
+  on the host process's stderr, which matches what the posix `spawnLspServer`
+  already did. `ProcessBuilder.asLspConnection` is unchanged: it runs on a
+  builder the caller configured, so its stderr redirect stays the caller's
+  choice, and its KDoc now says to set one.
+- Bumped kotlinx-serialization to **1.11.0** (from 1.10.0) (#120). Kotlin
+  (2.4.10), ksrpc (1.1.5) and kotlinx-coroutines (1.11.0) are unchanged. The
+  ktor bumps in #120 and #166 affect test dependencies only.
+
+### Added
+- **`ProgressTokenRegistry.events: SharedFlow<ProgressParams>`**, the raw
+  `$/progress` stream (#121). `observe(token)` returns a filtered `Flow`, so a
+  caller had no race-free way to know its subscription was live before issuing
+  the request that emits progress, and a `$/progress` sent in that gap was
+  dropped. Gate on `events.onSubscription { ... }` instead; the class KDoc
+  example now shows that form. `observe` is unchanged. Purely additive API.
+
+### Fixed
+- **Kotlin/Native posix `LspServerProcess.close()` no longer calls `close(2)`
+  on fd numbers it does not own** (#184). The ksrpc channel threads own those
+  fds, and once they have closed them the kernel may reuse the numbers, so the
+  old explicit `close(2)` could close an unrelated file. `close()` now cancels
+  the write channel instead, and is idempotent. The `LspServerProcess.close()`
+  contract now states idempotence on every platform.
+- **Kotlin/Native posix `LspServerProcess.kill()` no longer signals a pid it
+  has already reaped** (#194). Once `waitpid` has reaped the child, the pid may
+  belong to an unrelated process, so a later `kill()` or `close()` could
+  previously SIGTERM it. `kill()` now remembers the reap and sends no further
+  signal, and an `EINTR` from `waitpid` is retried within the bounded wait
+  rather than ending it.
+
+### Internal
+- Build: Gradle 9.7.1, vanniktech maven-publish 0.37.0, kover 0.9.9 (#120,
+  #166). The Maven Central publish is now gated on the CI check set (#145).
+- CI: a `windows-latest` `mingwX64Test` job (#147); the Apple leg's real-clangd
+  result and the linuxX64 real-server native test now gate the build (#148,
+  #186); executed-test counts exclude skipped tests (#175); configuration fails
+  when the kover coverage floor can't be read (#185); `apt-get update` before
+  installing clangd (#150); GitHub Actions moved off the deprecated Node 20
+  runtime (#159).
+- Tests: a 2000-round regression test for the progress subscription barrier
+  (#121); a stderr-flood regression test for `spawnLspServer` that checks the
+  stream is inherited (#167, #190); deterministic native tests for posix
+  `close()` / `kill()` (#184, #194); a real server driven through
+  `ProcessBuilder.asLspConnection()` (#191); an owned scope instead of
+  `GlobalScope` in the in-memory integration test (#189); a flaky
+  client-call assertion now waits for the count to catch up (#138); a
+  `LifecycleState` test that pins `shutdown` handling (#146); a shared coverage
+  ratio helper (#149).
+- Codegen: the three generated union files are written unconditionally, so a
+  future spec change can't leave a stale file behind (#156); dead-code and
+  centralization cleanups (#118, #119, #136). Generated output is
+  byte-identical, so there is no API change.
+- Source: `ProcessBuilder` stdio piping extracted into a file-private
+  `startPiped` helper (#163); read-only flow accessors on `LifecycleState` and
+  `ProgressTokenRegistry` hoisted to stored vals (#123). Neither changes
+  behaviour or ABI.
+- Docs and comments: `LifecycleState.allowsMethod` KDoc now states what it
+  actually gates (no behaviour change) (#146); terminator comments at six
+  `CoroutineScope` sites (#192); README version pins (#154); contributor
+  guidance on the coroutine scope rule and the generated parts of `:lsp-ksrpc`
+  (#169, #172, #188). The echo-server sample lets the library drive its
+  lifecycle (#153).
+
 ## [1.2.1] - 2026-07-15
 
 ### Changed
@@ -222,6 +302,11 @@ Hardening + ergonomics pass from an independent API review.
     connection helpers, lifecycle state machine, progress) built on ksrpc 1.0.0.
 - Wire compatibility verified against clangd, Eclipse lsp4j, and raw JSON-RPC bytes.
 
+[1.3.0]: https://github.com/Monkopedia/lsp-types-kotlin/releases/tag/v1.3.0
+[1.2.1]: https://github.com/Monkopedia/lsp-types-kotlin/releases/tag/v1.2.1
+[1.2.0]: https://github.com/Monkopedia/lsp-types-kotlin/releases/tag/v1.2.0
+[1.1.0]: https://github.com/Monkopedia/lsp-types-kotlin/releases/tag/v1.1.0
+[1.0.1]: https://github.com/Monkopedia/lsp-types-kotlin/releases/tag/v1.0.1
 [1.0.0]: https://github.com/Monkopedia/lsp-types-kotlin/releases/tag/v1.0.0
 [1.0.0-RC5]: https://github.com/Monkopedia/lsp-types-kotlin/releases/tag/v1.0.0-RC5
 [1.0.0-RC4]: https://github.com/Monkopedia/lsp-types-kotlin/releases/tag/v1.0.0-RC4
