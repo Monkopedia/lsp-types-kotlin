@@ -15,6 +15,7 @@
  */
 
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("lsp-types-kotlin.library")
@@ -22,7 +23,29 @@ plugins {
 
 kotlin {
     // Pure types — target everything kotlinx-serialization supports.
-    jvm()
+    //
+    // Published JVM bytecode is Java 11 (class-file major 55), declared rather than
+    // inherited: with nothing set, KGP takes `jvmTarget` from whichever JDK runs Gradle
+    // (21 on CI), so consumers on JDK 11/17 hit `UnsupportedClassVersionError`.
+    // `-Xjdk-release=11` is needed as well: `jvmTarget` only picks the bytecode version,
+    // while the JDK API surface the compiler resolves against still comes from the
+    // compiling JDK, so class-55 code could still call a JDK 21 method and fail with
+    // `NoSuchMethodError` instead. Same approach as kodemirror#305 (see kodemirror#308).
+    //
+    // Scoped to the `main` compilation only: tests stay on the build JDK's default target
+    // because they use JDK 16+ APIs (`Stream.toList`, `Thread.threadId`, ...).
+    // `verifyJvmBytecodeVersion` (convention plugin, wired into `check`) fails the build
+    // if `jvmJar` ever contains a class that is not major 55.
+    jvm {
+        compilations.named("main") {
+            compileTaskProvider.configure {
+                compilerOptions {
+                    jvmTarget.set(JvmTarget.JVM_11)
+                    freeCompilerArgs.add("-Xjdk-release=11")
+                }
+            }
+        }
+    }
 
     js(IR) {
         browser {

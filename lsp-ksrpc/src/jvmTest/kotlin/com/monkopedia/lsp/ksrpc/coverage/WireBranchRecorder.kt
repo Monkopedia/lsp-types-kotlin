@@ -25,6 +25,7 @@ import java.util.Collections
 import java.util.IdentityHashMap
 import java.util.concurrent.ConcurrentHashMap
 import java.util.jar.JarFile
+import kotlin.reflect.KClass
 import kotlinx.serialization.json.JsonElement
 
 /**
@@ -87,14 +88,13 @@ object WireBranchRecorder {
      * The enumeration walks the codebase that contains [HoverContents] —
      * a known compiled class in `com.monkopedia.lsp` — to locate the
      * directory (or jar) that holds every other class in the package, then
-     * uses [Class.getPermittedSubclasses] (JDK 17+) for the branch lookup.
+     * reads the branches from Kotlin's own sealed metadata ([sealedBranches]).
      */
     fun introspectUnions(): Map<String, Set<String>> {
         val result = mutableMapOf<String, MutableSet<String>>()
         for (cls in lspPackageClasses()) {
-            if (!cls.isSealed) continue
-            // Only treat as a "union" if it has at least one permitted subclass
-            val perms = cls.permittedSubclasses ?: continue
+            // Only treat as a "union" if it has at least one sealed subclass
+            val perms = sealedBranches(cls)
             if (perms.isEmpty()) continue
             val branches = perms.mapTo(mutableSetOf()) { sub ->
                 "${cls.name}.${sub.simpleName}"
@@ -102,6 +102,24 @@ object WireBranchRecorder {
             result[cls.name] = branches
         }
         return result
+    }
+
+    private val sealedBranchCache = ConcurrentHashMap<Class<*>, List<Class<*>>>()
+
+    /**
+     * The direct subclasses of [cls] if it is a Kotlin sealed class/interface, else
+     * empty. Read from Kotlin metadata ([KClass.sealedSubclasses]), not
+     * [Class.getPermittedSubclasses]: main is compiled to Java 11 bytecode, and
+     * Kotlin only emits the JVM `PermittedSubclasses` attribute at target 17+, so
+     * the JDK API would see no sealed classes at all.
+     */
+    private fun sealedBranches(cls: Class<*>): List<Class<*>> = sealedBranchCache.getOrPut(cls) {
+        // kotlin-reflect throws on compiler-synthetic classes (file facades,
+        // lambdas); none of those is a sealed union.
+        runCatching {
+            val k = cls.kotlin
+            if (k.isSealed) k.sealedSubclasses.map { it.java } else emptyList()
+        }.getOrDefault(emptyList())
     }
 
     private fun walk(value: Any?, visited: MutableSet<Any>) {
@@ -180,13 +198,12 @@ object WireBranchRecorder {
     }
 
     private fun tryRecord(supertype: Class<*>, runtime: Class<*>) {
-        if (!supertype.isSealed) return
         if (supertype.`package`?.name != "com.monkopedia.lsp") return
-        // Find the permitted-subclass entry that [runtime] satisfies. For nested
+        // Find the sealed-subclass entry that [runtime] satisfies. For nested
         // branches (e.g. HoverContents$MarkupContentValue) the runtime class IS
-        // the permitted entry; for top-level branches (e.g. InlineValueText vs
-        // InlineValue) the runtime class IS the permitted entry as well.
-        val perm = supertype.permittedSubclasses ?: return
+        // the sealed entry; for top-level branches (e.g. InlineValueText vs
+        // InlineValue) the runtime class IS the sealed entry as well.
+        val perm = sealedBranches(supertype)
         val match = perm.firstOrNull { it == runtime || it.isAssignableFrom(runtime) }
             ?: return
         _observedBranches.add("${supertype.name}.${match.simpleName}")
@@ -269,7 +286,7 @@ object WireBranchRecorder {
             if (!file.isFile) continue
             if (!file.name.endsWith(".class")) continue
             // Skip inner classes (contain '$') — their parent is enumerated via
-            // permittedSubclasses already, and we'd otherwise double-record.
+            // sealedBranches already, and we'd otherwise double-record.
             if (file.name.contains('$')) continue
             val simple = file.name.removeSuffix(".class")
             val fqn = packagePrefix + simple

@@ -55,6 +55,22 @@ afterEvaluate {
     }
 }
 
+// Published JVM bytecode must stay Java 11 (class-file major 55). Each module sets
+// `jvmTarget` on its main jvm compilation; if that is ever lost, KGP silently falls
+// back to the running JDK's target (21 → major 65) and nothing else would notice.
+// Wired into `check`, so the CI `build` step runs it.
+afterEvaluate {
+    val jvmJar = tasks.findByName("jvmJar") ?: return@afterEvaluate
+    val verify = tasks.register<VerifyJvmBytecodeVersion>("verifyJvmBytecodeVersion") {
+        group = "verification"
+        description = "Fails if the published jvm jar contains a class that is not Java 11 bytecode."
+        jars.from(jvmJar)
+        expectedMajor.set(55)
+        report.set(layout.buildDirectory.file("reports/jvm-bytecode-version.txt"))
+    }
+    tasks.named("check") { dependsOn(verify) }
+}
+
 // Signing uses the maintainer's GPG key. It's off by default so local builds
 // and dry-runs (publishToMavenLocal) don't try to sign; release CI enables it
 // via -PRELEASE_SIGNING_ENABLED=true.
