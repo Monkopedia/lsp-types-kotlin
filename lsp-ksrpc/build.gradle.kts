@@ -16,6 +16,7 @@
 
 import java.time.Duration
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("lsp-types-kotlin.library")
@@ -28,7 +29,19 @@ kotlin {
     // are confined below to the subset ksrpc-jsonrpc supports — everything but
     // mingwX64. mingwX64 still gets the @KsService interfaces (usable over a
     // ksrpc relay channel), just not the jsonrpc transport helpers.
-    jvm()
+    //
+    // Main JVM bytecode is Java 11 (major 55); tests stay on the build JDK. See the
+    // `jvm` block in lsp/build.gradle.kts for why both flags, and why main only.
+    jvm {
+        compilations.named("main") {
+            compileTaskProvider.configure {
+                compilerOptions {
+                    jvmTarget.set(JvmTarget.JVM_11)
+                    freeCompilerArgs.add("-Xjdk-release=11")
+                }
+            }
+        }
+    }
 
     js(IR) {
         browser {
@@ -69,6 +82,10 @@ kotlin {
         }
         jvmTest.dependencies {
             implementation(libs.lsp4j)
+            // WireBranchRecorder enumerates sealed unions from Kotlin metadata
+            // (`KClass.sealedSubclasses`): main is compiled to Java 11 bytecode, which
+            // carries no `PermittedSubclasses` attribute for the JDK API to read.
+            implementation(kotlin("reflect"))
             // ktor-network gives the transport-matrix TCP test true non-blocking
             // loopback sockets yielding ktor ByteReadChannel/ByteWriteChannel, the
             // same channel type the LSP jsonrpc connection consumes. Test-only.
